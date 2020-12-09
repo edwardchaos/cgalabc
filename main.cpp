@@ -1,7 +1,8 @@
 #include "cgalabc.hpp"
 
 int main(){
+  cg::Point2d mypoint(1,2);
 
-  hello();
+  mypoint.print();
   return 0;
 }
