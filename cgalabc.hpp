@@ -9,7 +9,7 @@ struct Point2d {
   Point2d() = default;
   Point2d(double x, double y);
 
-  void print();
+  void print() const;
 };
 
 } // namespace cg
