@@ -32,9 +32,8 @@ class Line2d {
   Point2d u_, v_;
   // Vector that's independent of displacement (v-u) represented as a point
   Point2d vec_;
-  double a_, b_, c_;
-
   // Compute coefficients of the standard line equation ax + by + c = 0
+  double a_, b_, c_;
   void computeABC(const Point2d &pt1, const Point2d &pt2);
 };
 
