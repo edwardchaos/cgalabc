@@ -23,7 +23,7 @@ TEST(Testlines, create_lines){
 
   // Try creating line with 2 identical points,
   try{
-    cg::Line2d(pt1, pt1); // Both points at origin
+    cg::Line2d(pt1, pt1);
   }catch(std::invalid_argument &e){
     EXPECT_EQ(e.what(), std::string("Identical points used to create Line2d."));
   }catch(...){
