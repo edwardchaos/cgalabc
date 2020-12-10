@@ -10,6 +10,7 @@ class Line2d {
   Line2d(Point2d v); // Line segment from origin to point v
   Line2d(Point2d u, Point2d v); // Line segment from point u to v
 
+  // Getters
   double a() const;
   double b() const;
   double c() const;

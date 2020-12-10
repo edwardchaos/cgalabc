@@ -7,10 +7,10 @@ inline const double EPS = 1e-9;
 
 class Point2d {
  public:
-
   Point2d();
   Point2d(double x, double y);
 
+  // Getters
   double x() const;
   double y() const;
 
