@@ -10,9 +10,10 @@ class Line2d {
   Line2d(Point2d v); // Line segment from origin to point v
   Line2d(Point2d u, Point2d v); // Line segment from point u to v
 
-  double getA() const;
-  double getB() const;
-  double getC() const;
+  double a() const;
+  double b() const;
+  double c() const;
+  Point2d vec() const;
 
   // Euclidean length of this vector
   double length() const;
@@ -27,10 +28,10 @@ class Line2d {
 
  private:
   // Line segment bounded by 2 points
-  Point2d u, v;
+  Point2d u_, v_;
   // Vector that's independent of displacement (v-u) represented as a point
-  Point2d vec;
-  double a, b, c;
+  Point2d vec_;
+  double a_, b_, c_;
 
   // Compute coefficients of the standard line equation ax + by + c = 0
   void computeABC(const Point2d &pt1, const Point2d &pt2);
