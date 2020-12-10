@@ -17,18 +17,18 @@ TEST(Testlines, create_lines){
   cg::Point2d pt3(10, 6);
   cg::Line2d l2(pt2, pt3);
   // Test line equation
-  ASSERT_EQ(l2.getA(), -7.0/12.0);
-  ASSERT_EQ(l2.getB(), 1);
-  ASSERT_EQ(l2.getC(), -1.0/6.0);
+  ASSERT_NEAR(l2.getA(), -7.0/12.0, cg::EPS);
+  ASSERT_NEAR(l2.getB(), 1, cg::EPS);
+  ASSERT_NEAR(l2.getC(), -1.0/6.0, cg::EPS);
 
   // Try creating line with 2 identical points,
   try{
-    cg::Line2d(pt1,pt1));
-  }catch(std::Exception &e){
+    cg::Line2d(pt1, pt1); // Both points at origin
+  }catch(std::invalid_argument &e){
     EXPECT_EQ(e.what(), std::string("Identical points used to create Line2d."));
+  }catch(...){
+    FAIL() << "Expected to catch an invalid argument exception but didn't.";
   }
-
-// Expect runtime error? or what should I do?
 
   // Create horizontal line with 1 point
   cg::Line2d h_line({1,0});
