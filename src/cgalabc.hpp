@@ -1,5 +1,4 @@
-#ifndef CGALABC_LIBRARY_H
-#define CGALABC_LIBRARY_H
+#pragma once
 
 namespace cg{
 
@@ -50,5 +49,3 @@ class Line2d{
 };
 
 } // namespace cg
-
-#endif //CGALABC_LIBRARY_H
