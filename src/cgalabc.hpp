@@ -31,6 +31,8 @@ class Line2d{
   // Euclidean length of this vector
   double length() const;
 
+  Line2d normalize();
+
   // Cross product: This vec x other vec
   double cross(const Line2d &other) const;
 
@@ -40,7 +42,8 @@ class Line2d{
  private:
   // Line segment bounded by 2 points
   Point2d u,v;
-  Point2d vec; // Vector independent of displacement (v-u)
+  // Vector that's independent of displacement (v-u) represented as a point
+  Point2d vec;
   double a,b,c;
 
   void computeABC(const Point2d &pt1, const Point2d &pt2);

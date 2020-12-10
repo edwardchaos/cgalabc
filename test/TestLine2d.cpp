@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include <cmath>
 #include "cgalabc.hpp"
 
 TEST(Testlines, create_lines){
@@ -57,4 +58,30 @@ TEST(Testlines, create_lines){
   ASSERT_EQ(v_line.getA(), 1);
   ASSERT_EQ(v_line.getB(), 0);
   ASSERT_EQ(v_line.getC(), 32.5);
+}
+
+TEST(Testlines, basic_operations){
+  // Compute line segment length
+  cg::Line2d l1({0,1});
+  cg::Line2d l2({1,1});
+  cg::Line2d l3({1,0});
+
+  ASSERT_NEAR(l1.length(), 1, cg::EPS);
+  ASSERT_NEAR(l2.length(), sqrt(2), cg::EPS);
+  ASSERT_NEAR(l3.length(), 1, cg::EPS);
+
+  // Dot product tests
+  ASSERT_NEAR(l1.dot(l3), 0, cg::EPS);
+  ASSERT_NEAR(l1.dot(l2), 1, cg::EPS);
+  ASSERT_NEAR(l1.dot(l1), 1, cg::EPS);
+
+  // Cross product (determinant in 2D) tests
+  ASSERT_NEAR(l1.cross(l2), -1, cg::EPS);
+  ASSERT_NEAR(l2.cross(l1), 1, cg::EPS);
+  ASSERT_NEAR(l1.cross(l1), 0, cg::EPS);
+
+  cg::Line2d l4({4,0});
+  auto l4_length1 = l4.normalize();
+
+  ASSERT_NEAR(l4_length1.length(), 1, cg::EPS);
 }

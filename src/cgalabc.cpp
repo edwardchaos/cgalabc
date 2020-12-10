@@ -59,6 +59,11 @@ double Line2d::length() const{
   return sqrt(pow(v.x-u.x,2) + pow(v.y-u.y,2));
 }
 
+Line2d Line2d::normalize(){
+  auto len = this->length();
+  return Line2d({this->vec.x/len, this->vec.y/len});
+}
+
 double Line2d::cross(const Line2d &other) const{
   // 2D cross product is same as determinant
   // Geometrically, it's equal to the area of the parallelogram of the 2
