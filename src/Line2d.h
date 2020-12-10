@@ -32,6 +32,7 @@ class Line2d {
   Point2d vec;
   double a, b, c;
 
+  // Compute coefficients of the standard line equation ax + by + c = 0
   void computeABC(const Point2d &pt1, const Point2d &pt2);
 };
 
