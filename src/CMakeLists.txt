@@ -5,12 +5,14 @@ set (SOURCES
         type.cpp
         Point2d.cpp
         Line2d.cpp
+        Algo2d.cpp
 )
 
 set (HEADERS
         type.h
         Point2d.h
         Line2d.h
+        Algo2d.h
 )
 
 # Create library object so it can be linked with in tests

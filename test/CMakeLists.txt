@@ -3,6 +3,7 @@ set (BINARY ${CMAKE_PROJECT_NAME}_test)
 # specify source files
 set(TEST_SOURCES
 	TestLine2d.cpp
+	TestAlgo2d.cpp
 )
 set(TEST_HEADERS
 
