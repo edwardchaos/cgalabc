@@ -1,12 +1,16 @@
 # Cmake project name is defined in parent cmakelists "project(cgalabc)"
 set (BINARY ${CMAKE_PROJECT_NAME})
 
-set (SOURCES 
-    cgalabc.cpp
+set (SOURCES
+        type.cpp
+        Point2d.cpp
+        Line2d.cpp
 )
 
 set (HEADERS
-    cgalabc.hpp	
+        type.h
+        Point2d.h
+        Line2d.h
 )
 
 # Create library object so it can be linked with in tests

@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include <cmath>
-#include "cgalabc.hpp"
+#include "type.h"
 
 TEST(Testlines, create_lines){
   // Create line given 1 point

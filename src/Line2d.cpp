@@ -1,24 +1,10 @@
-#include "cgalabc.hpp"
+#include "Line2d.h"
 
-#include <stdexcept>
 #include <cmath>
+#include <stdexcept>
 #include <stdio.h>
 
 namespace cg{
-Point2d::Point2d():x(0),y(0){}
-Point2d::Point2d(double x, double y) : x(x), y(y){}
-
-Point2d Point2d::operator-(const Point2d &other) const{
-  return {x-other.x, y-other.y};
-}
-
-bool Point2d::operator==(const Point2d &other) const{
-  return (fabs(x - other.x)) < EPS && (fabs(y - other.y) < EPS);
-}
-
-void Point2d::print() const{
-  printf("Point: (%.3f, %.3f)\n", x, y);
-}
 
 void Line2d::computeABC(const Point2d &pt1, const Point2d &pt2){
   if(fabs(pt1.y-pt2.y) < EPS){ // horizontal
@@ -42,7 +28,7 @@ Line2d::Line2d(Point2d v): v(v), vec(v){
   this->u = Point2d(0,0);
   // Check duplicate point
   if(v.x == 0 && v.y == 0) throw std::invalid_argument(
-      "Identical points used to create Line2d.");
+        "Identical points used to create Line2d.");
 
   computeABC(Point2d(0,0), v);
 }
@@ -50,7 +36,7 @@ Line2d::Line2d(Point2d v): v(v), vec(v){
 Line2d::Line2d(Point2d u, Point2d v): u(u), v(v){
   this->vec = v - u;
   if(v == u) throw std::invalid_argument(
-      "Identical points used to create Line2d.");
+        "Identical points used to create Line2d.");
 
   computeABC(u, v);
 }
@@ -79,4 +65,4 @@ double Line2d::getA() const{return a;}
 double Line2d::getB() const{return b;}
 double Line2d::getC() const{return c;}
 
-} // namespace cg
+} //namespace cg

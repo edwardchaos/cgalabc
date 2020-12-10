@@ -1,4 +1,4 @@
-#include "cgalabc.hpp"
+#include "type.h"
 
 int main(){
   cg::Point2d mypoint(1,2);
