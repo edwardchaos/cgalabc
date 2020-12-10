@@ -6,8 +6,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 enable_testing()
 
-# Build my library as shared, does not install it to system.
-add_library(cgalabc SHARED cgalabc.cpp cgalabc.hpp)
+include_directories(src)
 
-add_executable(main main.cpp)
-target_link_libraries(main cgalabc)
+add_subdirectory(src)
+add_subdirectory(test)
+add_subdirectory(lib/googletest)
