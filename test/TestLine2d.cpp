@@ -9,18 +9,18 @@ TEST(Testlines, create_lines){
   cg::Line2d l1(pt1);
 
   // Test line equation
-  ASSERT_EQ(l1.getA(), -3.0/2.0);
-  ASSERT_EQ(l1.getB(), 1);
-  ASSERT_EQ(l1.getC(), 0);
+  ASSERT_EQ(l1.a(), -3.0/2.0);
+  ASSERT_EQ(l1.b(), 1);
+  ASSERT_EQ(l1.c(), 0);
 
   // Create line given 2 points
   cg::Point2d pt2(-2, -1);
   cg::Point2d pt3(10, 6);
   cg::Line2d l2(pt2, pt3);
   // Test line equation
-  ASSERT_NEAR(l2.getA(), -7.0/12.0, cg::EPS);
-  ASSERT_NEAR(l2.getB(), 1, cg::EPS);
-  ASSERT_NEAR(l2.getC(), -1.0/6.0, cg::EPS);
+  ASSERT_NEAR(l2.a(), -7.0/12.0, cg::EPS);
+  ASSERT_NEAR(l2.b(), 1, cg::EPS);
+  ASSERT_NEAR(l2.c(), -1.0/6.0, cg::EPS);
 
   // Try creating line with 2 identical points,
   try{
@@ -35,9 +35,9 @@ TEST(Testlines, create_lines){
   cg::Line2d h_line({1,0});
 
   // Check line equation
-  ASSERT_EQ(h_line.getA(), 0);
-  ASSERT_EQ(h_line.getB(), 1);
-  ASSERT_EQ(h_line.getC(), 0);
+  ASSERT_EQ(h_line.a(), 0);
+  ASSERT_EQ(h_line.b(), 1);
+  ASSERT_EQ(h_line.c(), 0);
 
   // Create horizontal line with 2 points
   cg::Point2d pt4(-10,4);
@@ -45,9 +45,9 @@ TEST(Testlines, create_lines){
   cg::Line2d h_line2(pt4,pt5);
 
   // check line equation
-  ASSERT_EQ(h_line2.getA(), 0);
-  ASSERT_EQ(h_line2.getB(), 1);
-  ASSERT_EQ(h_line2.getC(), -4);
+  ASSERT_EQ(h_line2.a(), 0);
+  ASSERT_EQ(h_line2.b(), 1);
+  ASSERT_EQ(h_line2.c(), -4);
 
   // Create vertical line
   cg::Point2d pt6(-32.5, 8);
@@ -55,9 +55,9 @@ TEST(Testlines, create_lines){
   cg::Line2d v_line(pt6, pt7);
 
   // Check line equation
-  ASSERT_EQ(v_line.getA(), 1);
-  ASSERT_EQ(v_line.getB(), 0);
-  ASSERT_EQ(v_line.getC(), 32.5);
+  ASSERT_EQ(v_line.a(), 1);
+  ASSERT_EQ(v_line.b(), 0);
+  ASSERT_EQ(v_line.c(), 32.5);
 }
 
 TEST(Testlines, basic_operations){
