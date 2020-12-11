@@ -62,11 +62,11 @@ TEST(Algo, basic_algos){
   auto dls4 = distancePointToLineSegment(pt4, l1);
   auto dls5 = distancePointToLineSegment(pt5, l1);
 
-  ASSERT_NEAR(dist1, sqrt(26), cg::EPS);
-  ASSERT_NEAR(dist2, 5.0, cg::EPS);
-  ASSERT_NEAR(dist3, 0.0, cg::EPS);
-  ASSERT_NEAR(dist4, 0.0, cg::EPS);
-  ASSERT_NEAR(dist5, 5.0, cg::EPS);
+  ASSERT_NEAR(dls1, sqrt(pow(4,2)+pow(5,2)), cg::EPS);
+  ASSERT_NEAR(dls2, 5.0, cg::EPS);
+  ASSERT_NEAR(dls3, 0.0, cg::EPS);
+  ASSERT_NEAR(dls4, 0.0, cg::EPS);
+  ASSERT_NEAR(dls5, 5.0, cg::EPS);
 
   // Check polygon convex
   // Area of polygon (shoelace method)

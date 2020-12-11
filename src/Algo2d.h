@@ -18,6 +18,12 @@ bool intersects(const Line2d& l1, const Line2d& l2);
  */
 std::unique_ptr<Point2d> intersectPoint(const Line2d& l1, const Line2d& l2);
 
+/*
+ * Given a point and a line parameterized by ax + by + c = 0,
+ * Returns the orthogonal line segment. If the length is 0, returns nullptr.
+ */
+std::unique_ptr<Line2d> orthogonalSegment(const Point2d &pt, const Line2d &l);
+
 /* Shortest distance of point to line equation ax + by + c = 0
  * See also: distancePointToLineSegment
  */

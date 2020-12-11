@@ -45,7 +45,7 @@ std::unique_ptr<Point2d> intersectPoint(const Line2d& l1, const Line2d& l2){
   return std::make_unique<Point2d>(x/w,y/w);
 }
 
-double distancePointToLine(const Point2d &pt, const Line2d &l){
+std::unique_ptr<Line2d> orthogonalSegment(const Point2d &pt, const Line2d &l){
   double ortho_a, ortho_b, ortho_c;
 
   // Compute coefficients a,b, and c of the orthogonal line
@@ -66,15 +66,26 @@ double distancePointToLine(const Point2d &pt, const Line2d &l){
   Line2d ortho_line(ortho_a, ortho_b, ortho_c);
   auto int_pt = intersectPoint(l,ortho_line);
   assert(int_pt);
-  if(*int_pt == pt) return 0;
+  if(*int_pt == pt) return nullptr;
 
   // Compute distance between intersection point and first point
-  Line2d ortho_segment(*int_pt, pt);
-  return ortho_segment.length();
+  return std::make_unique<Line2d>(*int_pt, pt);
+}
+
+double distancePointToLine(const Point2d &pt, const Line2d &l){
+  auto ortho_seg = orthogonalSegment(pt, l);
+  if(!ortho_seg) return 0;
+  return ortho_seg->length();
 }
 
 double distancePointToLineSegment(const Point2d &pt, const Line2d &l){
-  return 0;
+  auto ortho_seg = orthogonalSegment(pt, l);
+  if(!ortho_seg) return 0;
+
+  if(intersects(*ortho_seg, l)) return ortho_seg->length();
+
+  // Return shortest distance between the 2 points of l and pt
+  return std::min(l.pt1().dist(pt), l.pt2().dist(pt));
 }
 
 } // namespace cg
