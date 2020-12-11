@@ -4,6 +4,7 @@ set (BINARY ${CMAKE_PROJECT_NAME}_test)
 set(TEST_SOURCES
 	TestLine2d.cpp
 	TestAlgo2d.cpp
+	TestPolygon2d.cpp
 )
 set(TEST_HEADERS
 

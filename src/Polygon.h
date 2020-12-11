@@ -16,7 +16,10 @@ class Polygon{
   // Input is counter clockwise ordered points. If the last point is not yet
   // equal to first point (to close the polygon), the first point is appended
   // to close the polygon.
-  Polygon(std::vector<Point2d> points);
+  Polygon(std::vector<Point2d> &points);
+  Polygon(std::initializer_list<Point2d> points);
+
+  bool verifyPolygon() const;
 
   // getters
   std::vector<Point2d> vertices();
