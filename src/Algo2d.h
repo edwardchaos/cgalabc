@@ -6,10 +6,15 @@
 namespace cg{
 bool isParallel(const Line2d& l1, const Line2d& l2);
 bool isOrthogonal(const Line2d& l1, const Line2d& l2);
+
+/*
+ * Returns true if line segments bounded by 2 points intersect. False if they
+ * are parallel or they do not cross.
+ */
 bool intersects(const Line2d& l1, const Line2d& l2);
 /*
- * Returns the point of intersection between 2 line segments.
- * Returns nullptr if they do not intersect.
+ * Returns the point of intersection between 2 infinite length lines.
+ * Returns nullptr if they are parallel.
  */
 std::unique_ptr<Point2d> intersectPoint(const Line2d& l1, const Line2d& l2);
 

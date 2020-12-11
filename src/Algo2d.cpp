@@ -1,5 +1,6 @@
 #include "Algo2d.h"
 
+#include <cassert>
 #include <cmath>
 #include "type.h"
 
@@ -36,18 +37,40 @@ bool intersects(const Line2d& l1, const Line2d& l2){
 }
 
 std::unique_ptr<Point2d> intersectPoint(const Line2d& l1, const Line2d& l2){
-  if(!intersects(l1,l2)) return nullptr;
-
   auto x = l1.b()*l2.c() - l2.b()*l1.c();
   auto y = l2.a()*l1.c() - l1.a()*l2.c();
   auto w = l1.a()*l2.b() - l2.a()*l1.b();
 
-  // Edge case?
+  if(w==0) return nullptr; // Lines are parallel, they do not intersect.
   return std::make_unique<Point2d>(x/w,y/w);
 }
 
 double distancePointToLine(const Point2d &pt, const Line2d &l){
-  return 0;
+  double ortho_a, ortho_b, ortho_c;
+
+  // Compute coefficients a,b, and c of the orthogonal line
+  if(l.a() == 0){ // Horizontal line
+    // Orthogonal line is vertical
+    ortho_b = 0;
+    ortho_a = 1;
+    ortho_c = -pt.x();
+  }else{
+    // Orthogonal line is not vertical
+    ortho_b = 1;
+    double ortho_slope = l.b()/l.a();
+    ortho_c = -pt.y() + ortho_slope*pt.x();
+    ortho_a = -ortho_slope;
+  }
+
+  // Find point of intersection between 2 lines
+  Line2d ortho_line(ortho_a, ortho_b, ortho_c);
+  auto int_pt = intersectPoint(l,ortho_line);
+  assert(int_pt);
+  if(*int_pt == pt) return 0;
+
+  // Compute distance between intersection point and first point
+  Line2d ortho_segment(*int_pt, pt);
+  return ortho_segment.length();
 }
 
 double distancePointToLineSegment(const Point2d &pt, const Line2d &l){
