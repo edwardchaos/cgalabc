@@ -16,6 +16,7 @@ class Point2d {
 
   Point2d operator-(const Point2d &other) const;
   bool operator==(const Point2d &other) const;
+  bool operator!=(const Point2d &other) const;
 
   void print() const;
 

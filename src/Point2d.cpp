@@ -18,6 +18,10 @@ bool Point2d::operator==(const Point2d &other) const{
   return (fabs(x_ - other.x())) < EPS && (fabs(y_ - other.y()) < EPS);
 }
 
+bool Point2d::operator!=(const Point2d &other) const{
+  return !(*this==other);
+}
+
 void Point2d::print() const{
   printf("Point: (%.3f, %.3f)\n", x_, y_);
 }
