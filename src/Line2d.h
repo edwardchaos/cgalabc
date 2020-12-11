@@ -9,6 +9,7 @@ class Line2d {
   Line2d();
   Line2d(Point2d v); // Line segment from origin to point v
   Line2d(Point2d u, Point2d v); // Line segment from point u to v
+  Line2d(double a, double b, double c);
 
   // Getters
   double a() const;

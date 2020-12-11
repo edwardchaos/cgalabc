@@ -45,4 +45,13 @@ std::unique_ptr<Point2d> intersectPoint(const Line2d& l1, const Line2d& l2){
   // Edge case?
   return std::make_unique<Point2d>(x/w,y/w);
 }
-};
+
+double distancePointToLine(const Point2d &pt, const Line2d &l){
+  return 0;
+}
+
+double distancePointToLineSegment(const Point2d &pt, const Line2d &l){
+  return 0;
+}
+
+} // namespace cg

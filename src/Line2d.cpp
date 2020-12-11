@@ -41,6 +41,25 @@ Line2d::Line2d(Point2d u, Point2d v): u_(u), v_(v){
   computeABC(u, v);
 }
 
+Line2d::Line2d(double a, double b, double c): a_(a), b_(b), c_(c){
+  if(a==0 && b==0) throw std::invalid_argument("Invalid line "
+                                               "parameterization: a and b "
+                                               "cannot be both 0.");
+  // Vertical line
+  if(b==0){
+    u_ = Point2d(-c/a, 0);
+    v_ = Point2d(-c/a, 1);
+  }else if(a == 0){
+    // Horizontal line
+    u_ = Point2d(0, -c/b);
+    v_ = Point2d(1, -c/b);
+  }else{
+    u_ = Point2d(0, -c/b);
+    v_ = Point2d(1, (-a-c)/b);
+  }
+  vec_ = v_-u_;
+}
+
 double Line2d::length() const{
   return sqrt(pow(v_.x()-u_.x(),2) + pow(v_.y()-u_.y(),2));
 }
