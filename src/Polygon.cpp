@@ -7,7 +7,8 @@ Polygon::Polygon(){
 }
 
 Polygon::Polygon(std::vector<Point2d> points){
-  points.push_back(points[0]);
+  if(points.back() != points.front())
+    points.push_back(points[0]);
 }
 
 std::vector<Point2d> Polygon::vertices(){return vertices_;}

@@ -5,9 +5,17 @@
 
 namespace cg{
 
+/*
+ * Vertices of the polygon are ordered counter clockwise (cross product is
+ * positive). Last point is equal to the first point.
+ */
 class Polygon{
  public:
   Polygon();
+
+  // Input is counter clockwise ordered points. If the last point is not yet
+  // equal to first point (to close the polygon), the first point is appended
+  // to close the polygon.
   Polygon(std::vector<Point2d> points);
 
   // getters
