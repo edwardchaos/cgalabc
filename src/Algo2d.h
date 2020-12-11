@@ -12,4 +12,5 @@ bool intersects(const Line2d& l1, const Line2d& l2);
  * Returns nullptr if they do not intersect.
  */
 std::unique_ptr<Point2d> intersectPoint(const Line2d& l1, const Line2d& l2);
+
 };

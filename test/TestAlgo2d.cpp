@@ -42,6 +42,7 @@ TEST(Algo, basic_algos){
   auto dist2 = distancePointToLineSegment(pt1, l1);
 
   // Check polygon convex
+  // Area of polygon (shoelace method)
   // Point in polygon
   // Clip polygon by line
   // Convex hull of point set
