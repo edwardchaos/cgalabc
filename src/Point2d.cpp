@@ -26,4 +26,8 @@ void Point2d::print() const{
   printf("Point: (%.3f, %.3f)\n", x_, y_);
 }
 
+double Point2d::dist(const Point2d &other) const{
+  return sqrt(pow(other.x() - x_,2) + pow(other.y() - y_,2));
+}
+
 } //namespace cg

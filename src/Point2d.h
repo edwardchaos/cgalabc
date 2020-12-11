@@ -18,6 +18,7 @@ class Point2d {
   bool operator==(const Point2d &other) const;
   bool operator!=(const Point2d &other) const;
 
+  double dist(const Point2d &other) const;
   void print() const;
 
  private:
