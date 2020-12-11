@@ -20,6 +20,7 @@ TEST(Polygon, create_polygon){
                  "minimum");
   }catch(...){FAIL() << "Incorrect exception thrown";}
 
+  // Polygon with 2 unique points, excluding the last "closing the loop point"
   try{
     cg::Polygon poly2_2points{{0,0},{0,1}};
   }catch(std::invalid_argument &e) {
@@ -28,7 +29,7 @@ TEST(Polygon, create_polygon){
                "minimum");
   }catch(...) {FAIL() << "Incorrect exception thrown";}
 
-  // Check Pairwise edges do not overlap
+  // Polygon with 2 overlapping edges
   try{cg::Polygon pg{{0,0},{1,0},{1,1},{1,0}};}
   catch(std::invalid_argument &e){
     ASSERT_STREQ(e.what(),
@@ -36,7 +37,7 @@ TEST(Polygon, create_polygon){
   }
   catch(...){FAIL() << "Incorrect exception thrown";}
 
-  // Check pairwise edges do not intersect other than at connecting vertices
+  // Pair of edges in polygon intersect
   try{cg::Polygon pg2{{0,0}, {1,0}, {1,1}, {0,-1}};}
   catch(std::invalid_argument &e){
     ASSERT_STREQ(e.what(), "Cannot create 2d polygon; 2 edges intersect.");
