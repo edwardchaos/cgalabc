@@ -32,8 +32,15 @@ TEST(Algo, basic_properties){
 }
 
 TEST(Algo, basic_algos){
+  cg::Point2d pt1(5,5);
+  cg::Line2d l1({1,0});
+
   // Shortest distance of point to line
+  auto dist = distancePointToLine(pt1, l1);
+
   // Shortest distance of point to line segment
+  auto dist2 = distancePointToLineSegment(pt1, l1);
+
   // Check polygon convex
   // Point in polygon
   // Clip polygon by line
