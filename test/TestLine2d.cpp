@@ -19,7 +19,7 @@ TEST(Testlines, create_lines){
   cg::Line2d l2(pt2, pt3);
 
   ASSERT_TRUE(pt1==pt1);
-  ASSERT_FALSE(pt1!=pt3);
+  ASSERT_TRUE(pt1!=pt3);
 
   // Test line equation
   ASSERT_NEAR(l2.a(), -7.0/12.0, cg::EPS);
