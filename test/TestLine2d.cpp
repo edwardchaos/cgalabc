@@ -62,6 +62,14 @@ TEST(Testlines, create_lines){
   ASSERT_EQ(v_line.a(), 1);
   ASSERT_EQ(v_line.b(), 0);
   ASSERT_EQ(v_line.c(), 32.5);
+
+  // Distance between 2 points
+  cg::Point2d distpt1(-7,-4);
+  cg::Point2d distpt2(17,6.5);
+  auto dist = distpt1.dist(distpt2);
+  ASSERT_NEAR(dist, sqrt(686.25), cg::EPS);
+  auto dist2 = pt1.dist(pt1);
+  ASSERT_NEAR(dist2, 0, cg::EPS);
 }
 
 TEST(Testlines, basic_operations){
