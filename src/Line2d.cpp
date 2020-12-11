@@ -65,5 +65,7 @@ double Line2d::a() const{return a_;}
 double Line2d::b() const{return b_;}
 double Line2d::c() const{return c_;}
 Point2d Line2d::vec() const{return vec_;}
+Point2d Line2d::pt1() const{return u_;}
+Point2d Line2d::pt2() const{return v_;}
 
 } //namespace cg

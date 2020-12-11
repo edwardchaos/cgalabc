@@ -15,6 +15,8 @@ class Line2d {
   double b() const;
   double c() const;
   Point2d vec() const;
+  Point2d pt1() const;
+  Point2d pt2() const;
 
   // Euclidean length of this vector
   double length() const;

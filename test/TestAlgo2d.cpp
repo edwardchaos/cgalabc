@@ -18,13 +18,17 @@ TEST(Algo, basic_properties){
   ASSERT_TRUE(cg::intersects(l1,l3));
   // Get intersection point of 2 lines
   auto intersect13 = cg::intersectPoint(l1,l3);
-  ASSERT_NEAR(intersect13.x(), 0, cg::EPS);
-  ASSERT_NEAR(intersect13.y(), 0, cg::EPS);
+  ASSERT_NEAR(intersect13->x(), 0, cg::EPS);
+  ASSERT_NEAR(intersect13->y(), 0, cg::EPS);
   cg::Line2d l4({10,10});
   cg::Line2d l5{{1,0},{1, 5}};
   auto intersect45 = cg::intersectPoint(l4,l5);
-  ASSERT_NEAR(intersect45.x(), 1, cg::EPS);
-  ASSERT_NEAR(intersect45.y(), 1, cg::EPS);
+  ASSERT_NEAR(intersect45->x(), 1, cg::EPS);
+  ASSERT_NEAR(intersect45->y(), 1, cg::EPS);
+
+  ASSERT_EQ(cg::intersectPoint(l1,l2), nullptr);
+  cg::Line2d l6({2,-1},{3,-2});
+  ASSERT_FALSE(cg::intersects(l1,l6));
 }
 
 TEST(Algo, basic_algos){
