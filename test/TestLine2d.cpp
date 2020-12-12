@@ -4,11 +4,12 @@
 #include "type.h"
 
 TEST(Testlines, create_lines){
-  // Create line given 1 point
+  // Create line given 1 point. By default, if only 1 point is given, the
+  // other point is at (0,0).
   cg::Point2d pt1(2,3);
   cg::Line2d l1(pt1);
 
-  // Test line equation
+  // Test line equation ax+by+c=0
   ASSERT_EQ(l1.a(), -3.0/2.0);
   ASSERT_EQ(l1.b(), 1);
   ASSERT_EQ(l1.c(), 0);
@@ -32,7 +33,7 @@ TEST(Testlines, create_lines){
   }catch(std::invalid_argument &e){
     EXPECT_EQ(e.what(), std::string("Identical points used to create Line2d."));
   }catch(...){
-    FAIL() << "Expected to catch an invalid argument exception but didn't.";
+    FAIL() << "Expected to catch invalid argument exception type";
   }
 
   // Create horizontal line with 1 point
@@ -87,7 +88,7 @@ TEST(Testlines, basic_operations){
   ASSERT_NEAR(l1.dot(l2), 1, cg::EPS);
   ASSERT_NEAR(l1.dot(l1), 1, cg::EPS);
 
-  // Cross product (determinant in 2D) tests
+  // Cross product aka wedge product aka determinant in 2D
   ASSERT_NEAR(l1.cross(l2), -1, cg::EPS);
   ASSERT_NEAR(l2.cross(l1), 1, cg::EPS);
   ASSERT_NEAR(l1.cross(l1), 0, cg::EPS);
