@@ -24,10 +24,20 @@ class Polygon{
   // getters
   std::vector<Point2d> vertices()const;
 
+  // True if this polygon is convex, false otherwise
   bool isConvex() const;
 
+  /*
+   * Returns area of this convex/non-convex polygon
+   */
   double area() const;
 
+  /*
+   * Returns true if this polygon contains the point.
+   * Including_edge: true treats points on the edge of the polygon as
+   * contained in the polygon. Setting to false would return false for points
+   * on the edge.
+   */
   bool containsPoint(const Point2d &pt, bool including_edge) const;
 
  private:
