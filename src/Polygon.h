@@ -28,7 +28,7 @@ class Polygon{
 
   double area() const;
 
-  bool containsPoint(const Point2d &pt) const;
+  bool containsPoint(const Point2d &pt, bool including_edge) const;
 
  private:
   std::vector<Point2d> vertices_;

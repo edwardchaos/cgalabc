@@ -103,7 +103,7 @@ double Polygon::area() const{
   return area/2.0;
 }
 
-bool Polygon::containsPoint(const Point2d &pt) const{
+bool Polygon::containsPoint(const Point2d &pt, bool including_edge) const{
   return false;
 }
 
