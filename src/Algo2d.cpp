@@ -15,6 +15,21 @@ bool isOrthogonal(const Line2d& l1, const Line2d& l2){
   return fabs(l1.dot(l2)) < EPS;
 }
 
+double angle(const Point2d &a, const Point2d &b, const Point2d &c){
+  Line2d lab(a,b);
+  Line2d lbc(b,c);
+  Line2d lac(a,c);
+  auto cross = lab.cross(lac);
+  if(cross > -EPS && cross < EPS)
+    throw std::invalid_argument("Points a,b,c are collinear");
+
+  double ab = lab.length();
+  double bc = lbc.length();
+  double ac = lac.length();
+
+  return acos((pow(ac,2)-pow(ab,2)-pow(bc,2))/(-2)/ab/bc);
+}
+
 bool intersects(const Line2d& l1, const Line2d& l2){
   /*
    * Line segments DO NOT intersect if both points of one line are on one

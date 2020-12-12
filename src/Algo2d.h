@@ -7,6 +7,9 @@ namespace cg{
 bool isParallel(const Line2d& l1, const Line2d& l2);
 bool isOrthogonal(const Line2d& l1, const Line2d& l2);
 
+// returns angle ABC between the lines AB and BC
+double angle(const Point2d &a, const Point2d &b, const Point2d &c);
+
 /*
  * Returns true if line segments bounded by 2 points intersect. False if they
  * are parallel or they do not cross.

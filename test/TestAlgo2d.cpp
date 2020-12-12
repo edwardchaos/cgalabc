@@ -51,6 +51,16 @@ TEST(Algo, basic_algos){
 
   cg::Line2d l1({1,0});
 
+  ASSERT_NEAR(M_PI/2.0, cg::angle(pt3,pt2,pt1), cg::EPS);
+  ASSERT_NEAR(1.6704649792860586,cg::angle(pt4,pt2,pt1), cg::EPS);
+
+  try{
+    cg::angle(pt2,pt3,cg::Point2d(1,10));
+    FAIL() << "Points are collinear, should throw exception.";
+  }catch(std::invalid_argument &e){
+    ASSERT_STREQ(e.what(), "Points a,b,c are collinear");
+  }catch(...){FAIL() << "Expected invalid argument exception";}
+
   // Shortest distance of point to line
   auto dist1 = distancePointToLine(pt1, l1);
   auto dist2 = distancePointToLine(pt2, l1);
