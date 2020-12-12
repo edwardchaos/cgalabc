@@ -1,8 +1,16 @@
 #include "Polygon.h"
 
+#include <stdexcept>
+#include <sstream>
+#include <unordered_set>
+#include <utility>
+
+typedef std::pair<double,double> dd;
+typedef std::vector<double> vd;
+
 namespace cg{
 
-Polygon::Polygon(){};
+Polygon::Polygon()= default;
 
 Polygon::Polygon(std::initializer_list<Point2d> ccw_verts):vertices_(ccw_verts){
   if(vertices_.back() != vertices_.front())
@@ -19,12 +27,26 @@ Polygon::Polygon(std::vector<Point2d> &ccw_verts):vertices_(ccw_verts){
 }
 
 bool Polygon::verifyPolygon() const{
+  std::unordered_set<Point2d, cg::hashPoint2d> unique_verts;
+
+  // Check that all points are unique except for first and last
+  for(int i = 0; i < vertices_.size()-1; ++i){
+    if(unique_verts.find(vertices_[i])!=unique_verts.end()){
+      std::stringstream s;
+      s << "Repeated vertices: "
+      <<"("<<vertices_[i].x()<<", "<<vertices_[i].y()<<")";
+      throw std::invalid_argument(s.str());
+    }
+    unique_verts.emplace(vertices_[i]);
+  }
+
   // At least 3 unique points (minimal is triangle)
+  if(unique_verts.size() < 3) throw std::invalid_argument(
+      "Cannot create polygon; Requires at least 3 unique vertices");
 
-  // All edges pairwise do not overlap
+  //TODO: If edges lie ontop of each other or intersect at a point, throw
+  // exception.
 
-  // No edges cross (apart from points where consecutive edges connect)
-  throw int(4);
   return true;
 }
 
