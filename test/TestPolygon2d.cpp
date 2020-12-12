@@ -44,10 +44,8 @@ TEST(Polygon, create_polygon){
     FAIL() << "Should throw invalid argument";
   }
   catch(std::invalid_argument &e){
-    ASSERT_STREQ(e.what(),
-                 "Mon dieu! Cannot create polygon; 2 edges are coincident.");
   }
-  catch(...){FAIL() << "Incorrect exception thrown";}
+  catch(...){FAIL() << "Expected invalid_argument exception";}
 
   // Pair of edges in polygon intersect
   try {
@@ -55,9 +53,23 @@ TEST(Polygon, create_polygon){
     FAIL() << "Should throw invalid argument";
   }
   catch(std::invalid_argument &e){
-    ASSERT_STREQ(e.what(), "Cannot create polygon; 2 edges intersect.");
+    ASSERT_STREQ(e.what(), "Cannot create polygon; Non adjacent edges intersect");
   }
   catch(...){FAIL() << "Incorrect exception thrown";}
+
+  // Adjacent edges overlap
+  try{
+    cg::Polygon{{0,0},{1,0},{2,0},{0,0}};
+    FAIL() << "Should throw invalid argument";
+  }catch(std::invalid_argument &e){
+    ASSERT_STREQ(e.what(),"Cannot create polygon; Adjacent edges overlap");
+  }catch(...){FAIL() << "Incorrect exception thrown";}
+
+  //Valid polygons
+  try{
+    cg::Polygon{{0,0},{1,0},{2,0},{3,0},{3,1},{2,1},{2,2},{1,2},{1,1},{0,1}};
+    cg::Polygon{{0,0},{1,1},{2,0},{3,1},{4,0},{4,4},{3,3},{2,4},{1,3},{0,4}};
+  }catch(...){FAIL() << "Should not throw exception, these are valid polygons";}
 }
 
 TEST(Polygon, simple_algos){
@@ -71,6 +83,10 @@ TEST(Polygon, simple_algos){
 
   // Create point
   // Contains point
+
+  // clip polygon by line
+
+  // Convex hull
 
 }
 

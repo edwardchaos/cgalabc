@@ -8,8 +8,16 @@ TEST(Algo, basic_properties){
   ASSERT_TRUE(true);
 
   cg::Line2d l1({1,0});
+  cg::Line2d rightof_l1{{2,0},{3,0}};
   cg::Line2d l2({0,1}, {1,1});
   cg::Line2d l3({0,1});
+  cg::Line2d ontop_l3({0,2},{0,3});
+  cg::Line2d diag1({1,1});
+  cg::Line2d toprightof_diag2({2,2},{3,3});
+
+  ASSERT_FALSE(cg::intersects(l3, ontop_l3));
+  ASSERT_FALSE(cg::intersects(l1,rightof_l1));
+  ASSERT_FALSE(cg::intersects(diag1,toprightof_diag2));
 
   ASSERT_TRUE(cg::isParallel(l1, l2));
   ASSERT_FALSE(cg::isParallel(l1,l3));
@@ -31,6 +39,7 @@ TEST(Algo, basic_properties){
   ASSERT_EQ(cg::intersectPoint(l1,l2), nullptr);
   cg::Line2d l6({2,-1},{3,-2});
   ASSERT_FALSE(cg::intersects(l1,l6));
+
 }
 
 TEST(Algo, basic_algos){
@@ -68,10 +77,9 @@ TEST(Algo, basic_algos){
   ASSERT_NEAR(dls4, 0.0, cg::EPS);
   ASSERT_NEAR(dls5, 5.0, cg::EPS);
 
-  // Check polygon convex
-  // Area of polygon (shoelace method)
-  // Point in polygon
-  // Clip polygon by line
-  // Convex hull of point set
-
+  // Point on the standard equation of a line but not on the segment
+  cg::Point2d origin(0,0);
+  cg::Line2d l2{{1,0},{2,0}};
+  auto dist6 = cg::distancePointToLineSegment(origin, l2);
+  ASSERT_NEAR(dist6, 1.0, cg::EPS);
 }
