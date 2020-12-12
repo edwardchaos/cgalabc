@@ -30,6 +30,7 @@ TEST(Testlines, create_lines){
   // Try creating line with 2 identical points,
   try{
     cg::Line2d(pt1, pt1);
+    FAIL() << "Shouldn't be able to create line with 2 identical points";
   }catch(std::invalid_argument &e){
     EXPECT_EQ(e.what(), std::string("Identical points used to create Line2d."));
   }catch(...){
