@@ -33,6 +33,14 @@ bool intersects(const Line2d& l1, const Line2d& l2){
   auto leftright4 = l2.cross(Line2d(l2.pt1(),l1.pt2()));
   if(leftright3 * leftright4 > EPS) return false;
 
+  // Check for line segments on the same standard equation, but separated by a
+  // space
+  // like this ->       ----   ----
+  bool same_standard_eq = l1.a()==l2.a() && l1.b()==l2.b() && l1.c()==l2.c();
+  if(same_standard_eq
+  && distancePointToLineSegment(l1.pt1(),l2) > 0
+  && distancePointToLineSegment(l1.pt2(),l2) > 0) return false;
+
   return true;
 }
 
@@ -80,7 +88,15 @@ double distancePointToLine(const Point2d &pt, const Line2d &l){
 
 double distancePointToLineSegment(const Point2d &pt, const Line2d &l){
   auto ortho_seg = orthogonalSegment(pt, l);
-  if(!ortho_seg) return 0;
+  if(!ortho_seg){
+    // The point is on the standard equation, however it can still be away
+    // from the line for example:   *    -------
+    if(l.pt1() == pt || l.pt2() == pt) return 0;
+    Line2d vec1(l.pt1(), pt);
+    Line2d vec2(l.pt2(), pt);
+    if(vec1.dot(vec2) < 0) return 0;
+    else return std::min(l.pt1().dist(pt), l.pt2().dist(pt));
+  }
 
   if(intersects(*ortho_seg, l)) return ortho_seg->length();
 
