@@ -99,9 +99,55 @@ TEST(Polygon, simple_algos){
   ASSERT_NEAR(12.0, nonconvex_poly2.area(), cg::EPS);
 
   // Contains point
+  cg::Point2d pt1(0,0);
+  cg::Point2d pt2(0,0.5);
+  cg::Point2d pt3(0.5,0.5);
+  cg::Point2d pt4(1,1);
+  cg::Point2d pt5(-1,1);
+  cg::Point2d pt6(1,-1);
+  cg::Point2d pt7(0,2);
+  cg::Point2d pt8(-0.5,0);
+  cg::Point2d pt9(0,2.5);
+  cg::Point2d pt10(-1,-1);
+  cg::Point2d pt11(0,2);
 
+  ASSERT_TRUE(convex_poly.containsPoint(pt1,true));
+  ASSERT_FALSE(convex_poly.containsPoint(pt1,false));
+  ASSERT_TRUE(convex_poly.containsPoint(pt2,true));
+  ASSERT_TRUE(convex_poly.containsPoint(pt2,false));
+  ASSERT_TRUE(convex_poly.containsPoint(pt3,true));
+  ASSERT_FALSE(convex_poly.containsPoint(pt3,false));
+  ASSERT_TRUE(convex_poly.containsPoint(pt4,true));
+  ASSERT_FALSE(convex_poly.containsPoint(pt4,false));
+  ASSERT_TRUE(convex_poly.containsPoint(pt5,true));
+  ASSERT_FALSE(convex_poly.containsPoint(pt5,false));
+  ASSERT_FALSE(convex_poly.containsPoint(pt6,true));
+  ASSERT_FALSE(convex_poly.containsPoint(pt6,false));
+  ASSERT_FALSE(convex_poly.containsPoint(pt7,true));
+  ASSERT_FALSE(convex_poly.containsPoint(pt7,false));
+  ASSERT_FALSE(convex_poly.containsPoint(pt8,true));
+  ASSERT_FALSE(convex_poly.containsPoint(pt8,false));
+
+  ASSERT_TRUE(nonconvex_poly.containsPoint(pt2,true));
+  ASSERT_TRUE(nonconvex_poly.containsPoint(pt2,false));
+  ASSERT_FALSE(nonconvex_poly.containsPoint(pt9, true));
+  ASSERT_FALSE(nonconvex_poly.containsPoint(pt9, false));
+  ASSERT_FALSE(nonconvex_poly.containsPoint(pt5, true));
+  ASSERT_FALSE(nonconvex_poly.containsPoint(pt5, false));
+  ASSERT_FALSE(nonconvex_poly.containsPoint(pt5, true));
+  ASSERT_FALSE(nonconvex_poly.containsPoint(pt5, false));
+  ASSERT_FALSE(nonconvex_poly.containsPoint(pt10, true));
+  ASSERT_FALSE(nonconvex_poly.containsPoint(pt10, false));
+  ASSERT_TRUE(nonconvex_poly.containsPoint(pt11, true));
+  ASSERT_FALSE(nonconvex_poly.containsPoint(pt11, false));
+}
+
+TEST(Polygon, clipping){
   // clip polygon by line
 
+}
+
+TEST(Polygon, convex_hull){
   // Convex hull
 
 }
