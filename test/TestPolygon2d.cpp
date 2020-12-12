@@ -93,6 +93,10 @@ TEST(Polygon, simple_algos){
   ASSERT_FALSE(nonconvex_poly2.isConvex());
 
   // Compute area
+  ASSERT_NEAR(1.0, convex_poly.area(), cg::EPS);
+  ASSERT_NEAR(3.0, nonconvex_poly.area(), cg::EPS);
+  ASSERT_NEAR(4.0, convex_poly2.area(), cg::EPS);
+  ASSERT_NEAR(12.0, nonconvex_poly2.area(), cg::EPS);
 
   // Contains point
 
