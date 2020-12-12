@@ -3,10 +3,6 @@
 #include <stdexcept>
 #include <sstream>
 #include <unordered_set>
-#include <utility>
-
-typedef std::pair<double,double> dd;
-typedef std::vector<double> vd;
 
 namespace cg{
 
