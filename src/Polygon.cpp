@@ -87,7 +87,20 @@ bool Polygon::isConvex() const{
 }
 
 double Polygon::area() const{
-  return 0.0;
+  // Accumulate the wedge product of a vector spanning from origin to the
+  // tail of an edge with the edge. Either divide by 2 each iteration or once
+  // at the end. Area outside of the polygon is subtracted (because ordering
+  // of vertices is counterclockwise) and area contained in the polygon is
+  // added.
+
+  double area = 0;
+  for(const auto & edge : edges_){
+    if(edge.pt1().x() == 0 && edge.pt1().y() == 0) continue;
+    Line2d origin_to_u(edge.pt1());
+    area += origin_to_u.cross(edge);
+  }
+
+  return area/2.0;
 }
 
 bool Polygon::containsPoint(const Point2d &pt) const{
