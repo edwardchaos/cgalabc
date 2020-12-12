@@ -19,10 +19,10 @@ class Polygon{
   Polygon(std::vector<Point2d> &points);
   Polygon(std::initializer_list<Point2d> points);
 
-  bool verifyPolygon() const;
+  bool verifyPolygon();
 
   // getters
-  std::vector<Point2d> vertices();
+  std::vector<Point2d> vertices()const;
 
   bool isConvex() const;
 
@@ -32,6 +32,12 @@ class Polygon{
 
  private:
   std::vector<Point2d> vertices_;
+  std::vector<Line2d> edges_;
 
+  /*
+   * Given vertices of the polygon, build consecutive edges.
+   * Warning: Does not check for constructing an edge with duplicate points.
+   */
+  void constructEdges();
 };
 } // namespace cg
