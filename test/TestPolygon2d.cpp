@@ -79,10 +79,18 @@ TEST(Polygon, create_polygon){
 TEST(Polygon, simple_algos){
   cg::Polygon convex_poly{{0,0},{1,1},{-1,1}};
   cg::Polygon nonconvex_poly{{0,0},{1,1},{1,3},{0,2},{-1,3}};
+  cg::Polygon convex_poly2{{0,0},{1,0},{2,0},{3,0},{3,1},{2,1},{2,2},{1,2},{1,
+                                                                         1},{0,
+                                                                           1}};
+  cg::Polygon nonconvex_poly2{{0,0},{1,1},{2,0},{3,1},{4,0},{4,4},{3,3},{2,
+                                                                         4},{1,
+                                                                         3},{0,4}};
 
   // Test convex
   ASSERT_TRUE(convex_poly.isConvex());
   ASSERT_FALSE(nonconvex_poly.isConvex());
+  ASSERT_TRUE(convex_poly.isConvex());
+  ASSERT_FALSE(nonconvex_poly2.isConvex());
 
   // Compute area
 

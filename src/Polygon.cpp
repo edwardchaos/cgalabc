@@ -77,8 +77,13 @@ bool Polygon::verifyPolygon(){
 std::vector<Point2d> Polygon::vertices()const{return vertices_;}
 
 bool Polygon::isConvex() const{
+  // All adjacent edges for left turns since vertices are ordered
+  // counter-clockwise
 
-  return false;
+  for(int i = 0; i < edges_.size()-1; ++i)
+    if(edges_[i].cross(edges_[i+1]) < 0) return false;
+
+  return true;
 }
 
 double Polygon::area() const{
