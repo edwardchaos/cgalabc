@@ -7,7 +7,11 @@ namespace cg{
 bool isParallel(const Line2d& l1, const Line2d& l2);
 bool isOrthogonal(const Line2d& l1, const Line2d& l2);
 
-// returns angle ABC between the lines AB and BC
+/*
+ * returns angle ABC between the lines AB and BC
+ * Return 0 if points are collinear
+ */
+
 double angle(const Point2d &a, const Point2d &b, const Point2d &c);
 
 /*

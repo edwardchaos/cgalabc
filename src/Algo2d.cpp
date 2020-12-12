@@ -21,7 +21,7 @@ double angle(const Point2d &a, const Point2d &b, const Point2d &c){
   Line2d lac(a,c);
   auto cross = lab.cross(lac);
   if(cross > -EPS && cross < EPS)
-    throw std::invalid_argument("Points a,b,c are collinear");
+    return 0;
 
   double ab = lab.length();
   double bc = lbc.length();
