@@ -77,15 +77,15 @@ TEST(Polygon, create_polygon){
 }
 
 TEST(Polygon, simple_algos){
-  // Create Convex polygon
-
-  // Create Concave polygon
+  cg::Polygon convex_poly{{0,0},{1,1},{-1,1}};
+  cg::Polygon nonconvex_poly{{0,0},{1,1},{1,3},{0,2},{-1,3}};
 
   // Test convex
+  ASSERT_TRUE(convex_poly.isConvex());
+  ASSERT_FALSE(nonconvex_poly.isConvex());
 
   // Compute area
 
-  // Create point
   // Contains point
 
   // clip polygon by line
