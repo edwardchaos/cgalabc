@@ -148,8 +148,8 @@ TEST(Polygon, simple_algos){
   ASSERT_FALSE(nonconvex_poly.containsPoint(pt11, false));
 }
 
-TEST(Polygon, clipping){
-  // clip polygon by line
+TEST(Polygon, cutting){
+  // cut polygon by line
   cg::Polygon triangle{{0,0},{5,0},{5,5}};
   cg::Line2d cut_line1({0,-5},{5,0});
   cg::Line2d two_point_cut({2.5,0},{5,2.5});
@@ -157,12 +157,43 @@ TEST(Polygon, clipping){
   cg::Line2d vertical_cut({2.5,-10},{2.5,10});
   cg::Line2d horizontal_cut({5,2.5},{0,2.5});
 
-  auto cut_polys1 = triangle.clip(cut_line1);
-  auto cut_polys2 = triangle.clip(two_point_cut);
-  auto cut_polys3 = triangle.clip(cut_through_vertex);
-  auto cut_polys4 = triangle.clip(vertical_cut);
-  auto cut_polys5 = triangle.clip(horizontal_cut);
+  auto cut_polys1 = triangle.cut(cut_line1);
+  cg::Polygon left1{{0,0},{5,0},{5,5}};
+  ASSERT_NE(cut_polys1.first, nullptr);
+  ASSERT_EQ(*cut_polys1.first, left1);
+  ASSERT_EQ(cut_polys1.second, nullptr); // Right polygon is empty
 
+  auto cut_polys2 = triangle.cut(two_point_cut);
+  cg::Polygon left2{{0,0},{2.5,0},{5,2.5},{5,5}};
+  cg::Polygon right2{{2.5,0},{5,0},{5,2.5}};
+  ASSERT_NE(cut_polys2.first, nullptr);
+  ASSERT_NE(cut_polys2.second, nullptr);
+  ASSERT_EQ(*cut_polys2.first, left2);
+  ASSERT_EQ(*cut_polys2.second, right2);
+
+  auto cut_polys3 = triangle.cut(cut_through_vertex);
+  cg::Polygon left3{{0,0},{2.5,0},{5,5}};
+  cg::Polygon right3{{2.5,0},{5,0},{5,5}};
+  ASSERT_NE(cut_polys3.first, nullptr);
+  ASSERT_NE(cut_polys3.second, nullptr);
+  ASSERT_EQ(*cut_polys3.first, left3);
+  ASSERT_EQ(*cut_polys3.second, right3);
+
+  auto cut_polys4 = triangle.cut(vertical_cut);
+  cg::Polygon left4{{0,0},{2.5,0},{2.5,2.5}};
+  cg::Polygon right4{{2.5,0},{5,0},{5,5},{2.5,2.5}};
+  ASSERT_NE(cut_polys4.first, nullptr);
+  ASSERT_NE(cut_polys4.second, nullptr);
+  ASSERT_EQ(*cut_polys4.first, left4);
+  ASSERT_EQ(*cut_polys4.second, right4);
+
+  auto cut_polys5 = triangle.cut(horizontal_cut);
+  cg::Polygon left5{{0,0},{5,0},{5,2.5},{2.5,2.5}};
+  cg::Polygon right5{{5,2.5},{5,5},{2.5,2.5}};
+  ASSERT_NE(cut_polys5.first, nullptr);
+  ASSERT_NE(cut_polys5.second, nullptr);
+  ASSERT_EQ(*cut_polys5.first, left5);
+  ASSERT_EQ(*cut_polys5.second, right5);
 }
 
 TEST(Polygon, convex_hull){
