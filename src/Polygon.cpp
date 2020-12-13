@@ -4,6 +4,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
 #include <unordered_set>
 #include <vector>
 
@@ -153,6 +154,10 @@ bool Polygon::containsPoint(const Point2d &pt, bool including_edge) const{
 }
 
 std::pair<Polygon_ptr, Polygon_ptr> Polygon::cut(const Line2d& l) const{
+  if(!this->isConvex()){
+    std::cerr << "Polygon cut only supports convex polygons." << std::endl;
+    return {};
+  }
   std::vector<Point2d> left_pts;
   std::vector<Point2d> right_pts;
 
