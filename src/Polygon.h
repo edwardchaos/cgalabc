@@ -23,6 +23,9 @@ class Polygon{
   Polygon(std::vector<Point2d> &points);
   Polygon(std::initializer_list<Point2d> points);
 
+  bool operator==(const Polygon& other)const;
+  bool operator!=(const Polygon& other)const;
+
   bool verifyPolygon();
 
   // getters

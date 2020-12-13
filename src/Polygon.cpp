@@ -25,6 +25,20 @@ Polygon::Polygon(std::vector<Point2d> &ccw_verts):vertices_(ccw_verts){
   this->verifyPolygon();
 }
 
+bool Polygon::operator==(const Polygon& other) const{
+  if(vertices_.size() != other.vertices().size()) return false;
+  const auto &other_verts = other.vertices();
+
+  for(int i = 0; i < vertices_.size(); ++i)
+    if(vertices_[i] != other_verts[i]) return false;
+
+  return true;
+}
+
+bool Polygon::operator!=(const Polygon& other)const{
+  return !((*this)==other);
+}
+
 void Polygon::constructEdges(){
   // Create vector of edges for convenience of future algorithms
   for(int i = 0; i < vertices_.size()-1; ++i){

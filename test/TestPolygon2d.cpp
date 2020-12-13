@@ -6,9 +6,15 @@
 TEST(Polygon, create_polygon){
   try {
     // Create 2 valid polygons
-    cg::Polygon{{0, 0}, {10, 0}, {10, 10}, {0, 10}};
+    cg::Polygon first{{0, 0}, {10, 0}, {10, 10}, {0, 10}};
+    cg::Polygon firstsame{{0, 0}, {10, 0}, {10, 10}, {0, 10}};
+    cg::Polygon different{{0, 0}, {10, 0}, {10, 10}, {0, 11}};
     std::vector<cg::Point2d> pointset2{{-5, -5}, {5, -5}, {5, 5}};
-    cg::Polygon{pointset2};
+    cg::Polygon second{pointset2};
+
+    ASSERT_NE(first,second); // Different number of vertices
+    ASSERT_EQ(first,firstsame);
+    ASSERT_NE(first,different); // Different vertex
   }catch(...){FAIL() << "No exception should be thrown.";}
 
   // Polygon with only 2 unique points
