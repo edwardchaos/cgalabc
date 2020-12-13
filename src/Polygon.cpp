@@ -1,5 +1,6 @@
 #include "Polygon.h"
 
+#include <cmath>
 #include <stdexcept>
 #include <sstream>
 #include <unordered_set>
@@ -86,13 +87,15 @@ bool Polygon::isConvex() const{
   return true;
 }
 
-double Polygon::area() const{
-  // Accumulate the wedge product of a vector spanning from origin to the
-  // tail of an edge with the edge. Either divide by 2 each iteration or once
-  // at the end. Area outside of the polygon is subtracted (because ordering
-  // of vertices is counterclockwise) and area contained in the polygon is
-  // added.
+/*
+ * Accumulate the wedge product of a vector spanning from origin to the
+ * tail of an edge with the edge. Either divide by 2 each iteration or once
+ * at the end. Area outside of the polygon is subtracted (because ordering
+ * of vertices is counterclockwise) and area contained in the polygon is
+ * added.
+ */
 
+double Polygon::area() const{
   double area = 0;
   for(const auto & edge : edges_){
     if(edge.pt1().x() == 0 && edge.pt1().y() == 0) continue;
@@ -103,7 +106,33 @@ double Polygon::area() const{
   return area/2.0;
 }
 
+/*
+ * Winding algorithm, angles should sum to 2pi if point is within the polygon.
+ *
+ * For each edge AB, draw line from tail A to point to create line AP.
+ * If point is on left side of AB, add the angle
+ * If point is on the right side of AB, subtract angle
+ *
+ */
 bool Polygon::containsPoint(const Point2d &pt, bool including_edge) const{
+  double angle_sum = 0;
+
+  for(int i = 0; i < edges_.size(); ++i) {
+    auto point_line_dist = distancePointToLineSegment(pt, edges_[i]);
+    // The point is on the edge
+    bool point_on_edge = point_line_dist > -EPS && point_line_dist < EPS;
+    if (point_on_edge && including_edge) return true;
+    else if(point_on_edge && !including_edge) return false;
+
+    auto cur_angle = angle(edges_[i].pt1(), pt, edges_[i].pt2());
+    if (edges_[i].cross(Line2d(edges_[i].pt1(), pt)) > EPS) {
+      // Point is on the left side of this edge
+      angle_sum += cur_angle;
+    } else angle_sum -= cur_angle;
+  }
+
+  double diff = angle_sum - 2*M_PI;
+  if(diff > -EPS && diff < EPS) return true; // angle is 2pi
   return false;
 }
 
