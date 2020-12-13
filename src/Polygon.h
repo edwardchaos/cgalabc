@@ -52,7 +52,7 @@ class Polygon{
    * Left/right side is determined by the dividing line orientation.
    * Polygon pointer is null if the line doesn't intersect the polygon.
    */
-  std::pair<Polygon_ptr, Polygon_ptr> clip(const Line2d& l) const;
+  std::pair<Polygon_ptr, Polygon_ptr> cut(const Line2d& l) const;
 
  private:
   std::vector<Point2d> vertices_;

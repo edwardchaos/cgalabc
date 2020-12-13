@@ -150,7 +150,7 @@ bool Polygon::containsPoint(const Point2d &pt, bool including_edge) const{
   return false;
 }
 
-std::pair<Polygon_ptr, Polygon_ptr> Polygon::clip(const Line2d& l) const{
+std::pair<Polygon_ptr, Polygon_ptr> Polygon::cut(const Line2d& l) const{
 
   return {};
 }
