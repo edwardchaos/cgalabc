@@ -144,6 +144,18 @@ TEST(Polygon, simple_algos){
 
 TEST(Polygon, clipping){
   // clip polygon by line
+  cg::Polygon triangle{{0,0},{5,0},{5,5}};
+  cg::Line2d cut_line1({0,-5},{5,0});
+  cg::Line2d two_point_cut({2.5,0},{5,2.5});
+  cg::Line2d cut_through_vertex({2.5,0},{5,5});
+  cg::Line2d vertical_cut({2.5,-10},{2.5,10});
+  cg::Line2d horizontal_cut({5,2.5},{0,2.5});
+
+  auto cut_polys1 = triangle.clip(cut_line1);
+  auto cut_polys2 = triangle.clip(two_point_cut);
+  auto cut_polys3 = triangle.clip(cut_through_vertex);
+  auto cut_polys4 = triangle.clip(vertical_cut);
+  auto cut_polys5 = triangle.clip(horizontal_cut);
 
 }
 
