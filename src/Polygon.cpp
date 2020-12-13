@@ -1,9 +1,11 @@
 #include "Polygon.h"
 
+#include <cassert>
 #include <cmath>
 #include <stdexcept>
 #include <sstream>
 #include <unordered_set>
+#include <vector>
 
 #include "Algo2d.h"
 
@@ -151,8 +153,61 @@ bool Polygon::containsPoint(const Point2d &pt, bool including_edge) const{
 }
 
 std::pair<Polygon_ptr, Polygon_ptr> Polygon::cut(const Line2d& l) const{
+  std::vector<Point2d> left_pts;
+  std::vector<Point2d> right_pts;
 
-  return {};
+  for(int i = 0; i < edges_.size(); ++i) {
+    Line2d v1(l.pt1(), edges_[i].pt1());
+    auto side1 = l.cross(v1);
+    Line2d v2(l.pt1(), edges_[i].pt2());
+    auto side2 = l.cross(v2);
+
+    // Determine which side the tail point of this edge belongs to
+    // If cutting line is collinear with this point, add it later
+    if (side1 > EPS // Tail point of this edge is on the left side of line
+        && (left_pts.empty()
+        || left_pts.back() != edges_[i].pt1())) { // Not a duplicate point
+      left_pts.push_back(edges_[i].pt1());
+    }
+    else if (side1 < EPS
+        && (right_pts.empty()
+        || right_pts.back() != edges_[i].pt1())) { // Not a duplicate
+      right_pts.push_back(edges_[i].pt1());
+    }
+
+    // Add the intercept point if there is one
+    if (side1 * side2 <= EPS) { // This edge intersects the line.
+      // compute intersecting point
+      auto intcp = intersectPoint(l, edges_[i]);
+      assert(intcp!=nullptr); // Lines intercept; should never be null.
+
+      if(left_pts.empty()
+      || left_pts.back() != *intcp) left_pts.push_back(*intcp);
+      if(right_pts.empty()
+      || right_pts.back() != *intcp) right_pts.push_back(*intcp);
+    }
+
+    // Determine which side the tail point of this edge belongs to
+    // If cutting line is collinear with this point, add it later
+    if (side2 > EPS // Tail point of this edge is on the left side of line
+        && (left_pts.empty()
+        || left_pts.back() != edges_[i].pt2())) { // Not a duplicate point
+      left_pts.push_back(edges_[i].pt2());
+    } else if (side2 < EPS
+        && (right_pts.empty()
+        || right_pts.back() != edges_[i].pt2())) {
+      right_pts.push_back(edges_[i].pt2());
+    }
+  }
+
+  Polygon_ptr left_polygon;
+  if(left_pts.size() >= 3)
+    left_polygon = std::make_shared<Polygon>(left_pts);
+  Polygon_ptr right_polygon;
+  if(right_pts.size() >=3)
+    right_polygon = std::make_shared<Polygon>(right_pts);
+
+  return {left_polygon, right_polygon};
 }
 
 } // namespace cg
