@@ -119,4 +119,8 @@ double distancePointToLineSegment(const Point2d &pt, const Line2d &l){
   return std::min(l.pt1().dist(pt), l.pt2().dist(pt));
 }
 
+Polygon_ptr convexHull(const std::vector<Point2d> &pts){
+
+  return nullptr;
+}
 } // namespace cg

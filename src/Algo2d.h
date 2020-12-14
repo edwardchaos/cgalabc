@@ -1,7 +1,9 @@
 #pragma once
 
 #include <memory>
+
 #include "type.h"
+#include "Polygon.h"
 
 namespace cg{
 bool isParallel(const Line2d& l1, const Line2d& l2);
@@ -40,5 +42,12 @@ double distancePointToLine(const Point2d &pt, const Line2d &l);
  * See also: distancePointToLine
  */
 double distancePointToLineSegment(const Point2d &pt, const Line2d &l);
+
+/*
+ * Convex hull of a point set.
+ * Returns nullptr if a convex polygon cannot be formed from the input set of
+ * points
+ */
+Polygon_ptr convexHull(const std::vector<Point2d> &pts);
 
 } // namespace cg
