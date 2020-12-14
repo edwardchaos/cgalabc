@@ -30,10 +30,28 @@ Polygon::Polygon(std::vector<Point2d> &ccw_verts):vertices_(ccw_verts){
 
 bool Polygon::operator==(const Polygon& other) const{
   if(vertices_.size() != other.vertices().size()) return false;
-  const auto &other_verts = other.vertices();
 
-  for(int i = 0; i < vertices_.size(); ++i)
-    if(vertices_[i] != other_verts[i]) return false;
+  std::vector<Point2d> this_unique_verts(vertices_);
+  std::vector<Point2d> other_unique_verts(other.vertices());
+
+  // Remove duplicate last point from both vertex sets
+  this_unique_verts.pop_back();
+  other_unique_verts.pop_back();
+
+  // Equivalent to verifying 2 arrays, where one is the rotated version of
+  // the other
+  int start_idx = -1;
+  for(int i = 0; i < other_unique_verts.size(); ++i){
+    if(other_unique_verts[i] != this_unique_verts.front()) continue;
+    start_idx = i;
+    break;
+  }
+  if(start_idx == -1) return false;
+
+  for(int i = 0 ; i < this_unique_verts.size(); ++i){
+    int other_idx = (start_idx + i) % this_unique_verts.size();
+    if(this_unique_verts[i] != other_unique_verts[other_idx]) return false;
+  }
 
   return true;
 }
