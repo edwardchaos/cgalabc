@@ -2,6 +2,8 @@
 
 #include <cassert>
 #include <cmath>
+#include <unordered_set>
+
 #include "type.h"
 
 namespace cg{
@@ -16,16 +18,23 @@ bool isOrthogonal(const Line2d& l1, const Line2d& l2){
 }
 
 double angle(const Point2d &a, const Point2d &b, const Point2d &c){
-  Line2d lab(a,b);
-  Line2d lbc(b,c);
-  Line2d lac(a,c);
-  auto cross = lab.cross(lac);
+  Line2d_ptr lab;
+  Line2d_ptr lbc;
+  Line2d_ptr lac;
+  try {
+    lab = std::make_shared<Line2d>(a, b);
+    lbc = std::make_shared<Line2d>(b, c);
+    lac = std::make_shared<Line2d>(a, c);
+  }catch(std::invalid_argument &e){
+    throw std::invalid_argument("Requires 3 distinct points to compute angle");
+  }
+  auto cross = lab->cross(*lac);
   if(cross > -EPS && cross < EPS)
     return 0;
 
-  double ab = lab.length();
-  double bc = lbc.length();
-  double ac = lac.length();
+  double ab = lab->length();
+  double bc = lbc->length();
+  double ac = lac->length();
 
   return acos((pow(ac,2)-pow(ab,2)-pow(bc,2))/(-2)/ab/bc);
 }
@@ -120,7 +129,88 @@ double distancePointToLineSegment(const Point2d &pt, const Line2d &l){
 }
 
 Polygon_ptr convexHull(const std::vector<Point2d> &pts){
+  // TODO: Create function to remove duplicates?
+  std::unordered_set<Point2d, cg::hashPoint2d> unique_pts;
+  for(auto pt : pts){
+    if(unique_pts.find(pt) != unique_pts.end()) continue;
+    unique_pts.insert(pt);
+  }
 
-  return nullptr;
+  if(unique_pts.size() < 3) return nullptr;
+
+  // Find bottom-most right-most point to begin
+  double low = 1e9;
+  double right = -1e9;
+
+  for(auto pt : unique_pts){
+    if(pt.y() < low
+    || ((low - pt.y()) < EPS && pt.x() > right)){
+      low = pt.y();
+      right = pt.x();
+    }
+  }
+
+  Point2d pivot(right, low);
+  Point2d right_of_pivot(right+1, low);
+
+  // Sort by counter clockwise angle around pivot from x-axis
+  auto angle_sort = [&](const Point2d &pt1, const Point2d &pt2){
+    double angle1;
+    if(pt1.y() == pivot.y()) angle1 = pt1.x() > pivot.x()? 0:M_PI;
+    else angle1 = angle(right_of_pivot, pivot, pt1);
+
+    double angle2;
+    if(pt2.y() == pivot.y()) angle2 = pt2.x() > pivot.x()? 0:M_PI;
+    angle2 = angle(right_of_pivot, pivot, pt2);
+
+    return angle1 < angle2;
+  };
+
+  // Put unique points into a vector to be sorted
+  std::vector<Point2d> pts_sorted;
+  pts_sorted.reserve(unique_pts.size());
+  for(auto it = unique_pts.begin(); it != unique_pts.end();){
+    pts_sorted.push_back(unique_pts.extract(it++).value());
+    if(pts_sorted.back()==pivot) pts_sorted.pop_back();
+  }
+
+  std::sort(pts_sorted.begin(), pts_sorted.end(), angle_sort);
+
+  // Start polygon with points N-1, 0, and 1 from the sorted-by-angle vector
+  std::vector<Point2d> poly_pts({pts_sorted.back(),
+                                   pivot,
+                                   pts_sorted[0]});
+
+  // Idea: Convex polygons formed by ccw ordered points contain entirely left
+  // turns. Iteratively add points only allowing left turns and the final
+  // result is a convex polygon.
+  // Iterate through the sorted array of points and test it by seeing if the
+  // new edge forms a left turn.
+  for(int i = 2; i < pts_sorted.size(); ++i){
+    // See if next point forms a left turn with the last edge
+    bool added = false;
+    while(!added) {
+      Line2d next_line(poly_pts.back(), pts_sorted[i]);
+      Line2d last_line(poly_pts[poly_pts.size() - 2], poly_pts.back());
+
+      if (last_line.cross(next_line) > 0) { // Left turn
+        poly_pts.push_back(pts_sorted[i]);
+        added = true;
+      } else {
+        poly_pts.pop_back();
+      }
+    }
+  }
+
+  // Check last turn
+  Line2d last_edge(poly_pts[poly_pts.size()-2],poly_pts.back());
+  Line2d closing_edge(poly_pts.back(), poly_pts.front());
+  if(last_edge.cross(closing_edge) < 0) poly_pts.pop_back();
+
+  // Attempt to create a polygon, Polygon class has additional verification
+  // methods to ensure it is simple.
+  Polygon_ptr convex_polygon = std::make_shared<Polygon>(poly_pts);
+
+  return convex_polygon;
 }
 } // namespace cg
