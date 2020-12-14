@@ -180,10 +180,18 @@ std::pair<Polygon_ptr, Polygon_ptr> Polygon::cut(const Line2d& l) const{
   std::vector<Point2d> right_pts;
 
   for(int i = 0; i < edges_.size(); ++i) {
-    Line2d v1(l.pt1(), edges_[i].pt1());
-    auto side1 = l.cross(v1);
-    Line2d v2(l.pt1(), edges_[i].pt2());
-    auto side2 = l.cross(v2);
+    double side1;
+    if(l.pt1() == edges_[i].pt1()) side1 = 0;
+    else{
+      Line2d v1(l.pt1(), edges_[i].pt1());
+      side1 = l.cross(v1);
+    }
+    double side2;
+    if(l.pt1() == edges_[i].pt2()) side2 = 0;
+    else{
+      Line2d v2(l.pt1(), edges_[i].pt2());
+      side2 = l.cross(v2);
+    }
 
     // Determine which side the tail point of this edge belongs to
     // If cutting line is collinear with this point, add it later
@@ -202,7 +210,26 @@ std::pair<Polygon_ptr, Polygon_ptr> Polygon::cut(const Line2d& l) const{
     if (side1 * side2 <= EPS) { // This edge intersects the line.
       // compute intersecting point
       auto intcp = intersectPoint(l, edges_[i]);
-      assert(intcp!=nullptr); // Lines intercept; should never be null.
+      if(!intcp){
+        // Lines are coincident, since this algorithm only deals with convex
+        // polygons, it means the cutting line is coincident with one of the
+        // edges. The entire polygon is either on the right or left of the
+        // cutting line.
+
+        // Determine whether the polygon is on the left or right of the
+        // cutting line
+        for(size_t k = 0; k < vertices_.size(); ++k){
+          if(distancePointToLine(vertices_[k], l) > 0){
+            if(l.cross(Line2d(l.pt1(), vertices_[k])) > 0){
+              // Polygon is on the left
+              return {std::make_shared<Polygon>(*this),nullptr};
+            }else{
+              // Polygon is on the right
+              return {nullptr, std::make_shared<Polygon>(*this)};
+            }
+          }
+        }
+      }
 
       if(left_pts.empty()
       || left_pts.back() != *intcp) left_pts.push_back(*intcp);

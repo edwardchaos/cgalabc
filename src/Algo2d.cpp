@@ -76,7 +76,9 @@ std::unique_ptr<Point2d> intersectPoint(const Line2d& l1, const Line2d& l2){
   auto y = l2.a()*l1.c() - l1.a()*l2.c();
   auto w = l1.a()*l2.b() - l2.a()*l1.b();
 
-  if(w==0) return nullptr; // Lines are parallel, they do not intersect.
+  // Lines are parallel, they do not intersect at a point
+  if(w==0) return nullptr;
+
   return std::make_unique<Point2d>(x/w,y/w);
 }
 
