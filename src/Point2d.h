@@ -2,8 +2,11 @@
 
 #include <cstddef>
 #include <functional>
+#include <memory>
 
 namespace cg {
+class Point2d;
+typedef std::shared_ptr<Point2d> Point2d_ptr;
 
 // Small value for comparing double floating equality
 inline const double EPS = 1e-9;

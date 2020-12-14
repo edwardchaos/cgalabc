@@ -1,8 +1,14 @@
 #pragma once
 
+#include <memory>
+
 #include "Point2d.h"
 
 namespace cg {
+
+class Line2d;
+typedef std::shared_ptr<Line2d> Line2d_ptr;
+
 // Fundamentally, 2 points define a line.
 class Line2d {
  public:
