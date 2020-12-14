@@ -43,16 +43,23 @@ TEST(Algo, basic_properties){
 }
 
 TEST(Algo, basic_algos){
+  cg::Point2d origin(0,0);
   cg::Point2d pt1(5,5);
   cg::Point2d pt2(1,5);
   cg::Point2d pt3(1,0);
   cg::Point2d pt4(0.5,0);
   cg::Point2d pt5(0,-5);
+  cg::Point2d above_pt5(0,10);
 
   cg::Line2d l1({1,0});
 
+  // Angle between 3 points
   ASSERT_NEAR(M_PI/2.0, cg::angle(pt3,pt2,pt1), cg::EPS);
   ASSERT_NEAR(1.6704649792860586,cg::angle(pt4,pt2,pt1), cg::EPS);
+  ASSERT_NEAR(M_PI, cg::angle(origin, pt4, pt3), cg::EPS);
+  ASSERT_NEAR(0, cg::angle(pt4,origin,pt3), cg::EPS);
+  ASSERT_NEAR(M_PI, cg::angle(pt5,origin,above_pt5), cg::EPS);
+  ASSERT_NEAR(0, cg::angle(origin, pt5, above_pt5), cg::EPS);
 
   // Collinear points
   ASSERT_NEAR(0,cg::angle(pt2,pt3,cg::Point2d(1,10)),cg::EPS);
@@ -84,7 +91,6 @@ TEST(Algo, basic_algos){
   ASSERT_NEAR(dls5, 5.0, cg::EPS);
 
   // Point on the standard equation of a line but not on the segment
-  cg::Point2d origin(0,0);
   cg::Line2d l2{{1,0},{2,0}};
   auto dist6 = cg::distancePointToLineSegment(origin, l2);
   ASSERT_NEAR(dist6, 1.0, cg::EPS);

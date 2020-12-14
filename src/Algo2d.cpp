@@ -29,8 +29,11 @@ double angle(const Point2d &a, const Point2d &b, const Point2d &c){
     throw std::invalid_argument("Requires 3 distinct points to compute angle");
   }
   auto cross = lab->cross(*lac);
-  if(cross > -EPS && cross < EPS)
-    return 0;
+  if(cross > -EPS && cross < EPS){
+    // Points are collinear. Angle is either 0 or pi
+    if(lab->dot(*lbc) < 0) return 0;
+    else return M_PI;
+  }
 
   double ab = lab->length();
   double bc = lbc->length();
