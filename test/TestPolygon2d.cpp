@@ -195,10 +195,3 @@ TEST(Polygon, cutting){
   ASSERT_EQ(*cut_polys5.first, left5);
   ASSERT_EQ(*cut_polys5.second, right5);
 }
-
-TEST(Polygon, convex_hull){
-  // Convex hull
-
-}
-
-

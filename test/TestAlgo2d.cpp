@@ -89,3 +89,39 @@ TEST(Algo, basic_algos){
   auto dist6 = cg::distancePointToLineSegment(origin, l2);
   ASSERT_NEAR(dist6, 1.0, cg::EPS);
 }
+
+TEST(Algo, convex_hull){
+  // Create Triangle
+  std::vector<cg::Point2d> simple_triangle{{0,0}, {1,0}, {0,1}};
+  std::vector<cg::Point2d> simple_triangle_with_points{
+      {0,0}, {1,0}, {0,1}, // Convex hull points
+      {0.25,0.25}, {0.25,0.5}, {0.5,0.25} // Additional points contained within
+  };
+  cg::Polygon right_triangle{{0,0},{1,0},{0,1}};
+
+  auto ch1 = cg::convexHull(simple_triangle);
+  ASSERT_NE(ch1, nullptr);
+  ASSERT_EQ(*ch1, right_triangle);
+
+  // Create arbitrary points
+  std::vector<cg::Point2d> pointset2{
+      {3,-8}, {1,1}, {-1,-4}, {-5,-5}, {3,-4}, {2,6},
+      {7,2}, {4,-3}, {8,-7}
+  };
+  cg::Polygon gt2{{-5,-5},{3,-8},{8,-7},{7,2},{2,6},{3,-4}};
+  auto ch2 = cg::convexHull(pointset2);
+  ASSERT_NE(ch2, nullptr);
+  ASSERT_EQ(*ch2, gt2);
+
+  // Pointset with coincident points
+  std::vector<cg::Point2d> pointset3{
+      // Points of convex hull
+      {3.5,3.5},{4,1},{1,2},{1,-1},{2,-1},{-1,-1},
+      // Additional points
+      {0.5,0.5},{1.5,1.5},{2,1},{2.5,0.5},{2,0}
+  };
+  cg::Polygon gt3{{1,-1},{2,-1},{4,1},{3.5,3.5},{1,2},{-1,-1}};
+  auto ch3 = cg::convexHull(pointset3);
+  ASSERT_NE(ch3, nullptr);
+  ASSERT_EQ(*ch3, gt3);
+}
