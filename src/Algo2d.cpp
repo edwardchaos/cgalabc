@@ -147,7 +147,7 @@ Polygon_ptr convexHull(const std::vector<Point2d> &pts){
 
   for(auto pt : unique_pts){
     if(pt.y() < low
-    || ((low - pt.y()) < EPS && pt.x() > right)){
+    || (fabs(low - pt.y()) < EPS && pt.x() > right)){
       low = pt.y();
       right = pt.x();
     }
@@ -179,7 +179,8 @@ Polygon_ptr convexHull(const std::vector<Point2d> &pts){
 
   std::sort(pts_sorted.begin(), pts_sorted.end(), angle_sort);
 
-  // Start polygon with points N-1, 0, and 1 from the sorted-by-angle vector
+  // Start polygon with points N-1, pivot, and 1 from the sorted-by-angle
+  // vector
   std::vector<Point2d> poly_pts({pts_sorted.back(),
                                    pivot,
                                    pts_sorted[0]});
@@ -187,16 +188,15 @@ Polygon_ptr convexHull(const std::vector<Point2d> &pts){
   // Idea: Convex polygons formed by ccw ordered points contain entirely left
   // turns. Iteratively add points only allowing left turns and the final
   // result is a convex polygon.
-  // Iterate through the sorted array of points and test it by seeing if the
-  // new edge forms a left turn.
-  for(int i = 2; i < pts_sorted.size(); ++i){
+  for(int i = 1; i < pts_sorted.size(); ++i){
     // See if next point forms a left turn with the last edge
     bool added = false;
     while(!added) {
       Line2d next_line(poly_pts.back(), pts_sorted[i]);
       Line2d last_line(poly_pts[poly_pts.size() - 2], poly_pts.back());
 
-      if (last_line.cross(next_line) > 0) { // Left turn
+      if (last_line.cross(next_line) > 0) {
+        // Left turn (removes collinear points)
         poly_pts.push_back(pts_sorted[i]);
         added = true;
       } else {
@@ -205,10 +205,10 @@ Polygon_ptr convexHull(const std::vector<Point2d> &pts){
     }
   }
 
-  // Check last turn
-  Line2d last_edge(poly_pts[poly_pts.size()-2],poly_pts.back());
-  Line2d closing_edge(poly_pts.back(), poly_pts.front());
-  if(last_edge.cross(closing_edge) < 0) poly_pts.pop_back();
+  if(angle(poly_pts[poly_pts.size()-2], poly_pts.front(), poly_pts[1]) == M_PI){
+    poly_pts.erase(poly_pts.begin());
+    poly_pts.pop_back();
+  }
 
   // Attempt to create a polygon, Polygon class has additional verification
   // methods to ensure it is simple.
