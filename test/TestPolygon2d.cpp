@@ -7,7 +7,7 @@ TEST(Polygon, create_polygon){
   try {
     // Create 2 valid polygons
     cg::Polygon first{{0, 0}, {10, 0}, {10, 10}, {0, 10}};
-    cg::Polygon firstsame{{0, 0}, {10, 0}, {10, 10}, {0, 10}};
+    cg::Polygon firstsame{{10, 0}, {10, 10}, {0, 10},{0,0}};
     cg::Polygon different{{0, 0}, {10, 0}, {10, 10}, {0, 11}};
     std::vector<cg::Point2d> pointset2{{-5, -5}, {5, -5}, {5, 5}};
     cg::Polygon second{pointset2};
