@@ -159,12 +159,12 @@ Polygon_ptr convexHull(const std::vector<Point2d> &pts){
   // Sort by counter clockwise angle around pivot from x-axis
   auto angle_sort = [&](const Point2d &pt1, const Point2d &pt2){
     double angle1;
-    if(pt1.y() == pivot.y()) angle1 = pt1.x() > pivot.x()? 0:M_PI;
+    if(right_of_pivot == pt1) angle1 = 0;
     else angle1 = angle(right_of_pivot, pivot, pt1);
 
     double angle2;
-    if(pt2.y() == pivot.y()) angle2 = pt2.x() > pivot.x()? 0:M_PI;
-    angle2 = angle(right_of_pivot, pivot, pt2);
+    if(right_of_pivot == pt2) angle2 = 0;
+    else angle2 = angle(right_of_pivot, pivot, pt2);
 
     return angle1 < angle2;
   };
