@@ -105,29 +105,46 @@ TEST(Algo, convex_hull){
   };
   cg::Polygon right_triangle{{0,0},{1,0},{0,1}};
 
-  auto ch1 = cg::convexHull(simple_triangle);
+  cg::Polygon_ptr ch1;
+  try{
+    ch1 = cg::convexHull(simple_triangle);
+  }catch(...){
+    FAIL() << "Should not throw any exceptions";
+  }
   ASSERT_NE(ch1, nullptr);
   ASSERT_EQ(*ch1, right_triangle);
 
   // Create arbitrary points
   std::vector<cg::Point2d> pointset2{
-      {3,-8}, {1,1}, {-1,-4}, {-5,-5}, {3,-4}, {2,6},
+      {3,-8}, {1,1}, {-1,-4}, {-5,-5}, {-3,4}, {2,6},
       {7,2}, {4,-3}, {8,-7}
   };
-  cg::Polygon gt2{{-5,-5},{3,-8},{8,-7},{7,2},{2,6},{3,-4}};
-  auto ch2 = cg::convexHull(pointset2);
+  cg::Polygon gt2{{-5,-5},{3,-8},{8,-7},{7,2},{2,6},{-3,4}};
+
+  cg::Polygon_ptr ch2;
+  try{
+    ch2 = cg::convexHull(pointset2);
+  }catch(std::exception &e){
+    FAIL() << e.what();
+  }
   ASSERT_NE(ch2, nullptr);
   ASSERT_EQ(*ch2, gt2);
 
-  // Pointset with coincident points
+  // Pointset with collinear points
   std::vector<cg::Point2d> pointset3{
       // Points of convex hull
       {3.5,3.5},{4,1},{1,2},{1,-1},{2,-1},{-1,-1},
       // Additional points
       {0.5,0.5},{1.5,1.5},{2,1},{2.5,0.5},{2,0}
   };
-  cg::Polygon gt3{{1,-1},{2,-1},{4,1},{3.5,3.5},{1,2},{-1,-1}};
-  auto ch3 = cg::convexHull(pointset3);
+  cg::Polygon gt3{{-1,-1},{2,-1},{4,1},{3.5,3.5},{1,2},{-1,-1}};
+
+  cg::Polygon_ptr ch3;
+  try{
+    ch3 = cg::convexHull(pointset3);
+  }catch(std::exception &e){
+    FAIL() << e.what();
+  }
   ASSERT_NE(ch3, nullptr);
   ASSERT_EQ(*ch3, gt3);
 }
