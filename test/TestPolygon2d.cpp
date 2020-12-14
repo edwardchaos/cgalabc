@@ -156,6 +156,7 @@ TEST(Polygon, cutting){
   cg::Line2d cut_through_vertex({2.5,0},{5,5});
   cg::Line2d vertical_cut({2.5,-10},{2.5,10});
   cg::Line2d horizontal_cut({5,2.5},{0,2.5});
+  cg::Line2d cut_on_edge({0,0},{5,0});
 
   auto cut_polys1 = triangle.cut(cut_line1);
   cg::Polygon left1{{0,0},{5,0},{5,5}};
@@ -194,4 +195,9 @@ TEST(Polygon, cutting){
   ASSERT_NE(cut_polys5.second, nullptr);
   ASSERT_EQ(*cut_polys5.first, left5);
   ASSERT_EQ(*cut_polys5.second, right5);
+
+  auto cut_poly6 = triangle.cut(cut_on_edge);
+  ASSERT_EQ(cut_poly6.second, nullptr);
+  ASSERT_NE(cut_poly6.first, nullptr);
+  ASSERT_EQ(*cut_poly6.first, triangle);
 }
