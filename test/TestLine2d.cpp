@@ -99,3 +99,10 @@ TEST(Testlines, basic_operations){
 
   ASSERT_NEAR(l4_length1.length(), 1, cg::EPS);
 }
+
+TEST(Line, normal){
+  // TODO: Test midpoint
+
+  // TODO: Test normal vector
+
+}

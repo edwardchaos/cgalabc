@@ -262,20 +262,46 @@ std::pair<Polygon_ptr, Polygon_ptr> Polygon::cut(const Line2d& l) const{
 
 bool Polygon::inCollisionSATHelper(const Polygon& other) const{
   // Loop through edges of this polygon
-  for(auto edge : edges_){
+  for(const auto &edge : edges_){
     // Compute the orthognal vector
-    //edge.normal();
+    auto midpoint = edge.midPoint();
+    auto normal = edge.normal();
+
+    double this_min_dot = 1e9;
+    double this_max_dot = -1e9;
 
     // Loop through vertices of this polygon
-    // Compute dot product between orthogonal vector and vector created from
-    // orthogonal vector's base to vertex
-    // Keep max and min values
+    for(int i = 0 ; i < vertices_.size()-1; ++i){
+      // Compute dot product between orthogonal vector and vector created from
+      // orthogonal vector's base to vertex
+      Line2d candidate(midpoint, vertices_[i]);
+      double dotprod = normal.dot(candidate);
 
+      // Keep max and min values
+      this_min_dot = std::min(dotprod, this_min_dot);
+      this_max_dot = std::max(dotprod, this_max_dot);
+    }
+
+    double that_min_dot = 1e9;
+    double that_max_dot = -1e9;
     // Do the same for all vertices of other polygon
+    auto other_verts = other.vertices();
+    for(int i = 0; i < other_verts.size()-1; ++i){
+      double dotprod = 0;
+      if(other_verts[i] != midpoint){
+        Line2d candidate(midpoint, other_verts[i]);
+        dotprod = normal.dot(candidate);
+      }
+
+      that_min_dot = std::min(dotprod, that_min_dot);
+      that_max_dot = std::max(dotprod, that_max_dot);
+    }
 
     // If the max/min ranges of both point sets don't overlap, the polygons do
-    // not collide.
-
+    // not collide based on this edge perspective.
+    if(this_min_dot < that_min_dot && this_max_dot < that_min_dot
+    || that_min_dot < this_min_dot && that_max_dot < this_min_dot)
+      return false;
   }
   // Otherwise, this one-way check shows they are potentially in collision.
   return true;

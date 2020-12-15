@@ -80,6 +80,32 @@ double Line2d::dot(const Line2d &other) const{
   return vec_.x() * other.vec().x() + vec_.y() * other.vec().y();
 }
 
+Point2d Line2d::midPoint()const{
+  return (v_ - u_) / 2 + u_;
+}
+
+Line2d Line2d::normal()const{
+  auto mid = midPoint();
+  Point2d off_mid_pt(mid.x()+a_, mid.y()+b_);
+  Point2d off_mid_pt2(mid.x()-a_, mid.y()-b_);
+
+  // One line is to the right, the other is to the left.
+  Line2d option_a(mid, off_mid_pt);
+  Line2d option_b(mid, off_mid_pt2);
+
+  if(this->cross(option_a) > 0){
+    // option_a is left side
+    // option_b is right side
+    auto unit = option_b.normalize();
+    return Line2d(mid+unit.pt2());
+  }else{
+    // option_a is right side
+    // option_b is left side
+    auto unit = option_a.normalize();
+    return Line2d(mid+unit.pt2());
+  }
+}
+
 double Line2d::a() const{return a_;}
 double Line2d::b() const{return b_;}
 double Line2d::c() const{return c_;}

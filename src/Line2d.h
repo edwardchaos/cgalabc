@@ -40,6 +40,13 @@ class Line2d {
   // Dot product
   double dot(const Line2d &other) const;
 
+  // Returns the midpoint of this line segment
+  Point2d midPoint()const;
+
+  // Returns an orthogonal unit vector pointing out to the right side of this
+  // line.
+  Line2d normal()const;
+
  private:
   // Line segment bounded by 2 points
   Point2d u_, v_;
