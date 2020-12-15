@@ -134,7 +134,6 @@ double distancePointToLineSegment(const Point2d &pt, const Line2d &l){
 }
 
 Polygon_ptr convexHull(const std::vector<Point2d> &pts){
-  // TODO: Create function to remove duplicates?
   std::unordered_set<Point2d, cg::hashPoint2d> unique_pts;
   for(auto pt : pts){
     if(unique_pts.find(pt) != unique_pts.end()) continue;

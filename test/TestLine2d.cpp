@@ -101,8 +101,30 @@ TEST(Testlines, basic_operations){
 }
 
 TEST(Line, normal){
-  // TODO: Test midpoint
+  // Midpoint tests
+  cg::Point2d origin(0,0);
 
-  // TODO: Test normal vector
+  cg::Line2d l1({-1,0},{1,0});
+  cg::Line2d l2({-1,-1},{1,1});
+  cg::Line2d l3({0,-1},{0,1});
+  cg::Line2d l4({1,-1},{-1,1});
 
+  ASSERT_EQ(l1.midPoint(), origin);
+  ASSERT_EQ(l2.midPoint(), origin);
+  ASSERT_EQ(l3.midPoint(), origin);
+  ASSERT_EQ(l4.midPoint(), origin);
+
+  auto l1_normal = l1.normal();
+  auto l2_normal = l2.normal();
+  auto l3_normal = l3.normal();
+  auto l4_normal = l4.normal();
+  ASSERT_DOUBLE_EQ(l1_normal.length(), 1);
+  ASSERT_DOUBLE_EQ(l2_normal.length(), 1);
+  ASSERT_DOUBLE_EQ(l3_normal.length(), 1);
+  ASSERT_DOUBLE_EQ(l4_normal.length(), 1);
+
+  ASSERT_EQ(l1_normal.pt2(), cg::Point2d(0,-1));
+  ASSERT_EQ(l2_normal.pt2(), cg::Point2d(cos(M_PI/4.0),-sin(M_PI/4.0)));
+  ASSERT_EQ(l3_normal.pt2(), cg::Point2d(1,0));
+  ASSERT_EQ(l4_normal.pt2(), cg::Point2d(cos(M_PI/4.0), sin(M_PI/4.0)));
 }
