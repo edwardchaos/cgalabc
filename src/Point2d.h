@@ -21,9 +21,9 @@ class Point2d {
   double y() const;
 
   Point2d operator-(const Point2d &other) const;
+  Point2d operator+(const Point2d &other) const;
   bool operator==(const Point2d &other) const;
   bool operator!=(const Point2d &other) const;
-
 
   double dist(const Point2d &other) const;
   void print() const;

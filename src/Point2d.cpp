@@ -14,6 +14,10 @@ Point2d Point2d::operator-(const Point2d &other) const {
   return {x_ - other.x(), y_ - other.y()};
 }
 
+Point2d Point2d::operator+(const Point2d &other) const{
+  return {x_ + other.x(), y_ - other.y()};
+}
+
 bool Point2d::operator==(const Point2d &other) const{
   return (fabs(x_ - other.x())) < EPS && (fabs(y_ - other.y()) < EPS);
 }
