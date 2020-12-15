@@ -11,9 +11,8 @@ bool isOrthogonal(const Line2d& l1, const Line2d& l2);
 
 /*
  * returns angle ABC between the lines AB and BC
- * Return 0 if points are collinear
+ * Output ranges [0,PI]
  */
-
 double angle(const Point2d &a, const Point2d &b, const Point2d &c);
 
 /*
@@ -21,17 +20,19 @@ double angle(const Point2d &a, const Point2d &b, const Point2d &c);
  * are parallel or they do not cross.
  */
 bool intersects(const Line2d& l1, const Line2d& l2);
+
 /*
  * Returns the point of intersection between 2 infinite length lines.
  * Returns nullptr if they are parallel.
  */
-std::unique_ptr<Point2d> intersectPoint(const Line2d& l1, const Line2d& l2);
+Point2d_ptr intersectPoint(const Line2d& l1, const Line2d& l2);
 
 /*
  * Given a point and a line parameterized by ax + by + c = 0,
- * Returns the orthogonal line segment. If the length is 0, returns nullptr.
+ * Returns the orthogonal line segment from the point to the line. If the
+ * length is 0, returns nullptr.
  */
-std::unique_ptr<Line2d> orthogonalSegment(const Point2d &pt, const Line2d &l);
+Line2d_ptr orthogonalSegment(const Point2d &pt, const Line2d &l);
 
 /* Shortest distance of point to line equation ax + by + c = 0
  * See also: distancePointToLineSegment

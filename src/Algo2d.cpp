@@ -71,7 +71,7 @@ bool intersects(const Line2d& l1, const Line2d& l2){
   return true;
 }
 
-std::unique_ptr<Point2d> intersectPoint(const Line2d& l1, const Line2d& l2){
+Point2d_ptr intersectPoint(const Line2d& l1, const Line2d& l2){
   auto x = l1.b()*l2.c() - l2.b()*l1.c();
   auto y = l2.a()*l1.c() - l1.a()*l2.c();
   auto w = l1.a()*l2.b() - l2.a()*l1.b();
@@ -79,10 +79,10 @@ std::unique_ptr<Point2d> intersectPoint(const Line2d& l1, const Line2d& l2){
   // Lines are parallel, they do not intersect at a point
   if(w==0) return nullptr;
 
-  return std::make_unique<Point2d>(x/w,y/w);
+  return std::make_shared<Point2d>(x/w,y/w);
 }
 
-std::unique_ptr<Line2d> orthogonalSegment(const Point2d &pt, const Line2d &l){
+Line2d_ptr orthogonalSegment(const Point2d &pt, const Line2d &l){
   double ortho_a, ortho_b, ortho_c;
 
   // Compute coefficients a,b, and c of the orthogonal line
@@ -106,7 +106,7 @@ std::unique_ptr<Line2d> orthogonalSegment(const Point2d &pt, const Line2d &l){
   if(*int_pt == pt) return nullptr;
 
   // Compute distance between intersection point and first point
-  return std::make_unique<Line2d>(*int_pt, pt);
+  return std::make_shared<Line2d>(*int_pt, pt);
 }
 
 double distancePointToLine(const Point2d &pt, const Line2d &l){
