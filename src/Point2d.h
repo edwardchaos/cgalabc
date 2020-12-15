@@ -22,8 +22,8 @@ class Point2d {
 
   Point2d operator-(const Point2d &other) const;
   Point2d operator+(const Point2d &other) const;
-  template<typename T>
-  Point2d operator*(T scalar)const;
+  template<typename T> Point2d operator*(T scalar)const;
+  template<typename T> Point2d operator/(T scalar)const;
   bool operator==(const Point2d &other) const;
   bool operator!=(const Point2d &other) const;
 

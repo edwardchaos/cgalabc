@@ -23,6 +23,11 @@ Point2d Point2d::operator*(T scalar)const{
   return {x_*scalar, y_*scalar};
 }
 
+template<typename T>
+Point2d Point2d::operator/(T scalar)const{
+  return {x_/scalar, y_/scalar};
+}
+
 bool Point2d::operator==(const Point2d &other) const{
   return (fabs(x_ - other.x())) < EPS && (fabs(y_ - other.y()) < EPS);
 }
