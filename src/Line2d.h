@@ -28,9 +28,13 @@ class Line2d {
   // Euclidean length of this vector
   double length() const;
 
+  /*
+   * Returns a Line2d formed by the points of a unit vector in the same
+   * direction as the calling line. Line is unit vector with base at the origin.
+   */
   Line2d normalize();
 
-  // Cross product: This vec x other vec
+  // Cross product aka wedge product: This vec x other vec
   double cross(const Line2d &other) const;
 
   // Dot product
