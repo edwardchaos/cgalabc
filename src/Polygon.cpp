@@ -261,7 +261,24 @@ std::pair<Polygon_ptr, Polygon_ptr> Polygon::cut(const Line2d& l) const{
 }
 
 bool Polygon::inCollisionSATHelper(const Polygon& other) const{
-  return false;
+  // Loop through edges of this polygon
+  for(auto edge : edges_){
+    // Compute the orthognal vector
+    //edge.normal();
+
+    // Loop through vertices of this polygon
+    // Compute dot product between orthogonal vector and vector created from
+    // orthogonal vector's base to vertex
+    // Keep max and min values
+
+    // Do the same for all vertices of other polygon
+
+    // If the max/min ranges of both point sets don't overlap, the polygons do
+    // not collide.
+
+  }
+  // Otherwise, this one-way check shows they are potentially in collision.
+  return true;
 }
 
 /*
