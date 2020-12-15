@@ -18,13 +18,12 @@ Point2d Point2d::operator+(const Point2d &other) const{
   return {x_ + other.x(), y_ + other.y()};
 }
 
-template<typename T>
-Point2d Point2d::operator*(T scalar)const{
+Point2d Point2d::operator*(double scalar)const{
   return {x_*scalar, y_*scalar};
 }
 
-template<typename T>
-Point2d Point2d::operator/(T scalar)const{
+Point2d Point2d::operator/(double scalar)const{
+  // Just let it happen
   return {x_/scalar, y_/scalar};
 }
 
