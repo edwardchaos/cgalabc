@@ -260,4 +260,11 @@ std::pair<Polygon_ptr, Polygon_ptr> Polygon::cut(const Line2d& l) const{
   return {left_polygon, right_polygon};
 }
 
+/*
+ * Separating axis theorem
+ */
+bool Polygon::collide(const Polygon& other)const{
+  return false;
+}
+
 } // namespace cg
