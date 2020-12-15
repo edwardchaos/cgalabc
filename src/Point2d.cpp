@@ -15,7 +15,7 @@ Point2d Point2d::operator-(const Point2d &other) const {
 }
 
 Point2d Point2d::operator+(const Point2d &other) const{
-  return {x_ + other.x(), y_ - other.y()};
+  return {x_ + other.x(), y_ + other.y()};
 }
 
 bool Point2d::operator==(const Point2d &other) const{

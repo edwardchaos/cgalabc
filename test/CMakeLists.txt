@@ -2,6 +2,7 @@ set (BINARY ${CMAKE_PROJECT_NAME}_test)
 
 # specify source files
 set(TEST_SOURCES
+	TestPoint2d.cpp
 	TestLine2d.cpp
 	TestAlgo2d.cpp
 	TestPolygon2d.cpp
