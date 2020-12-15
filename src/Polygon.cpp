@@ -57,7 +57,7 @@ bool Polygon::operator==(const Polygon& other) const{
 }
 
 bool Polygon::operator!=(const Polygon& other)const{
-  return !((*this)==other);
+  return !operator==(other);
 }
 
 void Polygon::constructEdges(){
@@ -113,7 +113,7 @@ bool Polygon::verifyPolygon(){
 std::vector<Point2d> Polygon::vertices()const{return vertices_;}
 
 bool Polygon::isConvex() const{
-  // All adjacent edges for left turns since vertices are ordered
+  // All adjacent edges are left turns since vertices are ordered
   // counter-clockwise
 
   for(int i = 0; i < edges_.size()-1; ++i)

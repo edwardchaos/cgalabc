@@ -19,13 +19,30 @@ class Polygon{
 
   // Input is counter clockwise ordered points. If the last point is not yet
   // equal to first point (to close the polygon), the first point is appended
-  // to close the polygon.
+  // for convenience
   Polygon(std::vector<Point2d> &points);
   Polygon(std::initializer_list<Point2d> points);
 
+  /*
+   * Polygons are equal if they contain the same vertices. Collinear points
+   * are considered as unique points, so if polygons have the same "shape"
+   * but one has an additional collinear vertex along an edge they are
+   * different polygons.
+   */
   bool operator==(const Polygon& other)const;
   bool operator!=(const Polygon& other)const;
 
+  /*
+   * Called by Polygon constructor.
+   * Verify that inputs to the constructor forms a simple polygon:
+   *
+   * No holes
+   * No edges cross
+   * All input points are unique except for the possibility of the first and
+   * last
+   * At least 3 unique vertices (simplest polygon is a triangle)
+   * Those 3 vertices are not collinear
+   */
   bool verifyPolygon();
 
   // getters
@@ -50,7 +67,6 @@ class Polygon{
   /*
    * Return a pair of polygons for the left and right sides of the split polygon
    * Left/right side is determined by the dividing line orientation.
-   * Polygon pointer is null if the line doesn't intersect the polygon.
    */
   std::pair<Polygon_ptr, Polygon_ptr> cut(const Line2d& l) const;
 
