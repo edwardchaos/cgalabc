@@ -23,7 +23,7 @@ bool Point2d::operator==(const Point2d &other) const{
 }
 
 bool Point2d::operator!=(const Point2d &other) const{
-  return !(*this==other);
+  return !operator==(other);
 }
 
 void Point2d::print() const{
