@@ -260,11 +260,17 @@ std::pair<Polygon_ptr, Polygon_ptr> Polygon::cut(const Line2d& l) const{
   return {left_polygon, right_polygon};
 }
 
+bool Polygon::inCollisionSATHelper(const Polygon& other) const{
+  return false;
+}
+
 /*
  * Separating axis theorem
  */
-bool Polygon::inCollision(const Polygon& other)const{
-  return false;
+bool Polygon::inCollisionSAT(const Polygon& other)const{
+  if(!this->inCollisionSATHelper(other)) return false;
+  if(!other.inCollisionSATHelper(*this)) return false;
+  return true;
 }
 
 } // namespace cg

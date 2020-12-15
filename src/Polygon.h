@@ -70,7 +70,7 @@ class Polygon{
    */
   std::pair<Polygon_ptr, Polygon_ptr> cut(const Line2d& l) const;
 
-  bool inCollision(const Polygon& other)const;
+  bool inCollisionSAT(const Polygon& other)const;
  private:
   std::vector<Point2d> vertices_;
   std::vector<Line2d> edges_;
@@ -80,5 +80,11 @@ class Polygon{
    * Warning: Does not check for constructing an edge with duplicate points.
    */
   void constructEdges();
+
+  /*
+   * Helper function of inCollision that checks one-way, the separating axis
+   * theorem polygon collision.
+   */
+  bool inCollisionSATHelper(const Polygon& other)const;
 };
 } // namespace cg

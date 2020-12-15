@@ -209,22 +209,22 @@ TEST(Polygon, separating_axis_theorem){
   cg::Polygon L_shape{{-1.1,0},{-1.1,-1.1},{0.5,-1.1},{0,-2},{-2,-2},{-2,0}};
 
   // 4C2 = 6 combinations
-  ASSERT_TRUE(square.inCollision(lil_tri));
-  ASSERT_TRUE(square.inCollision(big_tri));
-  ASSERT_FALSE(square.inCollision(L_shape));
-  ASSERT_FALSE(lil_tri.inCollision(big_tri));
-  ASSERT_FALSE(lil_tri.inCollision(L_shape));
-  ASSERT_FALSE(L_shape.inCollision(big_tri));
+  ASSERT_TRUE(square.inCollisionSAT(lil_tri));
+  ASSERT_TRUE(square.inCollisionSAT(big_tri));
+  ASSERT_FALSE(square.inCollisionSAT(L_shape));
+  ASSERT_FALSE(lil_tri.inCollisionSAT(big_tri));
+  ASSERT_FALSE(lil_tri.inCollisionSAT(L_shape));
+  ASSERT_FALSE(L_shape.inCollisionSAT(big_tri));
 
   // Should be commutative
-  ASSERT_TRUE(lil_tri.inCollision(square));
-  ASSERT_TRUE(big_tri.inCollision(square));
-  ASSERT_FALSE(L_shape.inCollision(square));
-  ASSERT_FALSE(big_tri.inCollision(lil_tri));
-  ASSERT_FALSE(L_shape.inCollision(lil_tri));
-  ASSERT_FALSE(big_tri.inCollision(L_shape));
+  ASSERT_TRUE(lil_tri.inCollisionSAT(square));
+  ASSERT_TRUE(big_tri.inCollisionSAT(square));
+  ASSERT_FALSE(L_shape.inCollisionSAT(square));
+  ASSERT_FALSE(big_tri.inCollisionSAT(lil_tri));
+  ASSERT_FALSE(L_shape.inCollisionSAT(lil_tri));
+  ASSERT_FALSE(big_tri.inCollisionSAT(L_shape));
 
   // Add a little square colliding at a corner
   cg::Polygon lil_square{{-1,2},{-1,3},{-2,2},{-2,3}};
-  ASSERT_TRUE(lil_square.inCollision(square));
+  ASSERT_TRUE(lil_square.inCollisionSAT(square));
 }
