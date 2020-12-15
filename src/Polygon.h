@@ -70,7 +70,7 @@ class Polygon{
    */
   std::pair<Polygon_ptr, Polygon_ptr> cut(const Line2d& l) const;
 
-  bool collide(const Polygon& other)const;
+  bool inCollision(const Polygon& other)const;
  private:
   std::vector<Point2d> vertices_;
   std::vector<Line2d> edges_;

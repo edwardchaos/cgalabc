@@ -263,7 +263,7 @@ std::pair<Polygon_ptr, Polygon_ptr> Polygon::cut(const Line2d& l) const{
 /*
  * Separating axis theorem
  */
-bool Polygon::collide(const Polygon& other)const{
+bool Polygon::inCollision(const Polygon& other)const{
   return false;
 }
 
