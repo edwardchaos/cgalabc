@@ -25,3 +25,15 @@ TEST(Point, operations){
   ASSERT_EQ(O-A, C);
   ASSERT_EQ(O-B , D);
 }
+
+TEST(Point, scaling){
+  cg::Point2d og(1,1);
+  cg::Point2d half(0.5,0.5);
+  cg::Point2d quarter(0.25,0.25);
+  cg::Point2d twice(2,2);
+
+  ASSERT_EQ(og*2, twice);
+  ASSERT_EQ(og/2.0, half);
+  ASSERT_EQ(half/2, quarter);
+  ASSERT_EQ(quarter*2.0, half);
+}
