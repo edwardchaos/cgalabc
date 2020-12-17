@@ -22,4 +22,4 @@ add_library(${BINARY}_lib STATIC ${SOURCES} ${HEADERS})
 
 # for live code, as opposed to unit testing
 add_executable(${BINARY}_main main.cpp)
-target_link_libraries(${BINARY}_main ${BINARY}_lib)
+target_link_libraries(${BINARY}_main ${BINARY}_lib png X11 GL pthread)

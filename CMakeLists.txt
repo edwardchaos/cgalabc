@@ -7,6 +7,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 enable_testing()
 
 include_directories(src)
+include_directories(lib/olcPixelGameEngine)
 
 add_subdirectory(src)
 add_subdirectory(test)
