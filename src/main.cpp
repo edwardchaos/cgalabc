@@ -1,6 +1,8 @@
 #define OLC_PGE_APPLICATION
 
+#include <cassert>
 #include <vector>
+#include <unordered_set>
 
 #include "olcPixelGameEngine.h"
 #include "Algo2d.h"
@@ -46,10 +48,26 @@ class LineOfSight: public olc::PixelGameEngine{
     Clear(olc::DARK_GREY);
 
     handleMouseInput();
-    drawWorld();
-    convertWorldCellsToEdges();
-    drawWorldEdges();
 
+    // World grid updated
+    //if(GetMouse(0).bReleased)
+    convertWorldCellsToEdges();
+
+    // Right clicking shows the light and shadows
+    if(GetMouse(1).bHeld){
+      auto rays = std::move(computeRaySegments());
+      auto collisions = std::move(computeClosestRayCollision(rays));
+      DrawString(100,100, std::to_string(collisions.size()));
+      auto sorted_collision_pts = std::move(sortCollisionsByAngle(collisions));
+      for(auto ray : rays){
+        DrawLine(ray.pt1().x(),ray.pt1().y(),ray.pt2().x(),ray.pt2().y());
+      }
+      drawCollisionPoints(sorted_collision_pts);
+      drawVisibleArea(sorted_collision_pts);
+    }
+
+    drawWorld();
+    drawWorldEdges();
     return true;
   }
 
@@ -58,6 +76,131 @@ class LineOfSight: public olc::PixelGameEngine{
   int world_w_, world_h_;
   std::vector<sCell> world_;
   std::vector<cg::Line2d> edges_;
+
+  std::vector<cg::Line2d> computeRaySegments(){
+    std::vector<cg::Line2d> rays;
+    std::unordered_set<cg::Point2d, cg::hashPoint2d> ray_casted_pts;
+    auto mouse_x = GetMouseX();
+    auto mouse_y = GetMouseY();
+    cg::Point2d mouse_pos(mouse_x, mouse_y);
+    double dtheta = 0.005; // A little perturbation from each vertex
+    double cos_t = cos(dtheta);
+    double sin_t = sin(dtheta);
+
+    for(const auto & edge : edges_){
+      if(ray_casted_pts.find(edge.pt1()) == ray_casted_pts.end()
+      && mouse_pos != edge.pt1()){
+        cg::Line2d ray(mouse_pos, edge.pt1());
+        rays.emplace_back(mouse_pos, edge.pt1());
+        ray_casted_pts.insert(edge.pt1());
+
+        double dx1,dx2,dy1,dy2;
+        dx1 = ray.vec().x()*cos_t - ray.vec().y()*sin_t;
+        dy1 = ray.vec().x()*sin_t + ray.vec().y()*cos_t;
+        dx2 = ray.vec().x()*cos_t + ray.vec().y()*sin_t;
+        dy2 = -ray.vec().x()*sin_t + ray.vec().y()*cos_t;
+
+        auto perturb_angle_pt1 = mouse_pos + cg::Point2d(dx1,dy1)*10000;
+        auto perturb_angle_pt2 = mouse_pos + cg::Point2d(dx2,dy2)*10000;
+        rays.emplace_back(mouse_pos, perturb_angle_pt1);
+        rays.emplace_back(mouse_pos, perturb_angle_pt2);
+      }
+
+      if(ray_casted_pts.find(edge.pt2()) == ray_casted_pts.end()
+      && mouse_pos != edge.pt2()){
+        cg::Line2d ray(mouse_pos, edge.pt2());
+        rays.emplace_back(mouse_pos, edge.pt2());
+        ray_casted_pts.insert(edge.pt2());
+
+        double dx1,dx2,dy1,dy2;
+        dx1 = ray.vec().x()*cos_t - ray.vec().y()*sin_t;
+        dy1 = ray.vec().x()*sin_t + ray.vec().y()*cos_t;
+        dx2 = ray.vec().x()*cos_t + ray.vec().y()*sin_t;
+        dy2 = -ray.vec().x()*sin_t + ray.vec().y()*cos_t;
+
+        auto perturb_angle_pt1 = mouse_pos + cg::Point2d(dx1,dy1);
+        auto perturb_angle_pt2 = mouse_pos + cg::Point2d(dx2,dy2);
+        rays.emplace_back(mouse_pos, perturb_angle_pt1);
+        rays.emplace_back(mouse_pos, perturb_angle_pt2);
+      }
+    }
+    return rays;
+  }
+
+  std::unordered_set<cg::Point2d, cg::hashPoint2d>
+  computeClosestRayCollision(const std::vector<cg::Line2d> & rays){
+    std::unordered_set<cg::Point2d, cg::hashPoint2d> collisions;
+
+    // Compare ray with all edges to check for collisions.
+    for(const auto & ray : rays){
+      // Find the closest intersect point on all edges for this ray
+      double min_dist = 1e9;
+      cg::Point2d min_point;
+      cg::Point2d mouse_pos(GetMouseX(), GetMouseY());
+      for(const auto & edge : edges_){
+        if(!cg::intersects(ray, edge) || cg::isParallel(ray,edge)) continue;
+
+        auto int_point = cg::intersectPoint(ray,edge);
+        if(!int_point) continue;
+        double dist = mouse_pos.dist(*int_point);
+        if(dist < min_dist){
+          min_dist = dist;
+          min_point = *int_point;
+        }
+      }
+
+      collisions.insert(min_point);
+    }
+
+    return collisions;
+  }
+
+  std::vector<cg::Point2d>
+  sortCollisionsByAngle(
+      std::unordered_set<cg::Point2d,cg::hashPoint2d> &collisions){
+    std::vector<cg::Point2d> sorted_pts;
+    sorted_pts.reserve(collisions.size());
+
+    // change unordered set to vector
+    for(auto it = collisions.begin(); it != collisions.end();){
+      sorted_pts.push_back(collisions.extract(it++).value());
+    }
+
+    cg::Point2d(GetMouseX(), GetMouseY());
+    auto angle_sort = [&](const cg::Point2d &pt1, const cg::Point2d &pt2){
+      double dx1, dx2, dy1, dy2;
+
+      dx1 = pt1.x() - GetMouseX();
+      dy1 = pt1.y() - GetMouseY();
+      dx2 = pt2.x() - GetMouseX();
+      dy2 = pt2.y() - GetMouseY();
+
+      return atan2(dy1, dx1) < atan2(dy2, dx2);
+    };
+
+    std::sort(sorted_pts.begin(), sorted_pts.end(), angle_sort);
+    return sorted_pts;
+  }
+
+  void drawCollisionPoints(std::vector<cg::Point2d> &sorted_collision_pts){
+    for(const auto &pt : sorted_collision_pts){
+      DrawCircle(pt.x(), pt.y(), 3, olc::RED);
+    }
+  }
+
+  void drawVisibleArea(std::vector<cg::Point2d> &sorted_pts){
+    if(sorted_pts.size() < 2) return;
+
+    for(int i = 0; i < sorted_pts.size()-1; ++i){
+      FillTriangle(sorted_pts[i].x(), sorted_pts[i].y(),
+                   GetMouseX(), GetMouseY(),
+                   sorted_pts[i+1].x(), sorted_pts[i+1].y());
+    }
+    // triangle from last to first point
+    FillTriangle(sorted_pts.back().x(), sorted_pts.back().y(),
+                 GetMouseX(), GetMouseY(),
+                 sorted_pts.front().x(), sorted_pts.front().y());
+  }
 
   void drawWorld() {
     for (int i = 0; i < world_w_; ++i) {
@@ -251,7 +394,7 @@ class LineOfSight: public olc::PixelGameEngine{
 
 int main(){
   LineOfSight engine;
-  if(!engine.Construct(320, 240, 10,10)) return 0;
+  if(!engine.Construct(320, 280, 10,10)) return 0;
   engine.Start();
   return 0;
 }
