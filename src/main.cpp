@@ -47,6 +47,8 @@ class LineOfSight: public olc::PixelGameEngine{
 
     handleMouseInput();
     drawWorld();
+    convertWorldCellsToEdges();
+    drawWorldEdges();
 
     return true;
   }
@@ -55,6 +57,7 @@ class LineOfSight: public olc::PixelGameEngine{
   int cell_size_ = 10;
   int world_w_, world_h_;
   std::vector<sCell> world_;
+  std::vector<cg::Line2d> edges_;
 
   void drawWorld() {
     for (int i = 0; i < world_w_; ++i) {
@@ -65,6 +68,14 @@ class LineOfSight: public olc::PixelGameEngine{
           FillRect(i * cell_size_, j * cell_size_, cell_size_, cell_size_,
                    olc::BLACK);
       }
+    }
+  }
+
+  void drawWorldEdges(){
+    for(const auto &e : edges_){
+      DrawLine(e.pt1().x(),e.pt1().y(),e.pt2().x(),e.pt2().y());
+      DrawCircle(e.pt1().x(),e.pt1().y(), 2, olc::BLUE);
+      DrawCircle(e.pt2().x(),e.pt2().y(), 2, olc::BLUE);
     }
   }
 
@@ -89,6 +100,152 @@ class LineOfSight: public olc::PixelGameEngine{
       world_[cell_idx].enabled = !world_[cell_idx].enabled;
     }
   }
+
+  void convertWorldCellsToEdges(){
+    edges_.clear();
+    for(int j = 0; j < world_h_; ++j){
+      for(int i = 0; i < world_w_; ++i){
+        // reset all wall flags for this cell
+        world_[cellIdx(i,j)].wall[N] = false;
+        world_[cellIdx(i,j)].wall[S] = false;
+        world_[cellIdx(i,j)].wall[E] = false;
+        world_[cellIdx(i,j)].wall[W] = false;
+
+        if(!world_[cellIdx(i,j)].enabled) continue;
+
+        // Northern edge
+        if(j-1>=0 && world_[cellIdx(i,j-1)].enabled){
+          // Northern cell is occupied. No need for a northern edge.
+        }else{
+          // Try to extend the northern edge of the west neighbour if there
+          // is one.
+          if(i-1>=0
+          && world_[cellIdx(i-1,j)].enabled
+          && world_[cellIdx(i-1,j)].wall[N]){
+            int edges_idx = world_[cellIdx(i-1,j)].wall_id[N];
+            auto endpoint = edges_[edges_idx].pt2();
+
+            // Extend the wall to the right by 1 cell
+            edges_[edges_idx] = cg::Line2d(
+                edges_[edges_idx].pt1(), // Original edge start point
+                cg::Point2d(endpoint.x()+cell_size_, endpoint.y()));
+
+            world_[cellIdx(i,j)].wall[N] = true;
+            world_[cellIdx(i,j)].wall_id[N] = edges_idx;
+          }else{
+            // No occupied western neighbour cell. Start a new edge
+            cg::Point2d startpoint(i*cell_size_,j*cell_size_);
+            cg::Point2d endpoint(i*cell_size_+cell_size_, j*cell_size_);
+            edges_.emplace_back(startpoint, endpoint);
+
+            // Link the edge with the cell
+            world_[cellIdx(i,j)].wall[N] = true;
+            world_[cellIdx(i,j)].wall_id[N] = edges_.size()-1;
+          }
+        }
+
+        // Western edge
+        if(i-1>=0 && world_[cellIdx(i-1,j)].enabled){
+          // Western cell is occupied. No need for a western edge
+        }else{
+          // Try to extend the western edge of the northern neighbour if there
+          // is one.
+          if(j-1>=0
+          && world_[cellIdx(i,j-1)].enabled
+          && world_[cellIdx(i,j-1)].wall[W]){
+            int edges_idx = world_[cellIdx(i,j-1)].wall_id[W];
+            auto endpoint = edges_[edges_idx].pt2();
+
+            // Extend the endpoint down by 1 cell
+            edges_[edges_idx] = cg::Line2d(
+                edges_[edges_idx].pt1(), // Original edge start point
+                cg::Point2d(endpoint.x(), endpoint.y()+cell_size_));
+
+            world_[cellIdx(i,j)].wall[W] = true;
+            world_[cellIdx(i,j)].wall_id[W] = edges_idx;
+          }else{
+            // No occupied northern neighbour cell. Start a new edge
+            cg::Point2d startpoint(i*cell_size_,j*cell_size_);
+            cg::Point2d endpoint(i*cell_size_, j*cell_size_+cell_size_);
+            cg::Line2d new_edge(startpoint, endpoint);
+            edges_.push_back(new_edge);
+
+            // Link the edge with the cell
+            world_[cellIdx(i,j)].wall[W] = true;
+            world_[cellIdx(i,j)].wall_id[W] = edges_.size()-1;
+          }
+        }
+
+        // Southern edge
+        if(j+1<world_h_ && world_[cellIdx(i,j+1)].enabled){
+          // Southern cell is occupied. No need for a southern edge
+        }else{
+          // Try to extend the southern edge of the western neighbour if there
+          // is one.
+          if(i-1>=0
+          && world_[cellIdx(i-1,j)].enabled
+          && world_[cellIdx(i-1,j)].wall[S]){
+            int edges_idx = world_[cellIdx(i-1,j)].wall_id[S];
+            auto endpoint = edges_[edges_idx].pt2();
+
+            // Extend the endpoint east by 1 cell
+            edges_[edges_idx] = cg::Line2d(
+                edges_[edges_idx].pt1(), // Original edge start point
+                cg::Point2d(endpoint.x()+cell_size_, endpoint.y()));
+
+            world_[cellIdx(i,j)].wall[S] = true;
+            world_[cellIdx(i,j)].wall_id[S] = edges_idx;
+          }else{
+            // No occupied western neighbour cell. Start a new edge
+            cg::Point2d startpoint(i*cell_size_,j*cell_size_+cell_size_);
+            cg::Point2d endpoint(i*cell_size_+cell_size_,
+                                 j*cell_size_+cell_size_);
+            cg::Line2d new_edge(startpoint, endpoint);
+            edges_.push_back(new_edge);
+
+            // Link the edge with the cell
+            world_[cellIdx(i,j)].wall[S] = true;
+            world_[cellIdx(i,j)].wall_id[S] = edges_.size()-1;
+          }
+        }
+
+        // Eastern edge
+        if(i+1<world_w_ && world_[cellIdx(i+1,j)].enabled){
+          // Eastern cell is occupied. No need for an eastern edge
+        }else{
+          // Try to extend the eastern edge of the northern neighbour if there
+          // is one.
+          if((j-1)>=0
+          && world_[cellIdx(i,j-1)].enabled
+          && world_[cellIdx(i,j-1)].wall[E]){
+            int edges_idx = world_[cellIdx(i,j-1)].wall_id[E];
+            auto endpoint = edges_[edges_idx].pt2();
+
+            // Extend the endpoint down by 1 cell
+            edges_[edges_idx] = cg::Line2d(
+                edges_[edges_idx].pt1(), // Original edge start point
+                cg::Point2d(endpoint.x(), endpoint.y()+cell_size_));
+
+            world_[cellIdx(i,j)].wall[E] = true;
+            world_[cellIdx(i,j)].wall_id[E] = edges_idx;
+          }else{
+            // No occupied northern neighbour cell. Start a new edge
+            cg::Point2d startpoint(i*cell_size_+cell_size_,j*cell_size_);
+            cg::Point2d endpoint(i*cell_size_+cell_size_,
+                                 j*cell_size_+cell_size_);
+            cg::Line2d new_edge(startpoint, endpoint);
+            edges_.push_back(new_edge);
+
+            // Link the edge with the cell
+            world_[cellIdx(i,j)].wall[E] = true;
+            world_[cellIdx(i,j)].wall_id[E] = edges_.size()-1;
+          }
+        }
+      }
+    }
+  }
+
+  int cellIdx(int x, int y){return y*world_w_+x;}
 
 };
 
