@@ -59,15 +59,15 @@ class LineOfSight: public olc::PixelGameEngine{
       auto collisions = std::move(computeClosestRayCollision(rays));
       DrawString(100,100, std::to_string(collisions.size()));
       auto sorted_collision_pts = std::move(sortCollisionsByAngle(collisions));
-      for(auto ray : rays){
-        DrawLine(ray.pt1().x(),ray.pt1().y(),ray.pt2().x(),ray.pt2().y());
-      }
-      drawCollisionPoints(sorted_collision_pts);
+//      for(auto ray : rays){
+//        DrawLine(ray.pt1().x(),ray.pt1().y(),ray.pt2().x(),ray.pt2().y());
+//      }
+      //drawCollisionPoints(sorted_collision_pts);
       drawVisibleArea(sorted_collision_pts);
     }
 
     drawWorld();
-    drawWorldEdges();
+    //drawWorldEdges();
     return true;
   }
 
@@ -118,8 +118,8 @@ class LineOfSight: public olc::PixelGameEngine{
         dx2 = ray.vec().x()*cos_t + ray.vec().y()*sin_t;
         dy2 = -ray.vec().x()*sin_t + ray.vec().y()*cos_t;
 
-        auto perturb_angle_pt1 = mouse_pos + cg::Point2d(dx1,dy1);
-        auto perturb_angle_pt2 = mouse_pos + cg::Point2d(dx2,dy2);
+        auto perturb_angle_pt1 = mouse_pos + cg::Point2d(dx1,dy1)*10000;
+        auto perturb_angle_pt2 = mouse_pos + cg::Point2d(dx2,dy2)*10000;
         rays.emplace_back(mouse_pos, perturb_angle_pt1);
         rays.emplace_back(mouse_pos, perturb_angle_pt2);
       }
@@ -138,7 +138,7 @@ class LineOfSight: public olc::PixelGameEngine{
       cg::Point2d min_point;
       cg::Point2d mouse_pos(GetMouseX(), GetMouseY());
       for(const auto & edge : edges_){
-        if(!cg::intersects(ray, edge) || cg::isParallel(ray,edge)) continue;
+        if(!cg::intersects(ray, edge)) continue;
 
         auto int_point = cg::intersectPoint(ray,edge);
         if(!int_point) continue;
