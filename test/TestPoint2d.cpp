@@ -24,6 +24,12 @@ TEST(Point, operations){
   ASSERT_EQ(E-B , A);
   ASSERT_EQ(O-A, C);
   ASSERT_EQ(O-B , D);
+
+  ASSERT_DOUBLE_EQ(A.x(), 1);
+  ASSERT_DOUBLE_EQ(A.y(), 0);
+  A = B;
+  ASSERT_DOUBLE_EQ(A.x(), 0);
+  ASSERT_DOUBLE_EQ(A.y(), 1);
 }
 
 TEST(Point, scaling){

@@ -35,6 +35,11 @@ bool Point2d::operator!=(const Point2d &other) const{
   return !operator==(other);
 }
 
+void Point2d::operator=(const Point2d &other){
+  this->x_ = other.x();
+  this->y_ = other.y();
+}
+
 void Point2d::print() const{
   printf("Point: (%.3f, %.3f)\n", x_, y_);
 }
