@@ -1,6 +1,5 @@
 #define OLC_PGE_APPLICATION
 
-#include <cassert>
 #include <vector>
 #include <unordered_set>
 
@@ -48,26 +47,17 @@ class LineOfSight: public olc::PixelGameEngine{
     Clear(olc::DARK_GREY);
 
     handleMouseInput();
-
-    // World grid updated
-    //if(GetMouse(0).bReleased)
     convertWorldCellsToEdges();
 
     // Right clicking shows the light and shadows
     if(GetMouse(1).bHeld){
       auto rays = std::move(computeRaySegments());
       auto collisions = std::move(computeClosestRayCollision(rays));
-      DrawString(100,100, std::to_string(collisions.size()));
       auto sorted_collision_pts = std::move(sortCollisionsByAngle(collisions));
-//      for(auto ray : rays){
-//        DrawLine(ray.pt1().x(),ray.pt1().y(),ray.pt2().x(),ray.pt2().y());
-//      }
-      //drawCollisionPoints(sorted_collision_pts);
       drawVisibleArea(sorted_collision_pts);
     }
 
     drawWorld();
-    //drawWorldEdges();
     return true;
   }
 
@@ -100,6 +90,8 @@ class LineOfSight: public olc::PixelGameEngine{
         dx2 = ray.vec().x()*cos_t + ray.vec().y()*sin_t;
         dy2 = -ray.vec().x()*sin_t + ray.vec().y()*cos_t;
 
+        // Rays are too short to reach the back wall, extend them out to
+        // "infinite" length
         auto perturb_angle_pt1 = mouse_pos + cg::Point2d(dx1,dy1)*10000;
         auto perturb_angle_pt2 = mouse_pos + cg::Point2d(dx2,dy2)*10000;
         rays.emplace_back(mouse_pos, perturb_angle_pt1);
