@@ -162,4 +162,11 @@ TEST(Algo, lerp){
   ASSERT_EQ(cg::lerp(origin,twotwo,0.75), tquart);
   ASSERT_EQ(cg::lerp(origin,twotwo,0), origin);
   ASSERT_EQ(cg::lerp(origin,twotwo,1), twotwo);
+
+  // Two points are the same
+  cg::Point2d origin_same(0,0);
+  ASSERT_EQ(cg::lerp(origin,origin_same,0.5), origin);
+  ASSERT_EQ(cg::lerp(origin,origin_same,0), origin);
+  ASSERT_EQ(cg::lerp(origin,origin_same,1), origin);
+  ASSERT_EQ(cg::lerp(origin,origin_same,0.98), origin);
 }
