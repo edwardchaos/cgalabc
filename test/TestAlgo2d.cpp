@@ -148,3 +148,18 @@ TEST(Algo, convex_hull){
   ASSERT_NE(ch3, nullptr);
   ASSERT_EQ(*ch3, gt3);
 }
+
+TEST(Algo, lerp){
+  cg::Point2d origin(0,0);
+  cg::Point2d twotwo(2,2)
+
+  cg::Point2d mid(1,1);
+  cg::Point2d quart(0.5,0.5);
+  cg::Point2d tquart(1.5, 1.5);
+
+  ASSERT_DOUBLE_EQ(cg::lerp(origin,twotwo,0.5), mid);
+  ASSERT_DOUBLE_EQ(cg::lerp(origin,twotwo,0.25), quart);
+  ASSERT_DOUBLE_EQ(cg::lerp(origin,twotwo,0.75), tquart);
+  ASSERT_DOUBLE_EQ(cg::lerp(origin,twotwo,0), origin);
+  ASSERT_DOUBLE_EQ(cg::lerp(origin,twotwo,1), twotwo);
+}
