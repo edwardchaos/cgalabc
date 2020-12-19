@@ -386,7 +386,7 @@ class LineOfSight: public olc::PixelGameEngine{
 
 int main(){
   LineOfSight engine;
-  if(!engine.Construct(320, 280, 10,10)) return 0;
+  if(!engine.Construct(1920, 1080, 1,1)) return 0;
   engine.Start();
   return 0;
 }
