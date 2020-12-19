@@ -50,4 +50,10 @@ double distancePointToLineSegment(const Point2d &pt, const Line2d &l);
  */
 Polygon_ptr convexHull(const std::vector<Point2d> &pts);
 
+/*
+ * Linear interpolation between 2 points.
+ * Argument t in range [0,1]
+ */
+Point2d lerp(const Point2d& from, const Point2d& to, double t);
+
 } // namespace cg

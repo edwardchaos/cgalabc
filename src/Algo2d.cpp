@@ -217,4 +217,11 @@ Polygon_ptr convexHull(const std::vector<Point2d> &pts){
 
   return convex_polygon;
 }
+
+Point2d lerp(const Point2d& from, const Point2d& to, double t){
+  if(fabs(t-0) < cg::EPS) return from;
+  else if(fabs(t-1) < cg::EPS) return to;
+  return from*(1-t) + to*t;
+}
+
 } // namespace cg
