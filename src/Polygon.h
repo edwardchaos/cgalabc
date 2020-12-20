@@ -70,6 +70,10 @@ class Polygon{
    */
   std::pair<Polygon_ptr, Polygon_ptr> cut(const Line2d& l) const;
 
+  /*
+   * Separating axis theorem algorithm for determining whether 2 convex
+   * polygons are colliding.
+   */
   bool inCollisionSAT(const Polygon& other)const;
  private:
   std::vector<Point2d> vertices_;
