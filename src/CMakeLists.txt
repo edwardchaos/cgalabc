@@ -8,6 +8,7 @@ set (SOURCES
         Algo2d.cpp
         Polygon.cpp
         BezierCurve.cpp
+        CatmullRomCurve.cpp
         )
 
 set (HEADERS
@@ -18,6 +19,7 @@ set (HEADERS
         Polygon.h
         Curve2d.h
         BezierCurve.h
+        CatmullRomCurve.h
 )
 
 # Create library object so it can be linked with in tests

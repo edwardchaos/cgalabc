@@ -18,6 +18,9 @@ class Curve2d{
   // such as intersection, etc curves are just short straight line segments.
   std::vector<Point2d> vertices_;
   std::vector<Line2d> edges_;
+
+  virtual void createVertices() = 0;
+  virtual void createEdges() = 0;
 };
 
 } // namespace cg
