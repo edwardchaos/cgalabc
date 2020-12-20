@@ -1,0 +1,8 @@
+//
+// Created by shooshan on 2020-12-20.
+//
+
+#ifndef CGALABC_SRC_CATMULLROMCURVE_H_
+#define CGALABC_SRC_CATMULLROMCURVE_H_
+
+#endif //CGALABC_SRC_CATMULLROMCURVE_H_

@@ -12,10 +12,14 @@ class BezierCurve : public Curve2d{
    *
    * Curve is constructed with the assumed order:
    * anchor1 -> control1 -> control2 -> anchor2
+   *
+   * Curve passes through anchor 1 and 2. Control 1 and 2 affect the
+   * curvature.
    */
   BezierCurve(const Point2d& anchor1, const Point2d& anchor2,
               const Point2d& control1, const Point2d& control2,
-              double dt);
+              double dt=0.01);
+
  private:
   // From base class
   //  std::vector<Point2d> vertices_;
@@ -23,8 +27,9 @@ class BezierCurve : public Curve2d{
   Point2d anchor1,anchor2, control1, control2;
   double dt_;
 
-  void createVertices();
-  void createEdges();
+  void create();
+  void createVertices() override;
+  void createEdges() override;
 };
 
 } // namespace cg

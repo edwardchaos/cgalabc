@@ -7,10 +7,14 @@ namespace cg{
 
 BezierCurve::BezierCurve(const Point2d& anchor1, const Point2d& anchor2,
                          const Point2d& control1, const Point2d& control2,
-                         double dt=0.01):
+                         double dt): Curve2d(),
                          dt_(dt), anchor1(anchor1), anchor2(anchor2),
                          control1(control1), control2(control2){
 
+  create();
+}
+
+void BezierCurve::create(){
   createVertices();
   createEdges();
 }
@@ -30,7 +34,7 @@ void BezierCurve::createVertices(){
 
     // T
     auto T = lerp(K1, K2, t);
-    T.print();
+    std::cout << vertices_.size()-1 << ": ";
 
     vertices_.push_back(std::move(T));
     t += dt_;
