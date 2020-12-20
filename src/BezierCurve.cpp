@@ -34,7 +34,6 @@ void BezierCurve::createVertices(){
 
     // T
     auto T = lerp(K1, K2, t);
-    std::cout << vertices_.size()-1 << ": ";
 
     vertices_.push_back(std::move(T));
     t += dt_;
