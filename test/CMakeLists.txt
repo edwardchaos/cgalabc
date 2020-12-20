@@ -6,6 +6,7 @@ set(TEST_SOURCES
 	TestLine2d.cpp
 	TestAlgo2d.cpp
 	TestPolygon2d.cpp
+	TestCurve.cpp
 )
 set(TEST_HEADERS
 

@@ -7,8 +7,8 @@ set (SOURCES
         Line2d.cpp
         Algo2d.cpp
         Polygon.cpp
-        Curve2d.cpp
-)
+        BezierCurve.cpp
+        )
 
 set (HEADERS
         type.h
@@ -17,6 +17,7 @@ set (HEADERS
         Algo2d.h
         Polygon.h
         Curve2d.h
+        BezierCurve.h
 )
 
 # Create library object so it can be linked with in tests
