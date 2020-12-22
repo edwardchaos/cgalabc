@@ -1,17 +1,24 @@
 #pragma once
 
+#include <memory>
+
+#ifdef Success
+  #undef Success
+#endif
 #include <Eigen/Dense>
 
 using Eigen::Matrix4d;
 using Eigen::Vector4d;
 
 namespace cg{
-
+class Camera;
+typedef std::shared_ptr<Camera> Camera_ptr;
 /*
  * Camera frustum that can transform the 3d world to a 2d image plane by
  * perspective transform.
  */
 class Camera{
+ public:
   /*
    * Camera initialized with pose at the origin and no rotation.
    *
