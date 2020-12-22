@@ -26,7 +26,8 @@ set (HEADERS
 
 # Create library object so it can be linked with in tests
 add_library(${BINARY}_lib STATIC ${SOURCES} ${HEADERS})
+link_libraries(${BINARY}_lib png X11 GL pthread)
 
 # for live code, as opposed to unit testing
-add_executable(${BINARY}_main main.cpp)
-target_link_libraries(${BINARY}_main ${BINARY}_lib png X11 GL pthread)
+add_executable(${BINARY}_shadowcast ShadowCast.cpp)
+add_executable(${BINARY}_playground Playground.cpp)

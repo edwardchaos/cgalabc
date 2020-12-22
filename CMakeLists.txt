@@ -8,6 +8,7 @@ enable_testing()
 
 include_directories(src)
 include_directories(lib/olcPixelGameEngine)
+include_directories(lib/eigen-3.3.9)
 
 add_subdirectory(src)
 add_subdirectory(test)
