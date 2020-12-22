@@ -1,16 +1,27 @@
+#define OLC_PGE_APPLICATION
 #include <iostream>
 
 #include <Eigen/Dense>
+#include <olcPixelGameEngine.h>
 
 #include "type.h"
+#include "Camera.h"
+
+class CameraApplication: public olc::PixelGameEngine{
+ public:
+  bool OnUserCreate() override{
+  }
+
+  bool OnUserUpdate(float fElapsedTime) override {
+  }
+
+ private:
+
+};
 
 int main(){
-  Eigen::MatrixXd m(2,2);
-  m(0,0) = 3;
-  m(1,0) = 2.5;
-  m(0,1) = -1;
-  m(1,1) = m(1,0) + m(0,1);
-  std::cout << m << std::endl;
-
+  CameraApplication app;
+  if(!app.Construct(640, 480, 10, 10)) return 0;
+  app.Start();
   return 0;
 }
