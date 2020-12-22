@@ -21,35 +21,8 @@ class CameraApplication: public olc::PixelGameEngine{
         100);
 
     auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
-    cube = *teapot;
-
-    /*
-    // create cube
-    // South face
-    cube.tris.emplace_back(Vector3d(0,0,0),Vector3d(1,1,0),Vector3d(0,1,0));
-    cube.tris.emplace_back(Vector3d(0,0,0),Vector3d(1,0,0),Vector3d(1,1,0));
-
-    // East face
-    cube.tris.emplace_back(Vector3d(1,0,0),Vector3d(1,1,-1),Vector3d(1,1,0));
-    cube.tris.emplace_back(Vector3d(1,0,0),Vector3d(1,0,-1),Vector3d(1,1,-1));
-
-    // West face
-    cube.tris.emplace_back(Vector3d(0,0,0),Vector3d(0,1,0),Vector3d(0,1,-1));
-    cube.tris.emplace_back(Vector3d(0,0,0),Vector3d(0,1,-1),Vector3d(0,0,-1));
-
-    // North face
-    cube.tris.emplace_back(Vector3d(0,0,-1),Vector3d(0,1,-1),Vector3d(1,1,-1));
-    cube.tris.emplace_back(Vector3d(0,0,-1),Vector3d(1,1,-1),Vector3d(1,0,-1));
-
-    // Top face
-    cube.tris.emplace_back(Vector3d(0,1,0),Vector3d(1,1,0),Vector3d(1,1,-1));
-    cube.tris.emplace_back(Vector3d(0,1,0),Vector3d(1,1,-1),Vector3d(0,1,-1));
-
-    // Bottom face
-    cube.tris.emplace_back(Vector3d(0,0,0),Vector3d(0,0,-1),Vector3d(1,0,-1));
-    cube.tris.emplace_back(Vector3d(0,0,0),Vector3d(1,0,-1),Vector3d(1,0,0));
-
-     */
+    mesh = *teapot;
+    //mesh = *cg::cube();
 
     return true;
   }
@@ -83,17 +56,17 @@ class CameraApplication: public olc::PixelGameEngine{
     x_rot += 0.001/fElapsedTime;
     y_rot += 0.001/fElapsedTime;
 
-    cg::Mesh cube_copy = this->cube;
-    // Rotate cube
-    for(auto &tri : cube_copy.tris) for(auto &pt : tri.points){
+    cg::Mesh mesh_copy = this->mesh;
+    // Rotate mesh
+    for(auto &tri : mesh_copy.tris) for(auto &pt : tri.points){
       pt = (Eigen::RowVector3d(pt) * rotX * rotZ * rotY);
     }
 
-    // Translate cube infront of camera
-    for(auto &tri : cube_copy.tris) for(auto & pt : tri.points) pt(2) -= 10;
+    // Translate mesh infront of camera
+    for(auto &tri : mesh_copy.tris) for(auto & pt : tri.points) pt(2) -= 10;
 
-    // Project points of cube onto camera image
-    for(const auto& tri : cube_copy.tris){
+    // Project points of mesh onto camera image
+    for(const auto& tri : mesh_copy.tris){
       // Only consider drawing triangle if it's facing the cam
       if(!cam->isFacing(tri)) continue;
       std::vector<cg::Point2d> tri_img_pts;
@@ -125,7 +98,7 @@ class CameraApplication: public olc::PixelGameEngine{
 
  private:
   cg::Camera_ptr cam;
-  cg::Mesh cube;
+  cg::Mesh mesh;
 };
 
 int main(){
