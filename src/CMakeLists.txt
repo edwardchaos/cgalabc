@@ -22,6 +22,7 @@ set (HEADERS
         BezierCurve.h
         CatmullRomCurve.h
         Camera.h
+        Mesh.h
 )
 
 # Create library object so it can be linked with in tests
