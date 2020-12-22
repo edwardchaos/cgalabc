@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <stdexcept>
-#include "Polygon.h"
+#include "include/Polygon.h"
 
 TEST(Polygon, create_polygon){
   try {

@@ -4,7 +4,7 @@
 #include <unordered_set>
 
 #include "olcPixelGameEngine.h"
-#include "Algo2d.h"
+#include "include/Algo2d.h"
 
 enum Dir{N,E,S,W};
 typedef std::vector<int> vi;

@@ -1,7 +1,7 @@
-#include "BezierCurve.h"
+#include "include/BezierCurve.h"
 
 #include <iostream>
-#include "Algo2d.h"
+#include "include/Algo2d.h"
 
 namespace cg{
 

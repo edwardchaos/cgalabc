@@ -1,4 +1,4 @@
-#include "CatmullRomCurve.h"
+#include "include/CatmullRomCurve.h"
 
 namespace cg{
 

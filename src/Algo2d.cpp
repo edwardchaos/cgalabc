@@ -1,10 +1,10 @@
-#include "Algo2d.h"
+#include "include/Algo2d.h"
 
 #include <cassert>
 #include <cmath>
 #include <unordered_set>
 
-#include "type.h"
+#include "include/type.h"
 
 namespace cg{
 bool isParallel(const Line2d& l1, const Line2d& l2){

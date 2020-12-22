@@ -5,8 +5,8 @@
 
 #include <olcPixelGameEngine.h>
 
-#include "Camera.h"
-#include "Mesh.h"
+#include "include/Camera.h"
+#include "include/Mesh.h"
 
 using Eigen::Vector3d;
 

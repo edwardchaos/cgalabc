@@ -13,16 +13,16 @@ set (SOURCES
         )
 
 set (HEADERS
-        type.h
-        Point2d.h
-        Line2d.h
-        Algo2d.h
-        Polygon.h
-        Curve2d.h
-        BezierCurve.h
-        CatmullRomCurve.h
-        Camera.h
-        Mesh.h
+        include/type.h
+        include/Point2d.h
+        include/Line2d.h
+        include/Algo2d.h
+        include/Polygon.h
+        include/Curve2d.h
+        include/BezierCurve.h
+        include/CatmullRomCurve.h
+        include/Camera.h
+        include/Mesh.h
 )
 
 # Create library object so it can be linked with in tests

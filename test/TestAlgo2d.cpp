@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 
 #include <cmath>
-#include "type.h"
-#include "Algo2d.h"
+#include "include/type.h"
+#include "include/Algo2d.h"
 
 TEST(Algo, basic_properties){
   ASSERT_TRUE(true);

@@ -1,4 +1,4 @@
-#include "Polygon.h"
+#include "include/Polygon.h"
 
 #include <cassert>
 #include <cmath>
@@ -8,7 +8,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "Algo2d.h"
+#include "include/Algo2d.h"
 
 namespace cg{
 
