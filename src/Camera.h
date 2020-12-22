@@ -7,6 +7,8 @@
 #endif
 #include <Eigen/Dense>
 
+#include "Point2d.h"
+
 using Eigen::Matrix4d;
 using Eigen::Vector4d;
 
@@ -29,6 +31,17 @@ class Camera{
    */
   Camera(double aspect_ratio, double vertical_fov_rad, double near, double
   far);
+
+  /*
+   * Project a 3D point in world onto the camera's image plane.
+   * 3D point is in homogenous coordinates
+   *
+   * IMPORTANT:
+   * Returned coordinate is normalized in range [-1,1].
+   * To properly draw on screen, Add 1 and Multiply x by (screen width)/2
+   * Multiply y by (screen height)/2
+   */
+  Point2d_ptr projectPoint(const Vector4d &pt_homo) const;
 
  private:
   // Distance is in units of the world

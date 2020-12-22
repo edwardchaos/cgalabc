@@ -30,6 +30,14 @@ void Camera::constructProjectionMatrix(){
   projection_mat_(2,3) = -1;
 }
 
+Point2d_ptr Camera::projectPoint(const Vector4d &pt_homo) const{
+  Eigen::RowVector4d row_pt(pt_homo);
 
+  Eigen::RowVector4d pt = row_pt*projection_mat_;
+
+  if(pt(3) != 0)
+    return std::make_shared<Point2d>(pt(0)/pt(3), pt(1)/pt(3));
+  return nullptr;
+}
 
 } // namespace cg
