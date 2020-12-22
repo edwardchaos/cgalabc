@@ -44,8 +44,6 @@ class CameraApplication: public olc::PixelGameEngine{
     cube.tris.emplace_back(Vector3d(0,0,0),Vector3d(0,0,-1),Vector3d(1,0,-1));
     cube.tris.emplace_back(Vector3d(0,0,0),Vector3d(1,0,-1),Vector3d(1,0,0));
 
-    // Translate cube infront of camera
-    for(auto & tri : cube.tris) for(auto & pt : tri.points) pt(2) -= 10;
 
     return true;
   }
@@ -53,8 +51,44 @@ class CameraApplication: public olc::PixelGameEngine{
   bool OnUserUpdate(float fElapsedTime) override {
     Clear(olc::DARK_GREY);
 
+    static double z_rot = 0;
+    static double x_rot = 0;
+    static double y_rot = 0;
+
+    Eigen::Matrix3d rotZ = Eigen::Matrix3d::Identity();
+    rotZ(0,0) = cos(z_rot);
+    rotZ(0,1) = -sin(z_rot);
+    rotZ(1,0) = sin(z_rot);
+    rotZ(1,1) = cos(z_rot);
+
+    Eigen::Matrix3d rotX = Eigen::Matrix3d::Identity();
+    rotX(1,1) = cos(x_rot);
+    rotX(1,2) = -sin(x_rot);
+    rotX(2,1) = sin(x_rot);
+    rotX(2,2) = cos(x_rot);
+
+    Eigen::Matrix3d rotY = Eigen::Matrix3d::Identity();
+    rotY(0,0) = cos(x_rot);
+    rotY(0,2) = sin(x_rot);
+    rotY(2,0) = -sin(x_rot);
+    rotY(2,2) = cos(x_rot);
+
+    z_rot += 0.0002/fElapsedTime; // gonna overflow is that fine?
+    x_rot += 0.0003/fElapsedTime;
+    y_rot += 0.0001/fElapsedTime;
+
+    cg::Mesh cube_copy = this->cube;
+    // Rotate cube
+    for(auto &tri : cube_copy.tris) for(auto &pt : tri.points){
+      pt = (Eigen::RowVector3d(pt) * rotX * rotZ * rotY);
+      //pt = Vector3d(pt*rotZ);
+    }
+
+    // Translate cube infront of camera
+    for(auto &tri : cube_copy.tris) for(auto & pt : tri.points) pt(2) -= 5;
+
     // Project points of cube onto camera image
-    for(const auto& tri : cube.tris){
+    for(const auto& tri : cube_copy.tris){
       std::vector<cg::Point2d> tri_img_pts;
 
       for(const auto& pt : tri.points){
