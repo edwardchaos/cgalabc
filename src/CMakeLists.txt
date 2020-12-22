@@ -11,6 +11,7 @@ set (SOURCES
         CatmullRomCurve.cpp
         Camera.cpp
         Mesh.cpp
+        Algo3d.cpp
         )
 
 set (HEADERS
@@ -24,6 +25,7 @@ set (HEADERS
         include/CatmullRomCurve.h
         include/Camera.h
         include/Mesh.h
+        include/Algo3d.h
 )
 
 # Create library object so it can be linked with in tests
