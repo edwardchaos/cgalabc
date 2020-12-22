@@ -41,4 +41,11 @@ Point2d_ptr Camera::projectPoint(const Vector4d &pt_homo) const{
   return nullptr;
 }
 
+bool Camera::isFacing(const Triangle& tri) const{
+  // extract camera's position
+  Vector3d cam_position = pose_world_.rightCols<1>().head<3>();
+  Vector3d cam_2_tri = tri.points[0] - cam_position;
+  return cam_2_tri.dot(tri.unit_normal()) <= cg::EPS;
+}
+
 } // namespace cg
