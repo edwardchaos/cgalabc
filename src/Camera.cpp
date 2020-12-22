@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include "iostream"
 namespace cg {
 
 Camera::Camera(double aspect_ratio, double vertical_fov_rad, double near,
@@ -12,7 +13,7 @@ Camera::Camera(double aspect_ratio, double vertical_fov_rad, double near,
 }
 
 void Camera::init(){
-  pose_world_ = Eigen::Matrix4d::Ones();
+  pose_world_ = Eigen::Matrix4d::Identity();
   constructProjectionMatrix();
 }
 
@@ -35,7 +36,6 @@ Point2d_ptr Camera::projectPoint(const Vector4d &pt_homo) const{
 
   Eigen::RowVector4d pt = row_pt*projection_mat_;
 
-  // TODO: Verify -y since in the image, y axis is positive downward.
   if(pt(3) != 0)
     return std::make_shared<Point2d>(pt(0)/pt(3), -pt(1)/pt(3));
   return nullptr;
@@ -44,8 +44,10 @@ Point2d_ptr Camera::projectPoint(const Vector4d &pt_homo) const{
 bool Camera::isFacing(const Triangle& tri) const{
   // extract camera's position
   Vector3d cam_position = pose_world_.rightCols<1>().head<3>();
+  std::cout << cam_position << std::endl;
   Vector3d cam_2_tri = tri.points[0] - cam_position;
-  return cam_2_tri.dot(tri.unit_normal()) <= cg::EPS;
+  cam_2_tri.normalize();
+  return cam_2_tri.dot(tri.unit_normal()) < -EPS;
 }
 
 } // namespace cg

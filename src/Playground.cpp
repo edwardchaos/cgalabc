@@ -73,9 +73,9 @@ class CameraApplication: public olc::PixelGameEngine{
     rotY(2,0) = -sin(x_rot);
     rotY(2,2) = cos(x_rot);
 
-    z_rot += 0.0002/fElapsedTime;
-    x_rot += 0.0005/fElapsedTime;
-    y_rot += 0.0003/fElapsedTime;
+    z_rot += 0.0001/fElapsedTime;
+    x_rot += 0.0001/fElapsedTime;
+    y_rot += 0.0001/fElapsedTime;
 
     cg::Mesh cube_copy = this->cube;
     // Rotate cube
@@ -84,7 +84,7 @@ class CameraApplication: public olc::PixelGameEngine{
     }
 
     // Translate cube infront of camera
-    for(auto &tri : cube_copy.tris) for(auto & pt : tri.points) pt(2) -= 5;
+    for(auto &tri : cube_copy.tris) for(auto & pt : tri.points) pt(2) -= 3;
 
     // Project points of cube onto camera image
     for(const auto& tri : cube_copy.tris){
