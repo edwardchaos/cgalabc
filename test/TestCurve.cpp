@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "include/BezierCurve.h"
-#include "include/CatmullRomCurve.h"
+#include "BezierCurve.h"
+#include "CatmullRomCurve.h"
 
 TEST(BezierCurve, construct){
   cg::BezierCurve b({0,0},{1,0},{0,1},{1,1},0.01);

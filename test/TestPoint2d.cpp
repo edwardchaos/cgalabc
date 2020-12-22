@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "include/type.h"
+#include "type.h"
 
 TEST(Point, operations){
   cg::Point2d O(0,0);

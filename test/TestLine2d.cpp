@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include <cmath>
-#include "include/type.h"
+#include "type.h"
 
 TEST(Testlines, create_lines){
   // Create line given 1 point. By default, if only 1 point is given, the
