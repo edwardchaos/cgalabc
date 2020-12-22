@@ -73,15 +73,14 @@ class CameraApplication: public olc::PixelGameEngine{
     rotY(2,0) = -sin(x_rot);
     rotY(2,2) = cos(x_rot);
 
-    z_rot += 0.0002/fElapsedTime; // gonna overflow is that fine?
-    x_rot += 0.0003/fElapsedTime;
-    y_rot += 0.0001/fElapsedTime;
+    z_rot += 0.0002/fElapsedTime;
+    x_rot += 0.0005/fElapsedTime;
+    y_rot += 0.0003/fElapsedTime;
 
     cg::Mesh cube_copy = this->cube;
     // Rotate cube
     for(auto &tri : cube_copy.tris) for(auto &pt : tri.points){
       pt = (Eigen::RowVector3d(pt) * rotX * rotZ * rotY);
-      //pt = Vector3d(pt*rotZ);
     }
 
     // Translate cube infront of camera
@@ -89,6 +88,7 @@ class CameraApplication: public olc::PixelGameEngine{
 
     // Project points of cube onto camera image
     for(const auto& tri : cube_copy.tris){
+      // Only consider drawing triangle if it's not facing away from camera.
       std::vector<cg::Point2d> tri_img_pts;
 
       for(const auto& pt : tri.points){
