@@ -8,6 +8,7 @@ set(TEST_SOURCES
 	TestPolygon2d.cpp
 	TestCurve.cpp
 	TestMesh.cpp
+	TestCamera.cpp
 )
 set(TEST_HEADERS
 
