@@ -10,6 +10,7 @@ set (SOURCES
         BezierCurve.cpp
         CatmullRomCurve.cpp
         Camera.cpp
+        Mesh.cpp
         )
 
 set (HEADERS
