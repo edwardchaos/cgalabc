@@ -1,6 +1,7 @@
 #define OLC_PGE_APPLICATION
 
 #include <memory>
+#include <cassert>
 
 #include <olcPixelGameEngine.h>
 
@@ -71,9 +72,10 @@ class CameraApplication: public olc::PixelGameEngine{
         double screen_y = (normalized_img_pt->y()+1)*ScreenHeight()/2.0;
         tri_img_pts.emplace_back(screen_x, screen_y);
       }
+      assert(tri_img_pts.size() == 3);
 
       // Draw lines of triangles
-      for(int i = 0; i <= tri_img_pts.size(); ++i){
+      for(int i = 0; i < tri_img_pts.size(); ++i){
         DrawLine(tri_img_pts[i].x(), tri_img_pts[i].y(),
                  tri_img_pts[(i+1)%3].x(), tri_img_pts[(i+1)%3].y());
       }
