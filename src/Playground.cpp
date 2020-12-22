@@ -109,11 +109,9 @@ class CameraApplication: public olc::PixelGameEngine{
       }
       assert(tri_img_pts.size() == 3);
 
-      // Draw lines of triangles
-      for(int i = 0; i < tri_img_pts.size(); ++i){
-        DrawLine(tri_img_pts[i].x(), tri_img_pts[i].y(),
-                 tri_img_pts[(i+1)%3].x(), tri_img_pts[(i+1)%3].y());
-      }
+      DrawTriangle(tri_img_pts[0].x(), tri_img_pts[0].y(),
+                   tri_img_pts[1].x(), tri_img_pts[1].y(),
+                   tri_img_pts[2].x(), tri_img_pts[2].y());
     }
 
     return true;
