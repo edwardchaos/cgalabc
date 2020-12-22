@@ -8,9 +8,11 @@
 #include <Eigen/Dense>
 
 #include "Point2d.h"
+#include "Mesh.h"
 
 using Eigen::Matrix4d;
 using Eigen::Vector4d;
+using Eigen::Vector3d;
 
 namespace cg{
 class Camera;
@@ -42,6 +44,14 @@ class Camera{
    * Multiply y by (screen height)/2
    */
   Point2d_ptr projectPoint(const Vector4d &pt_homo) const;
+
+  /*
+   * Indicates whether the camera is viewing the triangle from a perspective
+   * where the triangle's outer surface is facing the camera.
+   *
+   * i.e. (triangle point - camera position) dot (triangle normal) < 0
+   */
+  bool isFacing(const Triangle& tri) const;
 
  private:
   // Distance is in units of the world
