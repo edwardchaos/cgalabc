@@ -88,7 +88,8 @@ class CameraApplication: public olc::PixelGameEngine{
 
     // Project points of cube onto camera image
     for(const auto& tri : cube_copy.tris){
-      // Only consider drawing triangle if it's not facing away from camera.
+      // Only consider drawing triangle if it's facing the cam
+      if(!cam->isFacing(tri)) continue;
       std::vector<cg::Point2d> tri_img_pts;
 
       for(const auto& pt : tri.points){
