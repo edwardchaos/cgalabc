@@ -26,6 +26,7 @@ set (HEADERS
         include/Camera.h
         include/Mesh.h
         include/Algo3d.h
+        include/Utility.h
 )
 
 # Create library object so it can be linked with in tests

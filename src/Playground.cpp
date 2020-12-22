@@ -5,8 +5,9 @@
 
 #include <olcPixelGameEngine.h>
 
-#include "include/Camera.h"
-#include "include/Mesh.h"
+#include "Camera.h"
+#include "Mesh.h"
+#include "Utility.h"
 
 using Eigen::Vector3d;
 
@@ -19,6 +20,10 @@ class CameraApplication: public olc::PixelGameEngine{
         10,
         100);
 
+    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
+    cube = *teapot;
+
+    /*
     // create cube
     // South face
     cube.tris.emplace_back(Vector3d(0,0,0),Vector3d(1,1,0),Vector3d(0,1,0));
@@ -44,6 +49,7 @@ class CameraApplication: public olc::PixelGameEngine{
     cube.tris.emplace_back(Vector3d(0,0,0),Vector3d(0,0,-1),Vector3d(1,0,-1));
     cube.tris.emplace_back(Vector3d(0,0,0),Vector3d(1,0,-1),Vector3d(1,0,0));
 
+     */
 
     return true;
   }
@@ -73,9 +79,9 @@ class CameraApplication: public olc::PixelGameEngine{
     rotY(2,0) = -sin(x_rot);
     rotY(2,2) = cos(x_rot);
 
-    z_rot += 0.0001/fElapsedTime;
-    x_rot += 0.0001/fElapsedTime;
-    y_rot += 0.0001/fElapsedTime;
+    z_rot += 0.001/fElapsedTime;
+    x_rot += 0.001/fElapsedTime;
+    y_rot += 0.001/fElapsedTime;
 
     cg::Mesh cube_copy = this->cube;
     // Rotate cube
@@ -84,7 +90,7 @@ class CameraApplication: public olc::PixelGameEngine{
     }
 
     // Translate cube infront of camera
-    for(auto &tri : cube_copy.tris) for(auto & pt : tri.points) pt(2) -= 3;
+    for(auto &tri : cube_copy.tris) for(auto & pt : tri.points) pt(2) -= 10;
 
     // Project points of cube onto camera image
     for(const auto& tri : cube_copy.tris){

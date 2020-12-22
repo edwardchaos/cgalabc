@@ -2,6 +2,7 @@
 
 #include <utility>
 #include <vector>
+#include <memory>
 
 #ifdef Success
   #undef Success
@@ -10,6 +11,8 @@
 
 namespace cg{
 
+struct Mesh;
+typedef std::shared_ptr<Mesh> Mesh_ptr;
 /*
  * Triangle points are in counter clockwise order. Surface normal is positive
  * in the direction by the right hand rule
