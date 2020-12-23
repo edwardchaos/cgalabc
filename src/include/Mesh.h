@@ -9,6 +9,8 @@
 #endif
 #include <Eigen/Dense>
 
+#include "Pose.h"
+
 namespace cg{
 
 struct Mesh;
@@ -32,8 +34,7 @@ struct Triangle{
 
 struct Mesh{
   std::vector<Triangle> tris;
-  Eigen::Matrix4d mesh_rot;
-  Eigen::Matrix4d mesh_trans;
+  Pose pose_;
 };
 
 } // namespace cg
