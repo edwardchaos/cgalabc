@@ -3,6 +3,12 @@
 namespace cg{
 
 Pose::Pose(Eigen::Vector4d position, Eigen::Matrix4d orientation):
-orientation_(std::move(orientation)), position_(std::move(position)){}
+orientation(std::move(orientation)), position(std::move(position)){}
+
+Eigen::Matrix4d Pose::matrix() const{
+  Eigen::Matrix4d pose = orientation;
+  pose.rightCols<1>() = position;
+  return pose;
+}
 
 } // namespace cg

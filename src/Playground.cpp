@@ -22,8 +22,6 @@ class CameraApplication: public olc::PixelGameEngine{
 
     auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
     mesh = *teapot;
-    mesh_rot = Eigen::Matrix4d::Identity();
-    mesh_trans = Eigen::Matrix4d::Identity();
     //mesh = *cg::cube();
 
     return true;
@@ -39,9 +37,9 @@ class CameraApplication: public olc::PixelGameEngine{
     auto rotx_mat = cg::rotateX(x_rot);
     auto roty_mat = cg::rotateY(y_rot);
     auto rotz_mat = cg::rotateZ(z_rot);
-    mesh_trans = cg::translation(0,0,-10);
-    mesh_rot = rotx_mat *roty_mat*rotz_mat*mesh_rot;
-    Eigen::Matrix4d tf = mesh_trans*mesh_rot;
+    mesh.pose.position = cg::translation(0,0,-10).rightCols<1>();
+    mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
+    Eigen::Matrix4d tf = mesh.pose.matrix();
 
     for(const auto& tri : mesh.tris){
       // Transform the triangle
@@ -83,8 +81,6 @@ class CameraApplication: public olc::PixelGameEngine{
  private:
   cg::Camera_ptr cam;
   cg::Mesh mesh;
-  Eigen::Matrix4d mesh_rot;
-  Eigen::Matrix4d mesh_trans;
 };
 
 int main(){

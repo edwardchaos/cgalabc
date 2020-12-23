@@ -34,7 +34,7 @@ struct Triangle{
 
 struct Mesh{
   std::vector<Triangle> tris;
-  Pose pose_;
+  Pose pose;
 };
 
 } // namespace cg
