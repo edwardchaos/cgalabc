@@ -22,6 +22,8 @@ class CameraApplication: public olc::PixelGameEngine{
 
     auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
     mesh = *teapot;
+    mesh_rot = Eigen::Matrix4d::Identity();
+    mesh_trans = Eigen::Matrix4d::Identity();
     //mesh = *cg::cube();
 
     return true;
@@ -30,48 +32,30 @@ class CameraApplication: public olc::PixelGameEngine{
   bool OnUserUpdate(float fElapsedTime) override {
     Clear(olc::DARK_GREY);
 
-    static double z_rot = 0;
-    static double x_rot = 0;
-    static double y_rot = 0;
+    double z_rot = 0.0001/fElapsedTime;
+    double x_rot = 0.0001/fElapsedTime;
+    double y_rot = 0.0001/fElapsedTime;
 
-    Eigen::Matrix3d rotZ = Eigen::Matrix3d::Identity();
-    rotZ(0,0) = cos(z_rot);
-    rotZ(0,1) = -sin(z_rot);
-    rotZ(1,0) = sin(z_rot);
-    rotZ(1,1) = cos(z_rot);
+    auto rotx_mat = cg::rotateX(x_rot);
+    auto roty_mat = cg::rotateY(y_rot);
+    auto rotz_mat = cg::rotateZ(z_rot);
+    mesh_trans = cg::translation(0,0,-10);
+    mesh_rot = rotx_mat *roty_mat*rotz_mat*mesh_rot;
+    Eigen::Matrix4d tf = mesh_trans*mesh_rot;
 
-    Eigen::Matrix3d rotX = Eigen::Matrix3d::Identity();
-    rotX(1,1) = cos(x_rot);
-    rotX(1,2) = -sin(x_rot);
-    rotX(2,1) = sin(x_rot);
-    rotX(2,2) = cos(x_rot);
+    for(const auto& tri : mesh.tris){
+      // Transform the triangle
+      Eigen::Vector3d pt0_tf = cg::transformPoint(tri.points[0], tf);
+      Eigen::Vector3d pt1_tf = cg::transformPoint(tri.points[1], tf);
+      Eigen::Vector3d pt2_tf = cg::transformPoint(tri.points[2], tf);
+      cg::Triangle tri_tf{pt0_tf, pt1_tf, pt2_tf};
 
-    Eigen::Matrix3d rotY = Eigen::Matrix3d::Identity();
-    rotY(0,0) = cos(x_rot);
-    rotY(0,2) = sin(x_rot);
-    rotY(2,0) = -sin(x_rot);
-    rotY(2,2) = cos(x_rot);
-
-    z_rot += 0.001/fElapsedTime;
-    x_rot += 0.001/fElapsedTime;
-    y_rot += 0.001/fElapsedTime;
-
-    cg::Mesh mesh_copy = this->mesh;
-    // Rotate mesh
-    for(auto &tri : mesh_copy.tris) for(auto &pt : tri.points){
-      pt = (Eigen::RowVector3d(pt) * rotX * rotZ * rotY);
-    }
-
-    // Translate mesh infront of camera
-    for(auto &tri : mesh_copy.tris) for(auto & pt : tri.points) pt(2) -= 10;
-
-    // Project points of mesh onto camera image
-    for(const auto& tri : mesh_copy.tris){
       // Only consider drawing triangle if it's facing the cam
-      if(!cam->isFacing(tri)) continue;
+      if(!cam->isFacing(tri_tf)) continue;
       std::vector<cg::Point2d> tri_img_pts;
+      tri_img_pts.reserve(3);
 
-      for(const auto& pt : tri.points){
+      for(const auto& pt : tri_tf.points){
         // Extend point to homogenous coordinate
         Eigen::Vector4d homo_pt;
         homo_pt.head<3>() = pt;
@@ -99,6 +83,8 @@ class CameraApplication: public olc::PixelGameEngine{
  private:
   cg::Camera_ptr cam;
   cg::Mesh mesh;
+  Eigen::Matrix4d mesh_rot;
+  Eigen::Matrix4d mesh_trans;
 };
 
 int main(){

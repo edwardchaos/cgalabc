@@ -90,4 +90,65 @@ Mesh_ptr cube(){
 
   return cube;
 }
+
+/*
+ * Rotate counterclockwise by theta radian along the +X axis
+ */
+Eigen::Matrix4d rotateX(double theta){
+  Eigen::Matrix4d rotX = Eigen::Matrix4d::Identity();
+  rotX(1,1) = cos(theta);
+  rotX(1,2) = -sin(theta);
+  rotX(2,1) = sin(theta);
+  rotX(2,2) = cos(theta);
+
+  return rotX;
+}
+
+/*
+ * Rotate counterclockwise by theta radian along the +Y axis
+ */
+Eigen::Matrix4d rotateY(double theta){
+  Eigen::Matrix4d rotY = Eigen::Matrix4d::Identity();
+  rotY(0,0) = cos(theta);
+  rotY(0,2) = sin(theta);
+  rotY(2,0) = -sin(theta);
+  rotY(2,2) = cos(theta);
+
+  return rotY;
+}
+
+/*
+ * Rotate counterclockwise along the +Z axis
+ */
+Eigen::Matrix4d rotateZ(double theta){
+  Eigen::Matrix4d rotZ = Eigen::Matrix4d::Identity();
+  rotZ(0,0) = cos(theta);
+  rotZ(0,1) = -sin(theta);
+  rotZ(1,0) = sin(theta);
+  rotZ(1,1) = cos(theta);
+
+  return rotZ;
+}
+
+/*
+ * returns a 4x4 matrix for a 3D translation
+ */
+Eigen::Matrix4d translation(double dx, double dy, double dz){
+  Eigen::Matrix4d translation = Eigen::Matrix4d::Identity();
+  translation(0,3) = dx;
+  translation(1,3) = dy;
+  translation(2,3) = dz;
+
+  return translation;
+}
+
+Eigen::Vector3d transformPoint(const Eigen::Vector3d &pt,
+                               const Eigen::Matrix4d& tf){
+  Eigen::Vector4d pt_homo;
+  pt_homo.head<3>() = pt;
+  pt_homo(3) = 1;
+  Eigen::Vector4d pt_tf = tf*pt_homo;
+  return {pt_tf(0)/pt_tf(3), pt_tf(1)/pt_tf(3), pt_tf(2)/pt_tf(3)};
+}
+
 } // namespace cg
