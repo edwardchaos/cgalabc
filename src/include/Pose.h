@@ -10,6 +10,8 @@ namespace cg{
 class Pose{
  public:
   Pose(Eigen::Vector4d position, Eigen::Matrix4d orientation);
+  Eigen::Vector4d position()const;
+  Eigen::Matrix4d orientation()const;
 
  private:
   // Homogenous coordinates for convenience
