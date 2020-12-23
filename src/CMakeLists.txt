@@ -12,6 +12,7 @@ set (SOURCES
         Camera.cpp
         Mesh.cpp
         Algo3d.cpp
+        Pose.cpp
         )
 
 set (HEADERS
@@ -27,6 +28,7 @@ set (HEADERS
         include/Mesh.h
         include/Algo3d.h
         include/Utility.h
+        include/Pose.h
 )
 
 # Create library object so it can be linked with in tests

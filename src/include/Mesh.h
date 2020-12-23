@@ -32,6 +32,8 @@ struct Triangle{
 
 struct Mesh{
   std::vector<Triangle> tris;
+  Eigen::Matrix4d mesh_rot;
+  Eigen::Matrix4d mesh_trans;
 };
 
 } // namespace cg
