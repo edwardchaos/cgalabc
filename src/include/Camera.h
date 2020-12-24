@@ -49,9 +49,15 @@ class Camera{
    * Indicates whether the camera is viewing the triangle from a perspective
    * where the triangle's outer surface is facing the camera.
    *
+   * Triangle is in world coordinate system.
+   *
    * i.e. (triangle point - camera position) dot (triangle normal) < 0
    */
-  bool isFacing(const Triangle& tri) const;
+  bool isFacing(const Triangle& tri_world) const;
+
+  void moveTo(Vector4d position_world,
+              Vector4d look_dir,
+              Vector4d up);
 
   Pose pose_world;
  private:
