@@ -136,7 +136,7 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cube) const{
   else
     return {
         Triangle(in[0],in[1],in[2]),
-        Triangle(in[1],in[2],in[3])};
+        Triangle(in[0],in[2],in[3])};
 }
 
 bool Camera::isFacing(const Triangle& tri_world) const{

@@ -17,18 +17,18 @@ class CameraApplication: public olc::PixelGameEngine{
     cam = std::make_shared<cg::Camera>(
         (double)ScreenHeight()/(double)ScreenWidth(),
         M_PI/2.0,
-        1,
-        50);
+        5,
+        100);
 
 //    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
 //    mesh = *teapot;
 //    mesh = *cg::cube();
-//    cg::Triangle triangle{
-//      Vector3d(0,0,-10),Vector3d(-5,5,-20),
-//      Vector3d(0,10,-10)};
-//    mesh.tris.push_back(triangle);
-    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
-    mesh = *axis;
+    cg::Triangle triangle{
+      Vector3d(0,-5,-10),Vector3d(-5,0,-20),
+      Vector3d(0,5,-10)};
+    mesh.tris.push_back(triangle);
+//    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
+//    mesh = *axis;
 
     return true;
   }
@@ -59,7 +59,7 @@ class CameraApplication: public olc::PixelGameEngine{
       cg::Triangle tri_world{pt0_tf, pt1_tf, pt2_tf};
 
       // Only consider drawing triangle if it's facing the cam
-      if(!cam->isFacing(tri_world)) continue;
+      //if(!cam->isFacing(tri_world)) continue;
 
       // Transform triangles into camera's projection cube space, clipped on
       // near plane.
@@ -92,7 +92,7 @@ class CameraApplication: public olc::PixelGameEngine{
   void handleCameraMotion(double fElapsedTime){
     if(GetKey(olc::Key::E).bHeld){
       DrawString(50,50, "Forward");
-      cam->moveForward(0.005/fElapsedTime);
+      cam->moveForward(0.001/fElapsedTime);
     }
     if(GetKey(olc::Key::S).bHeld){
       DrawString(50,50, "Strafe Left");
@@ -100,7 +100,7 @@ class CameraApplication: public olc::PixelGameEngine{
     }
     if(GetKey(olc::Key::D).bHeld){
       DrawString(50,50, "Back");
-      cam->moveForward(-0.005/fElapsedTime);
+      cam->moveForward(-0.001/fElapsedTime);
     }
     if(GetKey(olc::Key::F).bHeld){
       DrawString(50,50, "Strafe Right");
