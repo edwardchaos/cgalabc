@@ -87,29 +87,28 @@ class CameraApplication: public olc::PixelGameEngine{
 
   void handleCameraMotion(){
     if(GetKey(olc::Key::E).bHeld){
-      // Pitch up
-      DrawString(50,50, "pitch up");
+      DrawString(50,50, "Forward");
 
     }
     if(GetKey(olc::Key::S).bHeld){
-      // Yaw left
-      DrawString(50,50, "Yaw left");
+      DrawString(50,50, "Strafe Left");
+
 
     }
     if(GetKey(olc::Key::D).bHeld){
-      // Pitch down
+      DrawString(50,50, "Back");
 
     }
     if(GetKey(olc::Key::F).bHeld){
-      // Yaw right
+      DrawString(50,50, "Strafe Right");
 
     }
     if(GetKey(olc::Key::J).bHeld){
-      // Backward
+      DrawString(50,50, "Yaw Left");
 
     }
     if(GetKey(olc::Key::K).bHeld){
-      // Forward
+      DrawString(50,50, "Yaw Right");
 
     }
   }
