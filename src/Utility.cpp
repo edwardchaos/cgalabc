@@ -1,5 +1,7 @@
 #include "Utility.h"
 
+#include "Point2d.h"
+
 namespace cg{
 
 Mesh_ptr loadOBJ(std::string path_to_obj){
@@ -127,5 +129,24 @@ std::shared_ptr<Vector3d> planeLineIntersect(
     const Vector3d &pt1, const Vector3d &pt2,
     const Vector3d &plane_unit_normal, const Vector3d &pt_on_plane){
 
+  // Ensure it's actually a unit vector
+  Vector3d plane_norm(plane_unit_normal);
+  plane_norm.normalize();
+
+  double d1 = plane_norm.dot(pt1-pt_on_plane);
+  double d2 = plane_norm.dot(pt2-pt_on_plane);
+
+  // Line and plane are parallel
+  if(fabs(d1-d2) < EPS) return nullptr;
+
+  double t = d1/(d1-d2);
+
+  // Line segment isn't long enough to intersect plane.
+  if(t < -EPS || t > 1+EPS) return nullptr;
+
+  std::shared_ptr<Vector3d> intersect_pt;
+  *intersect_pt = pt1 + (pt2-pt1)*t;
+
+  return intersect_pt;
 }
 } // namespace cg

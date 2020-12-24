@@ -17,8 +17,8 @@ class CameraApplication: public olc::PixelGameEngine{
     cam = std::make_shared<cg::Camera>(
         (double)ScreenHeight()/(double)ScreenWidth(),
         M_PI/2.0,
-        0,
-        100);
+        1,
+        50);
 
     auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
     mesh = *teapot;
@@ -58,29 +58,26 @@ class CameraApplication: public olc::PixelGameEngine{
 
       // Only consider drawing triangle if it's facing the cam
       if(!cam->isFacing(tri_world)) continue;
-      std::vector<cg::Point2d> tri_img_pts;
-      tri_img_pts.reserve(3);
 
-      auto triangles_unit_cube = cam->projectTriangle(tri_world);
-      // Scale triangles to screen size
-      // Clip triangles in screen area
+      // Transform triangles into camera's projection cube space, clipped on
+      // near plane.
+      auto triangles_unit_cube = cam->transformTriangle(tri_world);
 
-//      for(const auto& pt : tri_world.points){
-//        // project point
-//        auto normalized_img_pt = cam->projectPoint(pt);
-//        if(!normalized_img_pt) break;
-//
-//        // Point coordinate is in range [-1,1]. Expand it to the width and
-//        // height of the screen.
-//        double screen_x = (normalized_img_pt->x()+1)*ScreenWidth()/2.0;
-//        double screen_y = (normalized_img_pt->y()+1)*ScreenHeight()/2.0;
-//        tri_img_pts.emplace_back(screen_x, screen_y);
-//      }
-      if(tri_img_pts.size()<3) continue;
+      for(auto &tri_cube : triangles_unit_cube){
+        std::vector<Eigen::Vector2d> tri_img_pts;
+        tri_img_pts.reserve(3);
+        // Scale triangles to screen size
+        for(auto &pt : tri_cube.points){
+          double screen_x = (pt.x()+1)*ScreenWidth()/2.0;
+          double screen_y = (pt.y()+1)*ScreenHeight()/2.0;
+          tri_img_pts.emplace_back(screen_x,screen_y);
+        }
+        DrawTriangle(tri_img_pts[0].x(), tri_img_pts[0].y(),
+                     tri_img_pts[1].x(), tri_img_pts[1].y(),
+                     tri_img_pts[2].x(), tri_img_pts[2].y());
 
-      DrawTriangle(tri_img_pts[0].x(), tri_img_pts[0].y(),
-                   tri_img_pts[1].x(), tri_img_pts[1].y(),
-                   tri_img_pts[2].x(), tri_img_pts[2].y());
+        // Clip triangles in screen area
+      }
     }
 
     return true;

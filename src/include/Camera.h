@@ -45,6 +45,12 @@ class Camera{
   [[nodiscard]] Point2d_ptr projectPoint(const Vector3d &pt_world) const;
 
   /*
+   * Transform a point in world coordinate to the camera's unit cube space by
+   * the perspective transform.
+   */
+  [[nodiscard]] Vector3d transformPoint(const Vector3d &pt_world) const;
+
+  /*
    * Returns a vector of 3d triangles in cube space range [-1,1]
    *
    * Input is a triangle in world coordinates.
@@ -52,7 +58,7 @@ class Camera{
    * by the near plane.
    */
   [[nodiscard]] std::vector<Triangle>
-  projectTriangle(const Triangle& tri_world) const;
+  transformTriangle(const Triangle& tri_world) const;
 
   /*
    * Clip triangle in cube space by the near plane. Returns 0,1,or 2

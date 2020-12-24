@@ -23,6 +23,7 @@ typedef std::shared_ptr<Mesh> Mesh_ptr;
 struct Triangle{
   Vector3d points[3];
 
+  Triangle() = default;
   Triangle(Vector3d pt1, Vector3d pt2, Vector3d pt3);
 
   /*
