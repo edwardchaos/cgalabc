@@ -35,7 +35,7 @@ class Camera{
   far);
 
   /*
-   * Project a 3D point in world onto the camera's image plane.
+   * Project a 3D point from world onto the camera's image plane.
    * 3D point is in homogenous coordinates
    *
    * IMPORTANT:

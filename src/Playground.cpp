@@ -41,6 +41,9 @@ class CameraApplication: public olc::PixelGameEngine{
     mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
     Eigen::Matrix4d tf = mesh.pose.matrix();
 
+    //Handle move camera input
+    handleCameraMotion();
+
     for(const auto& tri : mesh.tris){
       // Transform the triangle
       Eigen::Vector3d pt0_tf = cg::transformPoint(tri.points[0], tf);
@@ -81,6 +84,35 @@ class CameraApplication: public olc::PixelGameEngine{
  private:
   cg::Camera_ptr cam;
   cg::Mesh mesh;
+
+  void handleCameraMotion(){
+    if(GetKey(olc::Key::E).bHeld){
+      // Pitch up
+      DrawString(50,50, "pitch up");
+
+    }
+    if(GetKey(olc::Key::S).bHeld){
+      // Yaw left
+      DrawString(50,50, "Yaw left");
+
+    }
+    if(GetKey(olc::Key::D).bHeld){
+      // Pitch down
+
+    }
+    if(GetKey(olc::Key::F).bHeld){
+      // Yaw right
+
+    }
+    if(GetKey(olc::Key::J).bHeld){
+      // Backward
+
+    }
+    if(GetKey(olc::Key::K).bHeld){
+      // Forward
+
+    }
+  }
 };
 
 int main(){
