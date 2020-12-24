@@ -58,8 +58,6 @@ Point2d_ptr Camera::projectPoint(const Vector3d &pt_world) const{
   Eigen::RowVector4d pt = row_pt*projection_mat_;
 
   assert(pt(3) != 0);
-  assert(pt(3) == 1); // 3d homogenous point should have w value = 1
-  // TODO: Shouldn't have to divide here since w=1
   Vector3d pt_cube(pt(0)/pt(3), pt(1)/pt(3), pt(2)/pt(3));
   return pt_cube;
 }
@@ -79,8 +77,8 @@ std::vector<Triangle> Camera::transformTriangle(
 std::vector<Triangle> Camera::clipNear(const Triangle& tri_cube) const{
   // Near plane normal vector pointed into the frustum
   Vector3d near_plane_unit_normal(0,0,-1);
-  // Near plane point
-  Vector3d near_plane_pt(0,0,-near_plane_dist_);
+  // Near plane point in cube space
+  Vector3d near_plane_pt(0,0,1);
 
   // d holds dot products; Will be used for determining which side of the
   // plane the point is on.

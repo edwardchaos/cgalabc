@@ -20,13 +20,15 @@ class CameraApplication: public olc::PixelGameEngine{
         1,
         50);
 
-    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
-    mesh = *teapot;
+//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
+//    mesh = *teapot;
 //    mesh = *cg::cube();
-//    cg::Triangle triangle{Vector3d(0,0,-10),Vector3d(-5,5,-20), Vector3d(0,
+//    cg::Triangle triangle{
+//      Vector3d(0,0,-10),Vector3d(-5,5,-20),
+//      Vector3d(0,10,-10)};
 //    mesh.tris.push_back(triangle);
-//    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
-//    mesh = *axis;
+    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
+    mesh = *axis;
 
     return true;
   }
@@ -43,8 +45,8 @@ class CameraApplication: public olc::PixelGameEngine{
     auto rotz_mat = cg::rotateZ(z_rot);
     mesh.pose.position = cg::translation(0,0,-10).rightCols<1>();
     mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
-    Eigen::Matrix4d tf = mesh.pose.matrix();
-    //Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+    //Eigen::Matrix4d tf = mesh.pose.matrix();
+    Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
     //Handle move camera input
     handleCameraMotion(fElapsedTime);
@@ -69,7 +71,7 @@ class CameraApplication: public olc::PixelGameEngine{
         // Scale triangles to screen size
         for(auto &pt : tri_cube.points){
           double screen_x = (pt.x()+1)*ScreenWidth()/2.0;
-          double screen_y = (pt.y()+1)*ScreenHeight()/2.0;
+          double screen_y = (-pt.y()+1)*ScreenHeight()/2.0;
           tri_img_pts.emplace_back(screen_x,screen_y);
         }
         DrawTriangle(tri_img_pts[0].x(), tri_img_pts[0].y(),

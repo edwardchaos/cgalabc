@@ -144,7 +144,7 @@ std::shared_ptr<Vector3d> planeLineIntersect(
   // Line segment isn't long enough to intersect plane.
   if(t < -EPS || t > 1+EPS) return nullptr;
 
-  std::shared_ptr<Vector3d> intersect_pt;
+  std::shared_ptr<Vector3d> intersect_pt = std::make_shared<Vector3d>();
   *intersect_pt = pt1 + (pt2-pt1)*t;
 
   return intersect_pt;
