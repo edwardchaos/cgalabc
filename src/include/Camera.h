@@ -53,12 +53,10 @@ class Camera{
    */
   bool isFacing(const Triangle& tri) const;
 
+  Pose pose_world;
  private:
   // Distance is in units of the world
   double ar_, vertical_fov_, near_plane_dist_, far_plane_dist_;
-
-  // Pose in world frame
-  Matrix4d pose_world_;
 
   // Projection matrix
   Matrix4d projection_mat_;

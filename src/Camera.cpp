@@ -13,7 +13,6 @@ Camera::Camera(double aspect_ratio, double vertical_fov_rad, double near,
 }
 
 void Camera::init(){
-  pose_world_ = Eigen::Matrix4d::Identity();
   constructProjectionMatrix();
 }
 
@@ -43,7 +42,7 @@ Point2d_ptr Camera::projectPoint(const Vector4d &pt_homo) const{
 
 bool Camera::isFacing(const Triangle& tri) const{
   // extract camera's position
-  Vector3d cam_position = pose_world_.rightCols<1>().head<3>();
+  Vector3d cam_position = pose_world.position.head<3>();
   Vector3d cam_2_tri = tri.points[0] - cam_position;
   cam_2_tri.normalize();
   return cam_2_tri.dot(tri.unit_normal()) < -EPS;
