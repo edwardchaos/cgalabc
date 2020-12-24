@@ -49,28 +49,28 @@ Mesh_ptr cube(){
 
   // create cube
   // South face
-  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(1,1,0),Vector3d(0,1,0));
-  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(1,0,0),Vector3d(1,1,0));
+  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(-1,1,0),Vector3d(0,1,0));
+  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(-1,0,0),Vector3d(-1,1,0));
 
   // East face
-  cube->tris.emplace_back(Vector3d(1,0,0),Vector3d(1,1,-1),Vector3d(1,1,0));
-  cube->tris.emplace_back(Vector3d(1,0,0),Vector3d(1,0,-1),Vector3d(1,1,-1));
+  cube->tris.emplace_back(Vector3d(-1,0,0),Vector3d(-1,1,-1),Vector3d(-1,1,0));
+  cube->tris.emplace_back(Vector3d(-1,0,0),Vector3d(-1,0,-1),Vector3d(-1,1,-1));
 
   // West face
   cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,1,0),Vector3d(0,1,-1));
   cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,1,-1),Vector3d(0,0,-1));
 
   // North face
-  cube->tris.emplace_back(Vector3d(0,0,-1),Vector3d(0,1,-1),Vector3d(1,1,-1));
-  cube->tris.emplace_back(Vector3d(0,0,-1),Vector3d(1,1,-1),Vector3d(1,0,-1));
+  cube->tris.emplace_back(Vector3d(0,0,-1),Vector3d(0,1,-1),Vector3d(-1,1,-1));
+  cube->tris.emplace_back(Vector3d(0,0,-1),Vector3d(-1,1,-1),Vector3d(-1,0,-1));
 
   // Top face
-  cube->tris.emplace_back(Vector3d(0,1,0),Vector3d(1,1,0),Vector3d(1,1,-1));
-  cube->tris.emplace_back(Vector3d(0,1,0),Vector3d(1,1,-1),Vector3d(0,1,-1));
+  cube->tris.emplace_back(Vector3d(0,1,0),Vector3d(-1,1,-1),Vector3d(0,1,-1));
+  cube->tris.emplace_back(Vector3d(0,1,0),Vector3d(-1,1,0),Vector3d(-1,1,-1));
 
   // Bottom face
-  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,0,-1),Vector3d(1,0,-1));
-  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(1,0,-1),Vector3d(1,0,0));
+  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,0,-1),Vector3d(-1,0,-1));
+  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(-1,0,-1),Vector3d(-1,0,0));
 
   return cube;
 }
