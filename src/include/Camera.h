@@ -59,6 +59,8 @@ class Camera{
               Vector4d up);
 
   void moveForward(double units);
+  void strafeRight(double units);
+  void yawRight(double units);
 
   Pose pose_world;
  private:

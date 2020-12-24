@@ -2,7 +2,8 @@
 
 #include <cmath>
 
-#include "iostream"
+#include <Utility.h>
+
 namespace cg {
 
 Camera::Camera(double aspect_ratio, double vertical_fov_rad, double near,
@@ -95,6 +96,18 @@ void Camera::moveForward(double units){
 
   // Add look dir to camera's position
   pose_world.position += look_dir*units;
+}
+
+void Camera::strafeRight(double units){
+  // Extract right vector
+  Vector4d right_vec = pose_world.orientation.col(0);
+
+  // Add look dir to camera's position
+  pose_world.position += right_vec*units;
+}
+
+void Camera::yawRight(double units){
+  pose_world.orientation *= rotateY(-units);
 }
 
 } // namespace cg

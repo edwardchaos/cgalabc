@@ -5,9 +5,9 @@
 
 #include <olcPixelGameEngine.h>
 
-#include "Camera.h"
 #include "Mesh.h"
 #include "Utility.h"
+#include "Camera.h"
 
 using Eigen::Vector3d;
 
@@ -17,12 +17,12 @@ class CameraApplication: public olc::PixelGameEngine{
     cam = std::make_shared<cg::Camera>(
         (double)ScreenHeight()/(double)ScreenWidth(),
         M_PI/2.0,
-        10,
+        1,
         100);
 
-    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
-    mesh = *teapot;
-    //mesh = *cg::cube();
+//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
+//    mesh = *teapot;
+    mesh = *cg::cube();
 
     return true;
   }
@@ -87,24 +87,23 @@ class CameraApplication: public olc::PixelGameEngine{
     }
     if(GetKey(olc::Key::S).bHeld){
       DrawString(50,50, "Strafe Left");
-
-
+      cam->strafeRight(-0.005/fElapsedTime);
     }
     if(GetKey(olc::Key::D).bHeld){
       DrawString(50,50, "Back");
-
+      cam->moveForward(-0.005/fElapsedTime);
     }
     if(GetKey(olc::Key::F).bHeld){
       DrawString(50,50, "Strafe Right");
-
+      cam->strafeRight(0.005/fElapsedTime);
     }
     if(GetKey(olc::Key::J).bHeld){
       DrawString(50,50, "Yaw Left");
-
+      cam->yawRight(-0.0005/fElapsedTime);
     }
     if(GetKey(olc::Key::K).bHeld){
       DrawString(50,50, "Yaw Right");
-
+      cam->yawRight(0.0005/fElapsedTime);
     }
   }
 };
