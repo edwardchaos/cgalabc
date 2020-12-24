@@ -43,7 +43,7 @@ class Camera{
    * To properly draw on screen, Add 1 and Multiply x by (screen width)/2
    * Multiply y by (screen height)/2
    */
-  Point2d_ptr projectPoint(const Vector4d &pt_homo) const;
+  [[nodiscard]] Point2d_ptr projectPoint(const Vector4d &pt_homo) const;
 
   /*
    * Indicates whether the camera is viewing the triangle from a perspective
@@ -53,11 +53,13 @@ class Camera{
    *
    * i.e. (triangle point - camera position) dot (triangle normal) < 0
    */
-  bool isFacing(const Triangle& tri_world) const;
+  [[nodiscard]] bool isFacing(const Triangle& tri_world) const;
 
   void moveTo(Vector4d position_world,
               Vector4d look_dir,
               Vector4d up);
+
+  void moveForward(double units);
 
   Pose pose_world;
  private:

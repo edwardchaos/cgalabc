@@ -12,8 +12,8 @@ struct Pose{
   Eigen::Matrix4d orientation = Eigen::Matrix4d::Identity();
   Eigen::Vector4d position = Eigen::Vector4d::Identity();
 
-  Eigen::Matrix4d matrix() const;
-  Pose()=default;
+  [[nodiscard]] Eigen::Matrix4d matrix() const;
+  Pose();
   Pose(Eigen::Vector4d position, Eigen::Matrix4d orientation);
 };
 

@@ -42,7 +42,7 @@ class CameraApplication: public olc::PixelGameEngine{
     Eigen::Matrix4d tf = mesh.pose.matrix();
 
     //Handle move camera input
-    handleCameraMotion();
+    handleCameraMotion(fElapsedTime);
 
     for(const auto& tri : mesh.tris){
       // Transform the triangle
@@ -85,10 +85,10 @@ class CameraApplication: public olc::PixelGameEngine{
   cg::Camera_ptr cam;
   cg::Mesh mesh;
 
-  void handleCameraMotion(){
+  void handleCameraMotion(double fElapsedTime){
     if(GetKey(olc::Key::E).bHeld){
       DrawString(50,50, "Forward");
-
+      cam->moveForward(0.005/fElapsedTime);
     }
     if(GetKey(olc::Key::S).bHeld){
       DrawString(50,50, "Strafe Left");

@@ -31,7 +31,10 @@ void Camera::constructProjectionMatrix(){
 }
 
 Point2d_ptr Camera::projectPoint(const Vector4d &pt_homo) const{
-  Eigen::RowVector4d row_pt(pt_homo);
+  // Transform homogenous point in world coordinates to camera coordinate.
+  Vector4d pt_cam = pose_world.matrix()*pt_homo;
+
+  Eigen::RowVector4d row_pt(pt_cam);
 
   Eigen::RowVector4d pt = row_pt*projection_mat_;
 
@@ -80,10 +83,18 @@ void Camera::moveTo(Vector4d position_world,
   Matrix4d new_cam_orientation= Matrix4d::Identity();
   new_cam_orientation.col(0).head<3>() = right_vec;
   new_cam_orientation.col(1).head<3>() = up_vec;
-  new_cam_orientation.col(2) = look_dir;
+  new_cam_orientation.col(2) = -look_dir;
 
   pose_world.orientation = new_cam_orientation;
-  pose_world.position = position_world;
+  pose_world.position = std::move(position_world);
+}
+
+void Camera::moveForward(double units){
+  // Extract look dir unit vec (rotation matrix is orthonormal)
+  Vector4d look_dir = -pose_world.orientation.col(2);
+
+  // Add look dir to camera's position
+  pose_world.position += look_dir*units;
 }
 
 } // namespace cg
