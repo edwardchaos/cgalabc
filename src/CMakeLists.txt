@@ -12,6 +12,7 @@ set (SOURCES
         Camera.cpp
         Mesh.cpp
         Algo3d.cpp
+        Utility.cpp
         Pose.cpp
         )
 
