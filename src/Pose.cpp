@@ -17,4 +17,9 @@ Eigen::Matrix4d Pose::matrix() const{
   return pose;
 }
 
+bool Pose::operator==(const Pose&other){
+  return other.orientation == this->orientation
+      && other.position == this->position;
+}
+
 } // namespace cg

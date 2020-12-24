@@ -60,7 +60,8 @@ class Camera{
 
   void moveForward(double units);
   void strafeRight(double units);
-  void yawRight(double units);
+  // Rotate camera to right by theta in radians
+  void yawRight(double theta_radians);
 
   Pose pose_world;
  private:

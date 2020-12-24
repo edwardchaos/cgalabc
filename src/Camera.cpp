@@ -1,5 +1,6 @@
 #include "include/Camera.h"
 
+#include <iostream>
 #include <cmath>
 
 #include <Utility.h>
@@ -106,8 +107,8 @@ void Camera::strafeRight(double units){
   pose_world.position += right_vec*units;
 }
 
-void Camera::yawRight(double units){
-  pose_world.orientation *= rotateY(-units);
+void Camera::yawRight(double theta_radians){
+  pose_world.orientation *= rotateY(-theta_radians);
 }
 
 } // namespace cg
