@@ -28,9 +28,9 @@ struct Triangle{
   /*
    * Returns the unit normal vector of the triangle's surface.
    */
-  Vector3d unit_normal() const;
+  [[nodiscard]] Vector3d unit_normal() const;
 
-  std::vector<Vector3d> edges() const;
+  [[nodiscard]] std::vector<Vector3d> edges() const;
 };
 
 struct Mesh{

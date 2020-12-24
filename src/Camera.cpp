@@ -58,7 +58,6 @@ bool Camera::isFacing(const Triangle& tri_world) const{
   // Triangle in camera coordinate frame
   Triangle tri_cam{pt0.head<3>(), pt1.head<3>(), pt2.head<3>()};
 
-  // extract camera's position
   Vector3d cam_position = pose_world.position.head<3>();
   Vector3d cam_2_tri = tri_cam.points[0] - cam_position;
   cam_2_tri.normalize();
