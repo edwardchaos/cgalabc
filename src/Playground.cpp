@@ -61,24 +61,27 @@ class CameraApplication: public olc::PixelGameEngine{
       // Only consider drawing triangle if it's facing the cam
       //if(!cam->isFacing(tri_world)) continue;
 
-      // Transform triangles into camera's projection cube space, clipped on
-      // near plane.
-      auto triangles_unit_cube = cam->transformTriangle(tri_world);
+      // Transform triangle to cam space
+      auto tri_cam = cam->tfTriangleWorldToCam(tri_world);
 
-      for(auto &tri_cube : triangles_unit_cube){
+      // Clip triangle in cam coordinate frame by near plane
+      auto near_clipped_tris_cam = cam->clipNear(tri_cam);
+
+      for(auto &tri_cam : near_clipped_tris_cam){
         std::vector<Eigen::Vector2d> tri_img_pts;
         tri_img_pts.reserve(3);
-        // Scale triangles to screen size
-        for(auto &pt : tri_cube.points){
-          double screen_x = (pt.x()+1)*ScreenWidth()/2.0;
-          double screen_y = (-pt.y()+1)*ScreenHeight()/2.0;
+        for(auto pt_cam : tri_cam.points){
+          // Project triangle in camera frame onto camera's image plane.
+          auto pt_cube = cam->projectPointInCameraFrame(pt_cam);
+
+          // Scale triangles to screen size
+          double screen_x = (pt_cube.x()+1)*ScreenWidth()/2.0;
+          double screen_y = (-pt_cube.y()+1)*ScreenHeight()/2.0;
           tri_img_pts.emplace_back(screen_x,screen_y);
         }
         DrawTriangle(tri_img_pts[0].x(), tri_img_pts[0].y(),
                      tri_img_pts[1].x(), tri_img_pts[1].y(),
                      tri_img_pts[2].x(), tri_img_pts[2].y());
-
-        // Clip triangles in screen area
       }
     }
 

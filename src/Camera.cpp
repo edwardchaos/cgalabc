@@ -50,7 +50,18 @@ Point2d_ptr Camera::projectPoint(const Vector3d &pt_world) const{
   return std::make_shared<Point2d>(pt_cube(0), -pt_cube(1));
 }
 
-[[nodiscard]] Vector3d Camera::transformPoint(const Vector3d &pt_world) const{
+Vector3d Camera::projectPointInCameraFrame(const Vector3d &pt_cam)const{
+  Eigen::RowVector4d row_pt;
+  row_pt.head<3>() = pt_cam;
+  row_pt(3) = 1;
+  Eigen::RowVector4d pt = row_pt*projection_mat_;
+
+  assert(pt(3) != 0);
+  Vector3d pt_cube(pt(0)/pt(3), pt(1)/pt(3), pt(2)/pt(3));
+  return pt_cube;
+}
+
+Vector3d Camera::transformPoint(const Vector3d &pt_world) const{
   // Transform homogenous point in world coordinates to camera coordinate.
   Vector4d pt_cam = tfPointWorldToCam(pt_world);
 
@@ -62,36 +73,33 @@ Point2d_ptr Camera::projectPoint(const Vector3d &pt_world) const{
   return pt_cube;
 }
 
-std::vector<Triangle> Camera::transformTriangle(
-    const Triangle& tri_world) const{
-  // Transform triangle points in world frame to camera frame cube
-  Triangle tri_cube;
+Triangle Camera::tfTriangleWorldToCam(const Triangle& tri_world) const{
+  // Transform to camera coordinate
+  Triangle tri_cam;
   for(int i = 0; i < 3; ++i)
-    tri_cube.points[i] = transformPoint(tri_world.points[i]);
+    tri_cam.points[i] = tfPointWorldToCam(tri_world.points[i]).head<3>();
 
-  // Clip triangle in cube space by near plane
-  auto near_clipped_tris = clipNear(tri_cube);
-  return near_clipped_tris;
+  return tri_cam;
 }
 
-std::vector<Triangle> Camera::clipNear(const Triangle& tri_cube) const{
+std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
   // Near plane normal vector pointed into the frustum
   Vector3d near_plane_unit_normal(0,0,-1);
-  // Near plane point in cube space
-  Vector3d near_plane_pt(0,0,1);
+  // Point on the near plane in camera coordinates
+  Vector3d near_plane_pt(0,0,-near_plane_dist_);
 
   // d holds dot products; Will be used for determining which side of the
   // plane the point is on.
   double d[3];
-  d[0] = near_plane_unit_normal.dot(tri_cube.points[0]-near_plane_pt);
-  d[1] = near_plane_unit_normal.dot(tri_cube.points[1]-near_plane_pt);
-  d[2] = near_plane_unit_normal.dot(tri_cube.points[2]-near_plane_pt);
+  d[0] = near_plane_unit_normal.dot(tri_cam.points[0]-near_plane_pt);
+  d[1] = near_plane_unit_normal.dot(tri_cam.points[1]-near_plane_pt);
+  d[2] = near_plane_unit_normal.dot(tri_cam.points[2]-near_plane_pt);
 
   // Triangle is completely on the out side of near plane. Nothing to keep.
   if(d[0] <= EPS && d[1] <= EPS && d[2] <= EPS) return{};
 
   // Triangle is completely on the 'in' side of the near plane.
-  if(d[0] >= -EPS && d[1] >= -EPS && d[2] >= -EPS) return{tri_cube};
+  if(d[0] >= -EPS && d[1] >= -EPS && d[2] >= -EPS) return{tri_cam};
 
   std::vector<Vector3d> in,out;
 
@@ -99,8 +107,8 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cube) const{
     int cur_idx = i;
     int next_idx = (i+1)%3;
 
-    auto cur_pt = tri_cube.points[cur_idx];
-    auto next_pt = tri_cube.points[next_idx];
+    auto cur_pt = tri_cam.points[cur_idx];
+    auto next_pt = tri_cam.points[next_idx];
 
     // Add current point in 'In' or 'Out'?
     if(d[cur_idx] < -EPS) { // 'Out' side

@@ -42,7 +42,15 @@ class Camera{
    * To properly draw on screen, Add 1 and Multiply x by (screen width)/2
    * Multiply y by (screen height)/2
    */
+  //TODO: Rename to projectPointInWorld and internally call
+  // projectPointInCameraFrame.
   [[nodiscard]] Point2d_ptr projectPoint(const Vector3d &pt_world) const;
+
+  /*
+   * Project a 3D point in camera coordinate onto the camera's image plane.
+   */
+  [[nodiscard]] Vector3d projectPointInCameraFrame(
+      const Vector3d &pt_cam)const;
 
   /*
    * Transform a point in world coordinate to the camera's unit cube space by
@@ -51,20 +59,16 @@ class Camera{
   [[nodiscard]] Vector3d transformPoint(const Vector3d &pt_world) const;
 
   /*
-   * Returns a vector of 3d triangles in cube space range [-1,1]
-   *
-   * Input is a triangle in world coordinates.
-   * This function transforms the points into "cube space", and clips triangles
-   * by the near plane.
+   * Transform a triangle from world coordinate to camera coordainte.
    */
-  [[nodiscard]] std::vector<Triangle>
-  transformTriangle(const Triangle& tri_world) const;
+  Triangle tfTriangleWorldToCam(const Triangle& tri_world) const;
 
   /*
-   * Clip triangle in cube space by the near plane. Returns 0,1,or 2
-   * triangles depending on original triangle intersection with near plane.
+   * Clip triangle in camera coordainte space by the near plane.
+   * Returns 0,1, or 2 triangles depending on original triangle intersection
+   * with near plane.
    */
-  [[nodiscard]] std::vector<Triangle> clipNear(const Triangle& tri_cube) const;
+  [[nodiscard]] std::vector<Triangle> clipNear(const Triangle& tri_cam) const;
 
   /*
    * Indicates whether the camera is viewing the triangle from a perspective
