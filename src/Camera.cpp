@@ -40,12 +40,34 @@ Point2d_ptr Camera::projectPoint(const Vector4d &pt_homo) const{
   return nullptr;
 }
 
-bool Camera::isFacing(const Triangle& tri) const{
+bool Camera::isFacing(const Triangle& tri_world) const{
   // extract camera's position
   Vector3d cam_position = pose_world.position.head<3>();
-  Vector3d cam_2_tri = tri.points[0] - cam_position;
+  Vector3d cam_2_tri = tri_world.points[0] - cam_position;
   cam_2_tri.normalize();
-  return cam_2_tri.dot(tri.unit_normal()) < -EPS;
+  return cam_2_tri.dot(tri_world.unit_normal()) < -EPS;
+}
+
+void Camera::moveTo(Vector4d position_world,
+                    Vector4d look_dir,
+                    Vector4d up){
+
+  // Ensure they're normalized
+  look_dir.normalize();
+  up.normalize();
+
+  Vector3d right_vec = look_dir.head<3>().cross(up.head<3>());
+  right_vec.normalize();
+  Vector3d up_vec = right_vec.cross(look_dir.head<3>());
+  up_vec.normalize();
+
+  Matrix4d new_cam_orientation= Matrix4d::Identity();
+  new_cam_orientation.col(0).head<3>() = right_vec;
+  new_cam_orientation.col(1).head<3>() = up_vec;
+  new_cam_orientation.col(2) = look_dir;
+
+  pose_world.orientation = new_cam_orientation;
+  pose_world.position = position_world;
 }
 
 } // namespace cg
