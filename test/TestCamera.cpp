@@ -54,6 +54,7 @@ TEST(Camera, move){
   cg::Camera cam(3.0/4.0, vertical_fov, 1, 100);
 
   Eigen::Matrix4d forward_mat = Eigen::Matrix4d::Identity();
+  forward_mat(0,0) = -1;
   forward_mat(2,3) = -9.99;
   // Move forward,
   cam.moveForward(9.99);
@@ -66,10 +67,10 @@ TEST(Camera, move){
 
   // Strafe right, left
   cam.strafeRight(12.3);
-  forward_mat(0,3) += 12.3;
+  forward_mat(0,3) -= 12.3;
   ASSERT_EQ(cam.pose_world.matrix(), forward_mat);
   cam.strafeRight(-12.3);
-  forward_mat(0,3) -= 12.3;
+  forward_mat(0,3) += 12.3;
   ASSERT_EQ(cam.pose_world.matrix(), forward_mat);
 
   // Yaw right, left
@@ -85,7 +86,7 @@ TEST(Camera, move){
   auto zeromat2 = cam.pose_world.matrix()-forward_mat;
   for(int i = 0; i < 4; ++i){
     for(int j = 0; j < 4; ++j){
-      ASSERT_NEAR(zeromat(i,j), 0, cg::EPS);
+      ASSERT_NEAR(zeromat2(i,j), 0, cg::EPS);
     }
   }
 }
@@ -98,13 +99,13 @@ TEST(Camera, isFacing){
   cg::Triangle not_facing{
     Vector3d(0,10,-10),Vector3d(10,20,-20),Vector3d(-10,20,-20)};
   cg::Triangle not_facing2{
-      Vector3d(0,10,-10),Vector3d(10,19.9,-20),Vector3d(-10,19.9,-20)};
+      Vector3d(0,10,-10),Vector3d(-10,19.9,-20),Vector3d(10,19.9,-20)};
   cg::Triangle not_facing3{
-      Vector3d(0,10,-10),Vector3d(10,19.9999,-20),Vector3d(-10,19.9999,-20)};
+      Vector3d(0,10,-10),Vector3d(-10,19.9999,-20),Vector3d(10,19.9999,-20)};
   cg::Triangle facing{
-      Vector3d(0,10,-10),Vector3d(10,21,-20),Vector3d(-10,21,-20)};
-  cg::Triangle not_facing4{
       Vector3d(0,10,-10),Vector3d(-10,21,-20),Vector3d(10,21,-20)};
+  cg::Triangle not_facing4{
+      Vector3d(0,10,-10),Vector3d(10,21,-20),Vector3d(-10,21,-20)};
 
   ASSERT_TRUE(cam.isFacing(facing));
   ASSERT_FALSE(cam.isFacing(not_facing));
