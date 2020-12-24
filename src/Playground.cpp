@@ -17,12 +17,16 @@ class CameraApplication: public olc::PixelGameEngine{
     cam = std::make_shared<cg::Camera>(
         (double)ScreenHeight()/(double)ScreenWidth(),
         M_PI/2.0,
-        1,
+        0,
         100);
 
-//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
-//    mesh = *teapot;
-    mesh = *cg::cube();
+    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
+    mesh = *teapot;
+//    mesh = *cg::cube();
+//    cg::Triangle triangle{Vector3d(0,0,-10),Vector3d(-5,5,-20), Vector3d(0,
+//    mesh.tris.push_back(triangle);
+//    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
+//    mesh = *axis;
 
     return true;
   }
@@ -40,6 +44,7 @@ class CameraApplication: public olc::PixelGameEngine{
     mesh.pose.position = cg::translation(0,0,-10).rightCols<1>();
     mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
     Eigen::Matrix4d tf = mesh.pose.matrix();
+    //Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
     //Handle move camera input
     handleCameraMotion(fElapsedTime);
@@ -59,6 +64,7 @@ class CameraApplication: public olc::PixelGameEngine{
       for(const auto& pt : tri_world.points){
         // project point
         auto normalized_img_pt = cam->projectPoint(pt);
+        if(!normalized_img_pt) break;
 
         // Point coordinate is in range [-1,1]. Expand it to the width and
         // height of the screen.
@@ -66,7 +72,7 @@ class CameraApplication: public olc::PixelGameEngine{
         double screen_y = (normalized_img_pt->y()+1)*ScreenHeight()/2.0;
         tri_img_pts.emplace_back(screen_x, screen_y);
       }
-      assert(tri_img_pts.size() == 3);
+      if(tri_img_pts.size()<3) continue;
 
       DrawTriangle(tri_img_pts[0].x(), tri_img_pts[0].y(),
                    tri_img_pts[1].x(), tri_img_pts[1].y(),
