@@ -49,21 +49,16 @@ class CameraApplication: public olc::PixelGameEngine{
       Eigen::Vector3d pt0_tf = cg::transformPoint(tri.points[0], tf);
       Eigen::Vector3d pt1_tf = cg::transformPoint(tri.points[1], tf);
       Eigen::Vector3d pt2_tf = cg::transformPoint(tri.points[2], tf);
-      cg::Triangle tri_tf{pt0_tf, pt1_tf, pt2_tf};
+      cg::Triangle tri_world{pt0_tf, pt1_tf, pt2_tf};
 
       // Only consider drawing triangle if it's facing the cam
-      if(!cam->isFacing(tri_tf)) continue;
+      if(!cam->isFacing(tri_world)) continue;
       std::vector<cg::Point2d> tri_img_pts;
       tri_img_pts.reserve(3);
 
-      for(const auto& pt : tri_tf.points){
-        // Extend point to homogenous coordinate
-        Eigen::Vector4d homo_pt;
-        homo_pt.head<3>() = pt;
-        homo_pt(3) = 1;
-
+      for(const auto& pt : tri_world.points){
         // project point
-        auto normalized_img_pt = cam->projectPoint(homo_pt);
+        auto normalized_img_pt = cam->projectPoint(pt);
 
         // Point coordinate is in range [-1,1]. Expand it to the width and
         // height of the screen.

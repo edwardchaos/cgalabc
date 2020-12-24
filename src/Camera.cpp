@@ -30,12 +30,21 @@ void Camera::constructProjectionMatrix(){
   projection_mat_(2,3) = -1;
 }
 
-Point2d_ptr Camera::projectPoint(const Vector4d &pt_homo) const{
+Vector4d Camera::tfPointWorldToCam(const Vector3d &pt_world) const{
+  // Transform triangle in world coordinate to camera's coordinate
+  Vector4d pt_cam;
+  Vector4d pt_world_homo;
+  pt_world_homo.head<3>() = pt_world;
+  pt_world_homo(3) = 1;
+  pt_cam = pose_world.matrix().inverse()*pt_world_homo;
+  return pt_cam;
+}
+
+Point2d_ptr Camera::projectPoint(const Vector3d &pt_world) const{
   // Transform homogenous point in world coordinates to camera coordinate.
-  Vector4d pt_cam = pose_world.matrix()*pt_homo;
+  Vector4d pt_cam = tfPointWorldToCam(pt_world);
 
   Eigen::RowVector4d row_pt(pt_cam);
-
   Eigen::RowVector4d pt = row_pt*projection_mat_;
 
   if(pt(3) != 0)
@@ -45,18 +54,9 @@ Point2d_ptr Camera::projectPoint(const Vector4d &pt_homo) const{
 
 bool Camera::isFacing(const Triangle& tri_world) const{
   // Transform triangle in world coordinate to camera's coordinate
-  Vector4d pt0;
-  pt0.head<3>() = tri_world.points[0];
-  pt0(3) = 1;
-  pt0 = pose_world.matrix()*pt0;
-  Vector4d pt1;
-  pt1.head<3>() = tri_world.points[1];
-  pt1(3) = 1;
-  pt1 = pose_world.matrix()*pt1;
-  Vector4d pt2;
-  pt2.head<3>() = tri_world.points[2];
-  pt2(3) = 1;
-  pt2 = pose_world.matrix()*pt2;
+  Vector4d pt0 = tfPointWorldToCam(tri_world.points[0]);
+  Vector4d pt1 = tfPointWorldToCam(tri_world.points[1]);
+  Vector4d pt2 = tfPointWorldToCam(tri_world.points[2]);
 
   // Triangle in camera coordinate frame
   Triangle tri_cam{pt0.head<3>(), pt1.head<3>(), pt2.head<3>()};

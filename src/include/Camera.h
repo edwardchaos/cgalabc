@@ -35,15 +35,14 @@ class Camera{
   far);
 
   /*
-   * Project a 3D point from world onto the camera's image plane.
-   * 3D point is in homogenous coordinates
+   * Project a 3D point in world coordinate onto the camera's image plane.
    *
    * IMPORTANT:
    * Returned coordinate is normalized in range [-1,1].
    * To properly draw on screen, Add 1 and Multiply x by (screen width)/2
    * Multiply y by (screen height)/2
    */
-  [[nodiscard]] Point2d_ptr projectPoint(const Vector4d &pt_homo) const;
+  [[nodiscard]] Point2d_ptr projectPoint(const Vector3d &pt_world) const;
 
   /*
    * Indicates whether the camera is viewing the triangle from a perspective
@@ -71,6 +70,12 @@ class Camera{
 
   void init();
   void constructProjectionMatrix();
+
+  /*
+   * Transform point in world coordinate frame to a homogenous point in
+   * camera coordinate frame.
+   */
+  Vector4d tfPointWorldToCam(const Vector3d &pt_world) const;
 };
 
 } // namespace cg
