@@ -41,11 +41,28 @@ Point2d_ptr Camera::projectPoint(const Vector4d &pt_homo) const{
 }
 
 bool Camera::isFacing(const Triangle& tri_world) const{
+  // Transform triangle in world coordinate to camera's coordinate
+  Vector4d pt0;
+  pt0.head<3>() = tri_world.points[0];
+  pt0(3) = 1;
+  pt0 = pose_world.matrix()*pt0;
+  Vector4d pt1;
+  pt1.head<3>() = tri_world.points[1];
+  pt1(3) = 1;
+  pt1 = pose_world.matrix()*pt1;
+  Vector4d pt2;
+  pt2.head<3>() = tri_world.points[2];
+  pt2(3) = 1;
+  pt2 = pose_world.matrix()*pt2;
+
+  // Triangle in camera coordinate frame
+  Triangle tri_cam{pt0.head<3>(), pt1.head<3>(), pt2.head<3>()};
+
   // extract camera's position
   Vector3d cam_position = pose_world.position.head<3>();
-  Vector3d cam_2_tri = tri_world.points[0] - cam_position;
+  Vector3d cam_2_tri = tri_cam.points[0] - cam_position;
   cam_2_tri.normalize();
-  return cam_2_tri.dot(tri_world.unit_normal()) < -EPS;
+  return cam_2_tri.dot(tri_cam.unit_normal()) < -EPS;
 }
 
 void Camera::moveTo(Vector4d position_world,
