@@ -11,6 +11,7 @@
 
 #include "Pose.h"
 
+using Eigen::Vector3d;
 namespace cg{
 
 struct Mesh;
@@ -20,16 +21,16 @@ typedef std::shared_ptr<Mesh> Mesh_ptr;
  * in the direction by the right hand rule
  */
 struct Triangle{
-  Eigen::Vector3d points[3];
+  Vector3d points[3];
 
-  Triangle(Eigen::Vector3d pt1, Eigen::Vector3d pt2, Eigen::Vector3d pt3);
+  Triangle(Vector3d pt1, Vector3d pt2, Vector3d pt3);
 
   /*
    * Returns the unit normal vector of the triangle's surface.
    */
-  Eigen::Vector3d unit_normal() const;
+  Vector3d unit_normal() const;
 
-  std::vector<Eigen::Vector3d> edges() const;
+  std::vector<Vector3d> edges() const;
 };
 
 struct Mesh{
