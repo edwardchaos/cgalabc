@@ -15,6 +15,8 @@ Camera::Camera(double aspect_ratio, double vertical_fov_rad, double near,
 }
 
 void Camera::init(){
+  // Camera's x-axis is in the opposite direction of the world's x axis at start
+  pose_world.orientation(0,0) = -1;
   constructProjectionMatrix();
 }
 
@@ -63,8 +65,8 @@ bool Camera::isFacing(const Triangle& tri_world) const{
   // Triangle in camera coordinate frame
   Triangle tri_cam{pt0.head<3>(), pt1.head<3>(), pt2.head<3>()};
 
-  Vector3d cam_position = pose_world.position.head<3>();
-  Vector3d cam_2_tri = tri_cam.points[0] - cam_position;
+  //Vector3d cam_position = pose_world.position.head<3>();
+  Vector3d cam_2_tri = tri_cam.points[0];
   cam_2_tri.normalize();
   return cam_2_tri.dot(tri_cam.unit_normal()) < -EPS;
 }
