@@ -122,4 +122,10 @@ Eigen::Vector3d transformPoint(const Eigen::Vector3d &pt,
   Eigen::Vector4d pt_tf = tf*pt_homo;
   return {pt_tf(0)/pt_tf(3), pt_tf(1)/pt_tf(3), pt_tf(2)/pt_tf(3)};
 }
+
+std::shared_ptr<Vector3d> planeLineIntersect(
+    const Vector3d &pt1, const Vector3d &pt2,
+    const Vector3d &plane_unit_normal, const Vector3d &pt_on_plane){
+
+}
 } // namespace cg

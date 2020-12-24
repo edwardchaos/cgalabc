@@ -48,4 +48,15 @@ Eigen::Matrix4d translation(double dx, double dy, double dz);
 Eigen::Vector3d transformPoint(const Eigen::Vector3d &pt,
                                const Eigen::Matrix4d& tf);
 
+/*
+ * Given a point on a plane along with the unit normal vector pointing in the
+ * "in" side of the plane as well as 2 points that define a line, returns the
+ * point of intersection between plane and line or nullptr if they do not
+ * intersect.
+ */
+std::shared_ptr<Vector3d> planeLineIntersect(
+    const Vector3d &pt1, const Vector3d &pt2,
+    const Vector3d &plane_unit_normal, const Vector3d &pt_on_plane);
+
+
 } // namespace cg

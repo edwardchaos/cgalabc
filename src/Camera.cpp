@@ -56,6 +56,14 @@ Point2d_ptr Camera::projectPoint(const Vector3d &pt_world) const{
   return nullptr;
 }
 
+std::vector<Triangle> Camera::projectTriangle(const Triangle& tri_world) const{
+  return {};
+}
+
+std::vector<Triangle> Camera::clipNear(const Triangle& tri_cube) const{
+  return {};
+}
+
 bool Camera::isFacing(const Triangle& tri_world) const{
   // Transform triangle in world coordinate to camera's coordinate
   Vector4d pt0 = tfPointWorldToCam(tri_world.points[0]);

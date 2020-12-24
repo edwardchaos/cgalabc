@@ -61,17 +61,21 @@ class CameraApplication: public olc::PixelGameEngine{
       std::vector<cg::Point2d> tri_img_pts;
       tri_img_pts.reserve(3);
 
-      for(const auto& pt : tri_world.points){
-        // project point
-        auto normalized_img_pt = cam->projectPoint(pt);
-        if(!normalized_img_pt) break;
+      auto triangles_unit_cube = cam->projectTriangle(tri_world);
+      // Scale triangles to screen size
+      // Clip triangles in screen area
 
-        // Point coordinate is in range [-1,1]. Expand it to the width and
-        // height of the screen.
-        double screen_x = (normalized_img_pt->x()+1)*ScreenWidth()/2.0;
-        double screen_y = (normalized_img_pt->y()+1)*ScreenHeight()/2.0;
-        tri_img_pts.emplace_back(screen_x, screen_y);
-      }
+//      for(const auto& pt : tri_world.points){
+//        // project point
+//        auto normalized_img_pt = cam->projectPoint(pt);
+//        if(!normalized_img_pt) break;
+//
+//        // Point coordinate is in range [-1,1]. Expand it to the width and
+//        // height of the screen.
+//        double screen_x = (normalized_img_pt->x()+1)*ScreenWidth()/2.0;
+//        double screen_y = (normalized_img_pt->y()+1)*ScreenHeight()/2.0;
+//        tri_img_pts.emplace_back(screen_x, screen_y);
+//      }
       if(tri_img_pts.size()<3) continue;
 
       DrawTriangle(tri_img_pts[0].x(), tri_img_pts[0].y(),
