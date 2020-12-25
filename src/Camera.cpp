@@ -83,7 +83,7 @@ Triangle Camera::tfTriangleWorldToCam(const Triangle& tri_world) const{
 }
 
 std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
-  // Near plane normal vector pointed into the frustum
+  // Near plane normal vector pointed in camera view direction
   Vector3d near_plane_unit_normal(0,0,-1);
   // Point on the near plane in camera coordinates
   Vector3d near_plane_pt(0,0,-near_plane_dist_);
@@ -95,7 +95,7 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
   d[1] = near_plane_unit_normal.dot(tri_cam.points[1]-near_plane_pt);
   d[2] = near_plane_unit_normal.dot(tri_cam.points[2]-near_plane_pt);
 
-  // Triangle is completely on the out side of near plane. Nothing to keep.
+  // Triangle is completely on the 'out' side of near plane. Nothing to keep.
   if(d[0] <= EPS && d[1] <= EPS && d[2] <= EPS) return{};
 
   // Triangle is completely on the 'in' side of the near plane.
@@ -113,7 +113,7 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
     // Add current point in 'In' or 'Out'?
     if(d[cur_idx] < -EPS) { // 'Out' side
       // Last point is not already there (for edge case when a point is
-      // direclty on the plane)
+      // directly on the plane)
       if (out.empty() || (!out.empty() && !cur_pt.isApprox(out.back()))){
         out.push_back(cur_pt);
       }

@@ -19,9 +19,11 @@ class CameraApplication: public olc::PixelGameEngine{
         0.1,
         100);
 
-    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
-    mesh = *teapot;
-    //mesh = *cg::cube();
+//    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
+//    mesh = *teddy;
+//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+//    mesh = *teapot;
+    mesh = *cg::cube();
 //    cg::Triangle triangle{
 //      Vector3d(0,-5,-10),Vector3d(-5,0,-20),
 //      Vector3d(0,5,-10)};

@@ -4,7 +4,7 @@
 
 namespace cg{
 
-Mesh_ptr loadOBJ(std::string path_to_obj){
+Mesh_ptr loadOBJ(std::string path_to_obj, bool ccw_points){
   std::ifstream obj_file(path_to_obj);
   if(!obj_file.is_open()) return nullptr;
 
@@ -31,9 +31,15 @@ Mesh_ptr loadOBJ(std::string path_to_obj){
       }
       else if(0 == subs.compare("f")) {
         std::string i1, i2, i3;
-        iss >> i1;
-        iss >> i2;
-        iss >> i3;
+        if(ccw_points) {
+          iss >> i1;
+          iss >> i2;
+          iss >> i3;
+        }else{
+          iss >> i1;
+          iss >> i3;
+          iss >> i2;
+        }
 
         mesh->tris.emplace_back(vertices[std::stoi(i1)-1],
                                 vertices[std::stoi(i2)-1],
