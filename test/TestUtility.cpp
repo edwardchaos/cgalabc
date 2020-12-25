@@ -113,6 +113,40 @@ TEST(Utility, plane_line_intersect){
 }
 
 TEST(Utility, line_line_intersect){
+  Vector2d pt1(1,0);
+  Vector2d pt2(-1,0);
+  Vector2d pt_on_plane(0,0);
+  Vector2d plane_normal(-1,0);
+
+  auto int_pt = cg::lineLineIntersect2d(pt1,pt2,plane_normal,pt_on_plane);
+  ASSERT_NE(int_pt,nullptr);
+  ASSERT_TRUE(int_pt->isApprox(pt_on_plane));
+
+  Vector2d pt3(-0.00001, 0);
+  auto int_pt2 = cg::lineLineIntersect2d(pt2,pt3,plane_normal,pt_on_plane);
+  ASSERT_EQ(int_pt2, nullptr);
+  auto int_pt3 = cg::lineLineIntersect2d(pt1,pt3,plane_normal,pt_on_plane);
+  ASSERT_NE(int_pt3, nullptr);
+
+  Vector2d pt4(0,10);
+  auto int_pt4 = cg::lineLineIntersect2d(pt1,pt4,plane_normal,pt_on_plane);
+  ASSERT_NE(int_pt4, nullptr);
+  ASSERT_TRUE(int_pt4->isApprox(pt4));
+  auto int_pt5 = cg::lineLineIntersect2d(pt4, pt3, plane_normal,pt_on_plane);
+  ASSERT_NE(int_pt5, nullptr);
+  ASSERT_TRUE(int_pt5->isApprox(pt4));
+  auto int_pt6 = cg::lineLineIntersect2d(pt2,pt4,plane_normal,pt_on_plane);
+  ASSERT_NE(int_pt6, nullptr);
+  ASSERT_TRUE(int_pt6->isApprox(pt4));
+
+  Vector2d pt5(0,-10);
+  auto int_pt7 = cg::lineLineIntersect2d(pt5,pt4,plane_normal,pt_on_plane);
+  ASSERT_EQ(int_pt7, nullptr);
+
+  Vector2d pt6(1,10);
+  auto int_pt8 = cg::lineLineIntersect2d(pt6,pt1,plane_normal,pt_on_plane);
+  ASSERT_EQ(int_pt8, nullptr);
+
 
 }
 
