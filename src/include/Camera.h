@@ -31,8 +31,8 @@ class Camera{
    * Near plane distance in world units
    * Far plane distance in world units
    */
-  Camera(double aspect_ratio, double vertical_fov_rad, double near, double
-  far);
+  Camera(double aspect_ratio, double vertical_fov_rad, double near,
+         double far, int screen_width_px, int screen_height_px);
 
   /*
    * Project a 3D point in world coordinate onto the camera's image plane.
@@ -91,6 +91,7 @@ class Camera{
  private:
   // Distance is in units of the world
   double ar_, vertical_fov_, near_plane_dist_, far_plane_dist_;
+  int screen_width_, screen_height_;
 
   // Projection matrix
   Matrix4d projection_mat_;

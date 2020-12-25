@@ -1,7 +1,6 @@
 #include "include/Camera.h"
 
 #include <cassert>
-#include <iostream>
 #include <cmath>
 
 #include <Utility.h>
@@ -9,9 +8,10 @@
 namespace cg {
 
 Camera::Camera(double aspect_ratio, double vertical_fov_rad, double near,
-               double far): ar_(aspect_ratio), vertical_fov_
-               (vertical_fov_rad), near_plane_dist_(near), far_plane_dist_(far){
-
+               double far, int screen_width_px, int screen_height_px):
+               ar_(aspect_ratio),vertical_fov_(vertical_fov_rad),
+               near_plane_dist_(near), far_plane_dist_(far),
+               screen_width_(screen_width_px), screen_height_(screen_height_px){
   init();
 }
 

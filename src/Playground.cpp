@@ -17,7 +17,9 @@ class CameraApplication: public olc::PixelGameEngine{
         (double)ScreenHeight()/(double)ScreenWidth(),
         M_PI/2.0,
         0.1,
-        100);
+        100,
+        ScreenWidth(),
+        ScreenHeight());
 
 //    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
 //    mesh = *teddy;
