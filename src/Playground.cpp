@@ -69,10 +69,10 @@ class CameraApplication: public olc::PixelGameEngine{
       // Clip triangle in cam coordinate frame by near plane
       auto near_clipped_tris_cam = cam->clipNear(tri_cam);
 
-      for(auto &tri_cam : near_clipped_tris_cam){
+      for(const auto &tria_cam : near_clipped_tris_cam){
         std::vector<Eigen::Vector2d> tri_img_pts;
         tri_img_pts.reserve(3);
-        for(auto pt_cam : tri_cam.points){
+        for(const auto &pt_cam : tria_cam.points){
           // Project triangle in camera frame onto camera's image plane.
           auto pt_cube = cam->projectPointInCameraFrame(pt_cam);
 
