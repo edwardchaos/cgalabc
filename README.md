@@ -12,4 +12,5 @@ There are some dependencies for that:
   * sudo apt install libpng-dev
 * X11: Basic graphics interface for Linux to create a windows.
 
-It's starting to be a graphics engine
+It's starting to become a graphics engine
+![](super_secrets/teapot_clipped.gif)
