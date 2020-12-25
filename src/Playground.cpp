@@ -49,8 +49,8 @@ class CameraApplication: public olc::PixelGameEngine{
     auto rotz_mat = cg::rotateZ(z_rot);
     mesh.pose.position = cg::translation(0,0,-10).rightCols<1>();
     mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
-    //Eigen::Matrix4d tf = mesh.pose.matrix();
-    Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+    Eigen::Matrix4d tf = mesh.pose.matrix();
+    //Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
     // Handle keyboard input
     handleCameraMotion(fElapsedTime);
@@ -62,36 +62,12 @@ class CameraApplication: public olc::PixelGameEngine{
       Eigen::Vector3d pt2_tf = cg::transformPoint(tri.points[2], tf);
       cg::Triangle tri_world{pt0_tf, pt1_tf, pt2_tf};
 
-      // Only consider drawing triangle if it's facing the camera
-      if(!cam->isFacing(tri_world)) continue;
+      auto triangles_to_draw_screen = cam->projectTriangleFromWorld(tri_world);
 
-      // Transform triangle to camera coordinate frame
-      auto tri_cam = cam->tfTriangleWorldToCam(tri_world);
-
-      // Clip triangle in cam coordinate frame by near plane
-      auto near_clipped_tris_cam = cam->clipNear(tri_cam);
-
-      for(const auto &tria_cam : near_clipped_tris_cam){
-        std::vector<Eigen::Vector2d> tri_img_pts;
-        tri_img_pts.reserve(3);
-        for(const auto &pt_cam : tria_cam.points){
-          // Project triangle in camera frame onto camera's image plane.
-          auto pt_cube = cam->projectPointInCameraFrame(pt_cam);
-
-          // Scale triangles to screen size
-          double screen_x = (pt_cube.x()+1)*ScreenWidth()/2.0;
-          double screen_y = (-pt_cube.y()+1)*ScreenHeight()/2.0;
-          tri_img_pts.emplace_back(screen_x,screen_y);
-        }
-
-        // Clip 2D triangle in screen space
-        auto tris_screen_clipped = cam->clipScreen2D(tri_img_pts);
-
-        for(const auto& screen_tri : tris_screen_clipped)
-        DrawTriangle(screen_tri[0].x(), screen_tri[0].y(),
-                     screen_tri[1].x(), screen_tri[1].y(),
-                     screen_tri[2].x(), screen_tri[2].y());
-      }
+      for(const auto& screen_tri : triangles_to_draw_screen)
+      DrawTriangle(screen_tri[0].x(), screen_tri[0].y(),
+                   screen_tri[1].x(), screen_tri[1].y(),
+                   screen_tri[2].x(), screen_tri[2].y());
     }
 
     return true;

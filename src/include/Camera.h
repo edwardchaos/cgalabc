@@ -100,6 +100,22 @@ class Camera{
    */
   [[nodiscard]] bool isFacing(const Triangle& tri_world) const;
 
+  /*
+   * Project triangle in world frame to screen space. This is the main
+   * function performing everything including:
+   *
+   * 1. Transformation to camera frame
+   * 2. Backface culling
+   * 3. Near plane clipping
+   * 4. Projection to screen space
+   * 5. Screen clipping (top, bottom, left, right screen edges)
+   *
+   * Returns a vector of triangles in screen space represented as a vector of
+   * 2d points. Does not perform depth buffering.
+   */
+  [[nodiscard]] std::vector<std::vector<Vector2d>>
+  projectTriangleFromWorld(const Triangle& tri_world) const;
+
   void moveTo(Vector4d position_world,
               Vector4d look_dir,
               Vector4d up);

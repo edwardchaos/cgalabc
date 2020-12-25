@@ -260,6 +260,42 @@ bool Camera::isFacing(const Triangle& tri_world) const{
   return cam_2_tri.dot(tri_cam.unit_normal()) < -EPS;
 }
 
+[[nodiscard]] std::vector<std::vector<Vector2d>>
+Camera::projectTriangleFromWorld(const Triangle& tri_world) const{
+  // Backface culling
+  if(!isFacing(tri_world)) return {};
+
+  // Transform triangle from world to camera coordinate frame
+  auto original_tri_cam = tfTriangleWorldToCam(tri_world);
+
+  // Clip triangle in cam coordinate frame by near plane
+  auto near_clipped_tris_cam = clipNear(original_tri_cam);
+
+  std::vector<std::vector<Vector2d>> finished_2d_triangles;
+
+  for(const auto &tri_cam : near_clipped_tris_cam) {
+    std::vector<Eigen::Vector2d> tri_img_pts;
+    tri_img_pts.reserve(3);
+    for (const auto &pt_cam : tri_cam.points) {
+      // Perspective transformation
+      auto pt_cube = projectPointInCameraFrame(pt_cam);
+
+      // Scale triangles to screen size
+      double screen_x = (pt_cube.x() + 1) * screen_width_ / 2.0;
+      double screen_y = (-pt_cube.y() + 1) * screen_height_ / 2.0;
+      tri_img_pts.emplace_back(screen_x, screen_y);
+    }
+
+    // Clip 2D triangle in screen space
+    auto tris_screen_clipped = clipScreen2D(tri_img_pts);
+    finished_2d_triangles.insert(finished_2d_triangles.end(),
+                                 tris_screen_clipped.begin(),
+                                 tris_screen_clipped.end());
+  }
+
+  return finished_2d_triangles;
+}
+
 void Camera::moveTo(Vector4d position_world,
                     Vector4d look_dir,
                     Vector4d up){
