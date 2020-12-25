@@ -1,7 +1,6 @@
 #define OLC_PGE_APPLICATION
 
 #include <memory>
-#include <cassert>
 
 #include <olcPixelGameEngine.h>
 
@@ -17,16 +16,16 @@ class CameraApplication: public olc::PixelGameEngine{
     cam = std::make_shared<cg::Camera>(
         (double)ScreenHeight()/(double)ScreenWidth(),
         M_PI/2.0,
-        5,
+        0.1,
         100);
 
-//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
-//    mesh = *teapot;
-//    mesh = *cg::cube();
-    cg::Triangle triangle{
-      Vector3d(0,-5,-10),Vector3d(-5,0,-20),
-      Vector3d(0,5,-10)};
-    mesh.tris.push_back(triangle);
+    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj");
+    mesh = *teapot;
+    //mesh = *cg::cube();
+//    cg::Triangle triangle{
+//      Vector3d(0,-5,-10),Vector3d(-5,0,-20),
+//      Vector3d(0,5,-10)};
+//    mesh.tris.push_back(triangle);
 //    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
 //    mesh = *axis;
 
@@ -36,6 +35,7 @@ class CameraApplication: public olc::PixelGameEngine{
   bool OnUserUpdate(float fElapsedTime) override {
     Clear(olc::DARK_GREY);
 
+    // Modify mesh's world position
     double z_rot = 0.0001/fElapsedTime;
     double x_rot = 0.0001/fElapsedTime;
     double y_rot = 0.0001/fElapsedTime;
@@ -45,23 +45,23 @@ class CameraApplication: public olc::PixelGameEngine{
     auto rotz_mat = cg::rotateZ(z_rot);
     mesh.pose.position = cg::translation(0,0,-10).rightCols<1>();
     mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
-    //Eigen::Matrix4d tf = mesh.pose.matrix();
-    Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+    Eigen::Matrix4d tf = mesh.pose.matrix();
+    //Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
-    //Handle move camera input
+    // Handle keyboard input
     handleCameraMotion(fElapsedTime);
 
     for(const auto& tri : mesh.tris){
-      // Transform the triangle
+      // Move original mesh to its world position
       Eigen::Vector3d pt0_tf = cg::transformPoint(tri.points[0], tf);
       Eigen::Vector3d pt1_tf = cg::transformPoint(tri.points[1], tf);
       Eigen::Vector3d pt2_tf = cg::transformPoint(tri.points[2], tf);
       cg::Triangle tri_world{pt0_tf, pt1_tf, pt2_tf};
 
-      // Only consider drawing triangle if it's facing the cam
-      //if(!cam->isFacing(tri_world)) continue;
+      // Only consider drawing triangle if it's facing the camera
+      if(!cam->isFacing(tri_world)) continue;
 
-      // Transform triangle to cam space
+      // Transform triangle to camera coordinate frame
       auto tri_cam = cam->tfTriangleWorldToCam(tri_world);
 
       // Clip triangle in cam coordinate frame by near plane

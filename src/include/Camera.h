@@ -72,11 +72,9 @@ class Camera{
 
   /*
    * Indicates whether the camera is viewing the triangle from a perspective
-   * where the triangle's outer surface is facing the camera.
+   * where the triangle's surface normal is facing the camera.
    *
    * Triangle is in world coordinate system.
-   *
-   * i.e. (triangle point - camera position) dot (triangle normal) < 0
    */
   [[nodiscard]] bool isFacing(const Triangle& tri_world) const;
 

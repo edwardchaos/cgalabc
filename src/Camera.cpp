@@ -149,14 +149,8 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
 
 bool Camera::isFacing(const Triangle& tri_world) const{
   // Transform triangle in world coordinate to camera's coordinate
-  Vector4d pt0 = tfPointWorldToCam(tri_world.points[0]);
-  Vector4d pt1 = tfPointWorldToCam(tri_world.points[1]);
-  Vector4d pt2 = tfPointWorldToCam(tri_world.points[2]);
+  auto tri_cam = tfTriangleWorldToCam(tri_world);
 
-  // Triangle in camera coordinate frame
-  Triangle tri_cam{pt0.head<3>(), pt1.head<3>(), pt2.head<3>()};
-
-  //Vector3d cam_position = pose_world.position.head<3>();
   Vector3d cam_2_tri = tri_cam.points[0];
   cam_2_tri.normalize();
   return cam_2_tri.dot(tri_cam.unit_normal()) < -EPS;

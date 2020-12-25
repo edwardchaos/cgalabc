@@ -1,9 +1,6 @@
 # Cmake project name is defined in parent cmakelists "project(cgalabc)"
 set (BINARY ${CMAKE_PROJECT_NAME})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
-
 set (SOURCES
         type.cpp
         Point2d.cpp
