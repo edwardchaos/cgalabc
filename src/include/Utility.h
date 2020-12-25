@@ -12,6 +12,8 @@
 #include "Mesh.h"
 
 using Eigen::Vector3d;
+using Eigen::Vector2d;
+
 namespace cg{
 
 /*
@@ -58,5 +60,12 @@ std::shared_ptr<Vector3d> planeLineIntersect(
     const Vector3d &pt1, const Vector3d &pt2,
     const Vector3d &plane_unit_normal, const Vector3d &pt_on_plane);
 
+/*
+ * 2D version of planeLineIntersect.
+ * See planeLineIntersect for the analogous explanation
+ */
+std::shared_ptr<Vector2d> lineLineIntersect2d(
+    const Vector2d &pt1, const Vector2d &pt2,
+    const Vector2d &line_unit_normal, const Vector2d &pt_on_line);
 
 } // namespace cg

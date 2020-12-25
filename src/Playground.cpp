@@ -23,9 +23,9 @@ class CameraApplication: public olc::PixelGameEngine{
 
 //    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
 //    mesh = *teddy;
-//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
-//    mesh = *teapot;
-    mesh = *cg::cube();
+    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+    mesh = *teapot;
+    //mesh = *cg::cube();
 //    cg::Triangle triangle{
 //      Vector3d(0,-5,-10),Vector3d(-5,0,-20),
 //      Vector3d(0,5,-10)};
@@ -49,8 +49,8 @@ class CameraApplication: public olc::PixelGameEngine{
     auto rotz_mat = cg::rotateZ(z_rot);
     mesh.pose.position = cg::translation(0,0,-10).rightCols<1>();
     mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
-    Eigen::Matrix4d tf = mesh.pose.matrix();
-    //Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+    //Eigen::Matrix4d tf = mesh.pose.matrix();
+    Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
     // Handle keyboard input
     handleCameraMotion(fElapsedTime);
@@ -83,9 +83,14 @@ class CameraApplication: public olc::PixelGameEngine{
           double screen_y = (-pt_cube.y()+1)*ScreenHeight()/2.0;
           tri_img_pts.emplace_back(screen_x,screen_y);
         }
-        DrawTriangle(tri_img_pts[0].x(), tri_img_pts[0].y(),
-                     tri_img_pts[1].x(), tri_img_pts[1].y(),
-                     tri_img_pts[2].x(), tri_img_pts[2].y());
+
+        // Clip 2D triangle in screen space
+        auto tris_screen_clipped = cam->clipScreen2D(tri_img_pts);
+
+        for(const auto& screen_tri : tris_screen_clipped)
+        DrawTriangle(screen_tri[0].x(), screen_tri[0].y(),
+                     screen_tri[1].x(), screen_tri[1].y(),
+                     screen_tri[2].x(), screen_tri[2].y());
       }
     }
 
@@ -103,7 +108,7 @@ class CameraApplication: public olc::PixelGameEngine{
     }
     if(GetKey(olc::Key::S).bHeld){
       DrawString(50,50, "Strafe Left");
-      cam->strafeRight(-0.005/fElapsedTime);
+      cam->strafeRight(-0.001/fElapsedTime);
     }
     if(GetKey(olc::Key::D).bHeld){
       DrawString(50,50, "Back");
@@ -111,7 +116,7 @@ class CameraApplication: public olc::PixelGameEngine{
     }
     if(GetKey(olc::Key::F).bHeld){
       DrawString(50,50, "Strafe Right");
-      cam->strafeRight(0.005/fElapsedTime);
+      cam->strafeRight(0.001/fElapsedTime);
     }
     if(GetKey(olc::Key::J).bHeld){
       DrawString(50,50, "Yaw Left");

@@ -155,4 +155,29 @@ std::shared_ptr<Vector3d> planeLineIntersect(
 
   return intersect_pt;
 }
+
+std::shared_ptr<Vector2d> lineLineIntersect2d(
+    const Vector2d &pt1, const Vector2d &pt2,
+    const Vector2d &line_unit_normal, const Vector2d &pt_on_line){
+
+  // Ensure it's actually a unit vector
+  Vector2d line_norm(line_unit_normal);
+  line_norm.normalize();
+
+  double d1 = line_norm.dot(pt1-pt_on_line);
+  double d2 = line_norm.dot(pt2-pt_on_line);
+
+  // Lines are parallel
+  if(fabs(d1-d2) < EPS) return nullptr;
+
+  double t = d1/(d1-d2);
+
+  // Line segment isn't long enough to intersect.
+  if(t < -EPS || t > 1+EPS) return nullptr;
+
+  std::shared_ptr<Vector2d> intersect_pt = std::make_shared<Vector2d>();
+  *intersect_pt = pt1 + (pt2-pt1)*t;
+
+  return intersect_pt;
+}
 } // namespace cg

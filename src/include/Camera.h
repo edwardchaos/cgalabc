@@ -13,6 +13,7 @@
 using Eigen::Matrix4d;
 using Eigen::Vector4d;
 using Eigen::Vector3d;
+using Eigen::Vector2d;
 
 namespace cg{
 class Camera;
@@ -69,6 +70,27 @@ class Camera{
    * with near plane.
    */
   [[nodiscard]] std::vector<Triangle> clipNear(const Triangle& tri_cam) const;
+
+  /*
+   * Clip a triangle in image space on the 4 screen boundaries given by a
+   * vector of 3 points.
+   *
+   * Depending on the clip results with left,top,right, and bottom edge, this
+   * function may return 0 or more triangles.
+   */
+  [[nodiscard]] std::vector<std::vector<Vector2d>>
+  clipScreen2D(const std::vector<Vector2d> &tri_img) const;
+
+  /*
+   * Clip triangles on a single 2d edge.
+   * edge_unit_normal is orthonormal pointing in the 'in' screen direction.
+   * pt_on_edge is a point on the edge.
+   * tris is a vector of triangles represented as a vector of 2d points.
+   */
+  [[nodiscard]] std::vector<std::vector<Vector2d>>
+  clip2DEdge(const Vector2d &edge_unit_normal,
+      const Vector2d &pt_on_edge,
+      const std::vector<std::vector<Vector2d>> &tris)const;
 
   /*
    * Indicates whether the camera is viewing the triangle from a perspective

@@ -147,6 +147,110 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
         Triangle(in[0],in[2],in[3])};
 }
 
+std::vector<std::vector<Vector2d>>
+Camera::clipScreen2D(const std::vector<Vector2d>&tri_img) const{
+  std::vector<std::vector<Vector2d>> triangles{tri_img};
+  // Clip on Left edge
+  Vector2d left_edge_normal(1,0);
+  Vector2d pt_on_left_edge(0,0);
+  auto tris_after_left_clip = clip2DEdge(left_edge_normal,
+                                         pt_on_left_edge,
+                                         triangles);
+  // Clip on Right edge
+  Vector2d right_edge_normal(-1,0);
+  Vector2d pt_on_right_edge(screen_width_-1,0);
+  auto tris_after_right_clip = clip2DEdge(right_edge_normal,
+                                          pt_on_right_edge,
+                                          tris_after_left_clip);
+  // Clip on Top edge
+  Vector2d top_edge_normal(0,1);
+  Vector2d pt_on_top_edge(0,0);
+  auto tris_after_top_clip = clip2DEdge(top_edge_normal,
+                                        pt_on_top_edge,
+                                        tris_after_right_clip);
+  // Clip on Bottom edge
+  Vector2d bottom_edge_normal(0,-1);
+  Vector2d pt_on_bottom_edge(0,screen_height_-1);
+  auto tris_after_bottom_clip = clip2DEdge(bottom_edge_normal,
+                                           pt_on_bottom_edge,
+                                           tris_after_top_clip);
+
+  return tris_after_bottom_clip;
+}
+
+std::vector<std::vector<Vector2d>>
+Camera::clip2DEdge(const Vector2d &edge_unit_normal,
+                   const Vector2d &pt_on_edge,
+                   const std::vector<std::vector<Vector2d>> &tris) const{
+
+  std::vector<std::vector<Vector2d>> clipped_triangles;
+
+  for(const auto& tri: tris){
+    assert(tri.size()==3); // Triangle has 3 points
+
+    // d holds dot products; Will be used for determining which side of the
+    // line the point is on.
+    double d[3];
+    d[0] = edge_unit_normal.dot(tri[0]-pt_on_edge);
+    d[1] = edge_unit_normal.dot(tri[1]-pt_on_edge);
+    d[2] = edge_unit_normal.dot(tri[2]-pt_on_edge);
+
+    // Triangle is completely on the 'out' side. Nothing to keep.
+    if(d[0] <= EPS && d[1] <= EPS && d[2] <= EPS) continue;
+
+    // Triangle is completely on the 'in' side.
+    if(d[0] >= -EPS && d[1] >= -EPS && d[2] >= -EPS)
+      clipped_triangles.push_back(tri);
+
+    std::vector<Vector2d> in,out;
+
+    for(int i = 0; i < 3; ++i){
+      int cur_idx = i;
+      int next_idx = (i+1)%3;
+
+      auto cur_pt = tri[cur_idx];
+      auto next_pt = tri[next_idx];
+
+      // Add current point in 'In' or 'Out'?
+      if(d[cur_idx] < -EPS) { // 'Out' side
+        // Last point is not already there (for edge case when a point is
+        // directly on the plane)
+        if (out.empty() || (!out.empty() && !cur_pt.isApprox(out.back()))){
+          out.push_back(cur_pt);
+        }
+      }
+        // 'In' side
+      else if(in.empty() || (!in.empty() && !cur_pt.isApprox(in.back()))){
+        in.push_back(cur_pt);
+      }
+
+      // Is there an intersection point to add?
+      if(d[cur_idx] * d[next_idx] < EPS){
+        // current point on one side, next point on other side. There is an
+        // intersection point.
+        auto int_pt = lineLineIntersect2d(
+            cur_pt, next_pt, edge_unit_normal, pt_on_edge);
+
+        assert(int_pt!=nullptr);
+        in.push_back(*int_pt);
+        out.push_back(*int_pt);
+      }
+    }
+
+    assert(in.size() == 3 || in.size() == 4);
+    // Add clipped triangles on the 'in' side of the line.
+    if(in.size() == 3) {
+      clipped_triangles.push_back({in[0], in[1], in[2]});
+    }
+    else{
+      clipped_triangles.push_back({in[0],in[1],in[2]});
+      clipped_triangles.push_back({in[0],in[2],in[3]});
+    }
+  }
+
+  return clipped_triangles;
+}
+
 bool Camera::isFacing(const Triangle& tri_world) const{
   // Transform triangle in world coordinate to camera's coordinate
   auto tri_cam = tfTriangleWorldToCam(tri_world);
