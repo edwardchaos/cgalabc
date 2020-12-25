@@ -11,3 +11,5 @@ There are some dependencies for that:
 * libpng: Portable Network Graphics library to load .png-files.
   * sudo apt install libpng-dev
 * X11: Basic graphics interface for Linux to create a windows.
+
+It's starting to be a graphics engine
