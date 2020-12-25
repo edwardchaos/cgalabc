@@ -4,7 +4,7 @@
 
 namespace cg{
 
-Mesh_ptr loadOBJ(std::string path_to_obj, bool ccw_points){
+Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points){
   std::ifstream obj_file(path_to_obj);
   if(!obj_file.is_open()) return nullptr;
 
@@ -19,7 +19,7 @@ Mesh_ptr loadOBJ(std::string path_to_obj, bool ccw_points){
       std::string subs;
       iss >> subs;
 
-      if(0 == subs.compare("v")) {
+      if("v" == subs) {
         std::string x,y,z;
 
         iss >> x;
@@ -27,9 +27,8 @@ Mesh_ptr loadOBJ(std::string path_to_obj, bool ccw_points){
         iss >> z;
 
         vertices.emplace_back(std::stod(x),std::stod(y),std::stod(z));
-
       }
-      else if(0 == subs.compare("f")) {
+      else if("f" == subs) {
         std::string i1, i2, i3;
         if(ccw_points) {
           iss >> i1;

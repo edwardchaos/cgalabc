@@ -20,7 +20,7 @@ namespace cg{
  * Create mesh from obj file
  * Triangle face vertices need to be counter clockwise ordered.
  */
-Mesh_ptr loadOBJ(std::string path_to_obj, bool ccw_points);
+Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points);
 
 /*
  * Creates a wireframe cube for of unit size, can be used for debugging.

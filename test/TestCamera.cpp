@@ -11,7 +11,9 @@ using Eigen::Vector4d;
 TEST(Camera, project){
   // Test projection of known points
   double vertical_fov = 75.0*M_PI/180.0;
-  cg::Camera cam(3.0/4.0, vertical_fov, 1, 100);
+  double screen_width = 640;
+  double screen_height = 480;
+  cg::Camera cam(3.0/4.0, vertical_fov, 1, 100, screen_width, screen_height);
 
   // Create 3D points in homogenous coordinates
   Vector3d A(0, 15.0*tan(vertical_fov/2.0), -15);
@@ -51,7 +53,7 @@ TEST(Camera, project){
 
 TEST(Camera, move){
   double vertical_fov = 75.0*M_PI/180.0;
-  cg::Camera cam(3.0/4.0, vertical_fov, 1, 100);
+  cg::Camera cam(3.0/4.0, vertical_fov, 1, 100, 640, 480);
 
   Eigen::Matrix4d forward_mat = Eigen::Matrix4d::Identity();
   forward_mat(0,0) = -1;
@@ -93,7 +95,7 @@ TEST(Camera, move){
 
 TEST(Camera, isFacing){
   double vertical_fov = 75.0*M_PI/180.0;
-  cg::Camera cam(3.0/4.0, vertical_fov, 1, 100);
+  cg::Camera cam(3.0/4.0, vertical_fov, 1, 100, 640, 480);
 
   // Camera's default pose is origin, Looking along the -z axis.
   cg::Triangle not_facing{

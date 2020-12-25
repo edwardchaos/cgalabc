@@ -9,6 +9,7 @@ set(TEST_SOURCES
 	TestCurve.cpp
 	TestMesh.cpp
 	TestCamera.cpp
+	TestUtility.cpp
 )
 set(TEST_HEADERS
 
