@@ -156,7 +156,6 @@ class Camera{
 
   void init();
   void constructProjectionMatrix();
-
 };
 
 } // namespace cg

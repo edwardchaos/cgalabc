@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <stdexcept>
 
 #include <Utility.h>
 
@@ -94,7 +95,10 @@ Vector3d Camera::tfPointCameraToCube(const Vector3d &pt_cam)const{
   row_pt(3) = 1;
   Eigen::RowVector4d pt = row_pt*projection_mat_;
 
-  assert(pt(3) != 0);
+  if(pt(3) == 0)
+    throw std::invalid_argument(
+        "Cannot project a point with z = 0; Perhaps clip first by the near "
+        "plane.");
   Vector3d pt_cube(pt(0)/pt(3), pt(1)/pt(3), pt(2)/pt(3));
   return pt_cube;
 }
@@ -301,7 +305,7 @@ void Camera::moveTo(Vector4d position_world,
   up_vec.normalize();
 
   Matrix4d new_cam_orientation= Matrix4d::Identity();
-  new_cam_orientation.col(0).head<3>() = right_vec;
+  new_cam_orientation.col(0).head<3>() = -right_vec;
   new_cam_orientation.col(1).head<3>() = up_vec;
   new_cam_orientation.col(2) = -look_dir;
 
