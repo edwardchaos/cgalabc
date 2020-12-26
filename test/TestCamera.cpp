@@ -9,7 +9,7 @@
 
 using Eigen::Vector4d;
 using Eigen::Vector2d;
-TEST(Camera, project){
+TEST(Camera, project_point_in_world){
   // Test projection of known points
   double vertical_fov = 75.0*M_PI/180.0;
   double screen_width = 640;
@@ -111,14 +111,16 @@ TEST(Camera, isFacing){
   ASSERT_FALSE(cam.isFacing(not_facing4));
 }
 
-
 TEST(blank, test){
+  // TODO: Make tests for the following
  /*
-  *tfTriangleWorldToCam
+  * tfTriangleWorldToCam
+  * tfPointCameraToCube
   * projectPointInCameraFrame
   * clipNear
   * clipScreen2D
   * tfPointWorldToCam
   * moveTo
+  * clip2DEdge
   */
 }
