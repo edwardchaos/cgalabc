@@ -35,22 +35,60 @@ void Camera::constructProjectionMatrix(){
   projection_mat_(2,3) = -1;
 }
 
-Vector4d Camera::tfPointWorldToCam(const Vector3d &pt_world) const{
+[[nodiscard]] std::vector<std::vector<Vector2d>>
+Camera::projectTriangleInWorld(const Triangle& tri_world) const{
+  // Backface culling
+  if(!isFacing(tri_world)) return {};
+
+  // Transform triangle from world to camera coordinate frame
+  auto original_tri_cam = tfTriangleWorldToCam(tri_world);
+
+  // Clip triangle in cam coordinate frame by near plane
+  auto near_clipped_tris_cam = clipNear(original_tri_cam);
+
+  std::vector<std::vector<Vector2d>> finished_2d_triangles;
+
+  for(const auto &tri_cam : near_clipped_tris_cam) {
+    std::vector<Eigen::Vector2d> tri_img_pts;
+    tri_img_pts.reserve(3);
+    for (const auto &pt_cam : tri_cam.points) {
+      // Perspective transformation
+      auto pt_cube = tfPointCameraToCube(pt_cam);
+
+      // Scale triangles to screen size
+      double screen_x = (pt_cube.x() + 1) * screen_width_ / 2.0;
+      double screen_y = (-pt_cube.y() + 1) * screen_height_ / 2.0;
+      tri_img_pts.emplace_back(screen_x, screen_y);
+    }
+
+    // Clip 2D triangle in screen space
+    auto tris_screen_clipped = clipScreen2D(tri_img_pts);
+    finished_2d_triangles.insert(finished_2d_triangles.end(),
+                                 tris_screen_clipped.begin(),
+                                 tris_screen_clipped.end());
+  }
+
+  return finished_2d_triangles;
+}
+
+bool Camera::isFacing(const Triangle& tri_world) const{
   // Transform triangle in world coordinate to camera's coordinate
-  Vector4d pt_cam;
-  Vector4d pt_world_homo;
-  pt_world_homo.head<3>() = pt_world;
-  pt_world_homo(3) = 1;
-  pt_cam = pose_world.matrix().inverse()*pt_world_homo;
-  return pt_cam;
+  auto tri_cam = tfTriangleWorldToCam(tri_world);
+
+  Vector3d cam_2_tri = tri_cam.points[0];
+  cam_2_tri.normalize();
+  return cam_2_tri.dot(tri_cam.unit_normal()) < -EPS;
 }
 
-Point2d_ptr Camera::projectPoint(const Vector3d &pt_world) const{
-  auto pt_cube = transformPoint(pt_world);
-  return std::make_shared<Point2d>(pt_cube(0), -pt_cube(1));
+Triangle Camera::tfTriangleWorldToCam(const Triangle& tri_world) const{
+  Triangle tri_cam;
+  for(int i = 0; i < 3; ++i)
+    tri_cam.points[i] = tfPointWorldToCam(tri_world.points[i]).head<3>();
+
+  return tri_cam;
 }
 
-Vector3d Camera::projectPointInCameraFrame(const Vector3d &pt_cam)const{
+Vector3d Camera::tfPointCameraToCube(const Vector3d &pt_cam)const{
   Eigen::RowVector4d row_pt;
   row_pt.head<3>() = pt_cam;
   row_pt(3) = 1;
@@ -59,27 +97,6 @@ Vector3d Camera::projectPointInCameraFrame(const Vector3d &pt_cam)const{
   assert(pt(3) != 0);
   Vector3d pt_cube(pt(0)/pt(3), pt(1)/pt(3), pt(2)/pt(3));
   return pt_cube;
-}
-
-Vector3d Camera::transformPoint(const Vector3d &pt_world) const{
-  // Transform homogenous point in world coordinates to camera coordinate.
-  Vector4d pt_cam = tfPointWorldToCam(pt_world);
-
-  Eigen::RowVector4d row_pt(pt_cam);
-  Eigen::RowVector4d pt = row_pt*projection_mat_;
-
-  assert(pt(3) != 0);
-  Vector3d pt_cube(pt(0)/pt(3), pt(1)/pt(3), pt(2)/pt(3));
-  return pt_cube;
-}
-
-Triangle Camera::tfTriangleWorldToCam(const Triangle& tri_world) const{
-  // Transform to camera coordinate
-  Triangle tri_cam;
-  for(int i = 0; i < 3; ++i)
-    tri_cam.points[i] = tfPointWorldToCam(tri_world.points[i]).head<3>();
-
-  return tri_cam;
 }
 
 std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
@@ -118,7 +135,7 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
         out.push_back(cur_pt);
       }
     }
-    // 'In' side
+      // 'In' side
     else if(in.empty() || (!in.empty() && !cur_pt.isApprox(in.back()))){
       in.push_back(cur_pt);
     }
@@ -176,6 +193,25 @@ Camera::clipScreen2D(const std::vector<Vector2d>&tri_img) const{
                                            tris_after_top_clip);
 
   return tris_after_bottom_clip;
+}
+
+Vector4d Camera::tfPointWorldToCam(const Vector3d &pt_world) const{
+  Vector4d pt_cam;
+  Vector4d pt_world_homo;
+  pt_world_homo.head<3>() = pt_world;
+  pt_world_homo(3) = 1;
+  pt_cam = pose_world.matrix().inverse()*pt_world_homo;
+  return pt_cam;
+}
+
+Vector2d Camera::projectPointInWorld(const Vector3d &pt_world) const{
+  auto pt_cube = tfPointWorldToCube(pt_world);
+  return Vector2d(pt_cube(0), -pt_cube(1));
+}
+
+Vector3d Camera::tfPointWorldToCube(const Vector3d &pt_world) const{
+  Vector4d pt_cam = tfPointWorldToCam(pt_world);
+  return tfPointCameraToCube(pt_cam.head<3>());
 }
 
 std::vector<std::vector<Vector2d>>
@@ -249,51 +285,6 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
   }
 
   return clipped_triangles;
-}
-
-bool Camera::isFacing(const Triangle& tri_world) const{
-  // Transform triangle in world coordinate to camera's coordinate
-  auto tri_cam = tfTriangleWorldToCam(tri_world);
-
-  Vector3d cam_2_tri = tri_cam.points[0];
-  cam_2_tri.normalize();
-  return cam_2_tri.dot(tri_cam.unit_normal()) < -EPS;
-}
-
-[[nodiscard]] std::vector<std::vector<Vector2d>>
-Camera::projectTriangleFromWorld(const Triangle& tri_world) const{
-  // Backface culling
-  if(!isFacing(tri_world)) return {};
-
-  // Transform triangle from world to camera coordinate frame
-  auto original_tri_cam = tfTriangleWorldToCam(tri_world);
-
-  // Clip triangle in cam coordinate frame by near plane
-  auto near_clipped_tris_cam = clipNear(original_tri_cam);
-
-  std::vector<std::vector<Vector2d>> finished_2d_triangles;
-
-  for(const auto &tri_cam : near_clipped_tris_cam) {
-    std::vector<Eigen::Vector2d> tri_img_pts;
-    tri_img_pts.reserve(3);
-    for (const auto &pt_cam : tri_cam.points) {
-      // Perspective transformation
-      auto pt_cube = projectPointInCameraFrame(pt_cam);
-
-      // Scale triangles to screen size
-      double screen_x = (pt_cube.x() + 1) * screen_width_ / 2.0;
-      double screen_y = (-pt_cube.y() + 1) * screen_height_ / 2.0;
-      tri_img_pts.emplace_back(screen_x, screen_y);
-    }
-
-    // Clip 2D triangle in screen space
-    auto tris_screen_clipped = clipScreen2D(tri_img_pts);
-    finished_2d_triangles.insert(finished_2d_triangles.end(),
-                                 tris_screen_clipped.begin(),
-                                 tris_screen_clipped.end());
-  }
-
-  return finished_2d_triangles;
 }
 
 void Camera::moveTo(Vector4d position_world,

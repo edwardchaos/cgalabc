@@ -62,7 +62,7 @@ class CameraApplication: public olc::PixelGameEngine{
       Eigen::Vector3d pt2_tf = cg::transformPoint(tri.points[2], tf);
       cg::Triangle tri_world{pt0_tf, pt1_tf, pt2_tf};
 
-      auto triangles_to_draw_screen = cam->projectTriangleFromWorld(tri_world);
+      auto triangles_to_draw_screen = cam->projectTriangleInWorld(tri_world);
 
       for(const auto& screen_tri : triangles_to_draw_screen)
       DrawTriangle(screen_tri[0].x(), screen_tri[0].y(),

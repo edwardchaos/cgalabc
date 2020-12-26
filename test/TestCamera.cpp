@@ -8,6 +8,7 @@
 #include "Eigen/Dense"
 
 using Eigen::Vector4d;
+using Eigen::Vector2d;
 TEST(Camera, project){
   // Test projection of known points
   double vertical_fov = 75.0*M_PI/180.0;
@@ -23,32 +24,26 @@ TEST(Camera, project){
   Vector3d E(0, 0, -15);
   Vector3d F(0, 0, -50);
 
-  auto a_proj = cam.projectPoint(A);
-  ASSERT_NE(a_proj, nullptr);
-  ASSERT_EQ(*a_proj, cg::Point2d(0,-1));
+  auto a_proj = cam.projectPointInWorld(A);
+  ASSERT_TRUE(a_proj.isApprox(Vector2d(0,-1)));
 
-  auto b_proj = cam.projectPoint(B);
-  ASSERT_NE(b_proj, nullptr);
-  ASSERT_EQ(*b_proj, cg::Point2d(0,-1));
-  ASSERT_EQ(*a_proj, *b_proj);
+  auto b_proj = cam.projectPointInWorld(B);
+  ASSERT_TRUE(b_proj.isApprox(Vector2d(0,-1)));
+  ASSERT_TRUE(a_proj.isApprox(b_proj));
 
-  auto c_proj = cam.projectPoint(C);
-  ASSERT_NE(c_proj, nullptr);
-  ASSERT_EQ(*c_proj, cg::Point2d(0,1));
+  auto c_proj = cam.projectPointInWorld(C);
+  ASSERT_TRUE(c_proj.isApprox(Vector2d(0,1)));
 
-  auto d_proj = cam.projectPoint(D);
-  ASSERT_NE(d_proj, nullptr);
-  ASSERT_EQ(*d_proj, cg::Point2d(0,1));
-  ASSERT_EQ(*d_proj, *c_proj);
+  auto d_proj = cam.projectPointInWorld(D);
+  ASSERT_TRUE(d_proj.isApprox(Vector2d(0,1)));
+  ASSERT_TRUE(d_proj.isApprox(c_proj));
 
-  auto e_proj = cam.projectPoint(E);
-  ASSERT_NE(e_proj, nullptr);
-  ASSERT_EQ(*e_proj, cg::Point2d(0,0));
+  auto e_proj = cam.projectPointInWorld(E);
+  ASSERT_TRUE(e_proj.isApprox(Vector2d(0,0)));
 
-  auto f_proj = cam.projectPoint(F);
-  ASSERT_NE(f_proj, nullptr);
-  ASSERT_EQ(*f_proj, cg::Point2d(0,0));
-  ASSERT_EQ(*f_proj, *e_proj);
+  auto f_proj = cam.projectPointInWorld(F);
+  ASSERT_TRUE(f_proj.isApprox(Vector2d(0,0)));
+  ASSERT_TRUE(f_proj.isApprox(e_proj));
 }
 
 TEST(Camera, move){
@@ -116,3 +111,14 @@ TEST(Camera, isFacing){
   ASSERT_FALSE(cam.isFacing(not_facing4));
 }
 
+
+TEST(blank, test){
+ /*
+  *tfTriangleWorldToCam
+  * projectPointInCameraFrame
+  * clipNear
+  * clipScreen2D
+  * tfPointWorldToCam
+  * moveTo
+  */
+}
