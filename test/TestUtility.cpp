@@ -146,8 +146,6 @@ TEST(Utility, line_line_intersect){
   Vector2d pt6(1,10);
   auto int_pt8 = cg::lineLineIntersect2d(pt6,pt1,plane_normal,pt_on_plane);
   ASSERT_EQ(int_pt8, nullptr);
-
-
 }
 
 

@@ -11,12 +11,13 @@
 using Eigen::Matrix4d;
 using Eigen::Vector4d;
 using Eigen::Vector2d;
+
 TEST(Camera, project_point_in_world){
   // Test projection of known points
   double vertical_fov = 75.0*M_PI/180.0;
-  double screen_width = 640;
-  double screen_height = 480;
-  cg::Camera cam(3.0/4.0, vertical_fov, 1, 100, screen_width, screen_height);
+  int screen_width = 640;
+  int screen_height = 480;
+  cg::Camera cam(vertical_fov, 1, 100, screen_width, screen_height);
 
   // Create 3D points in world frame
   Vector3d A(0, 15.0*tan(vertical_fov/2.0), -15);
@@ -50,7 +51,7 @@ TEST(Camera, project_point_in_world){
 
 TEST(Camera, local_move){
   double vertical_fov = 75.0*M_PI/180.0;
-  cg::Camera cam(3.0/4.0, vertical_fov, 1, 100, 640, 480);
+  cg::Camera cam(vertical_fov, 1, 100, 640, 480);
 
   Eigen::Matrix4d forward_mat = Eigen::Matrix4d::Identity();
   forward_mat(0,0) = -1;
@@ -92,7 +93,7 @@ TEST(Camera, local_move){
 
 TEST(Camera, isFacing){
   double vertical_fov = 75.0*M_PI/180.0;
-  cg::Camera cam(3.0/4.0, vertical_fov, 1, 100, 640, 480);
+  cg::Camera cam(vertical_fov, 1, 100, 640, 480);
 
   // Camera's default pose is origin, Looking along the -z axis.
   cg::Triangle not_facing{
@@ -121,7 +122,7 @@ TEST(Camera, global_move){
   double vertical_fov = 75.0*M_PI/180.0;
   double screen_width = 640;
   double screen_height = 480;
-  cg::Camera cam(3.0/4.0, vertical_fov, 1, 100, screen_width, screen_height);
+  cg::Camera cam(vertical_fov, 1, 100, screen_width, screen_height);
 
   cam.moveTo(position_in_world, look_dir, up);
 
@@ -143,13 +144,13 @@ TEST(Camera, global_move){
   pose_gt2(1,2) = -1;
 
   ASSERT_TRUE(cam.pose_world.matrix().isApprox(pose_gt2));
- }
+}
 
- TEST(Camera, coordinate_transformation){
+TEST(Camera, coordinate_transformation){
   double vertical_fov = 75.0*M_PI/180.0;
   double screen_width = 640;
   double screen_height = 480;
-  cg::Camera cam1(3.0/4.0, vertical_fov, 1, 100, screen_width, screen_height);
+  cg::Camera cam1(vertical_fov, 1, 100, screen_width, screen_height);
 
   Matrix4d orientation_1 = Matrix4d::Zero();
   orientation_1(0,2) = -1;
@@ -158,7 +159,7 @@ TEST(Camera, global_move){
   cam1.pose_world.position = Vector4d(-1,1,-1,1);
   cam1.pose_world.orientation = orientation_1;
 
-  cg::Camera cam2(3.0/4.0, vertical_fov, 1, 100, screen_width, screen_height);
+  cg::Camera cam2(vertical_fov, 1, 100, screen_width, screen_height);
 
   Matrix4d orientation_2 = Matrix4d::Zero();
   orientation_2(2,0) = -1;
@@ -213,13 +214,44 @@ TEST(Camera, global_move){
   }
   auto cube2 = cam2.tfPointWorldToCube(pt_world);
   ASSERT_TRUE(pt_cube2.isApprox(cube2));
- }
+}
 
- TEST(Camera, clipping){
-   /*
-   * clipNear
-   * clip2DEdge
-   * clipScreen2D
-   */
+TEST(Camera, clipping_3d){
+  double vertical_fov = 75.0*M_PI/180.0;
+  int screen_width = 640;
+  int screen_height = 480;
+  cg::Camera cam(vertical_fov, 1, 100,
+                 screen_width,
+                 screen_height);
+
+  cg::Triangle a(Vector3d(10,10,-20), Vector3d(3,2,-20), Vector3d(4,-2,-30));
+  cg::Triangle b(Vector3d(10,10,-0.9), Vector3d(3,2,2), Vector3d(23,29,-0.99));
+  cg::Triangle c(Vector3d(10,10,-1), Vector3d(32,42,-42), Vector3d(8,-38,-9));
+  cg::Triangle d(Vector3d(10,10,-1), Vector3d(3,21,10), Vector3d(43,-9,8));
+  cg::Triangle e(Vector3d(8,3,0), Vector3d(20,32,-88), Vector3d(4,-2,-54));
+  cg::Triangle f(Vector3d(93,-28,-8), Vector3d(3,1,-0.87), Vector3d(0.32,328,2));
+  cg::Triangle g(Vector3d(23,81,-1), Vector3d(8,34,-1), Vector3d(1,1,-99));
+  cg::Triangle h(Vector3d(8,4,-1), Vector3d(10,10,-1), Vector3d(9,44,9));
+
+  auto a_clip = cam.clipNear(a);
+  auto b_clip = cam.clipNear(b);
+  auto c_clip = cam.clipNear(c);
+  auto d_clip = cam.clipNear(d);
+  auto e_clip = cam.clipNear(e);
+  auto f_clip = cam.clipNear(f);
+  auto g_clip = cam.clipNear(g);
+  auto h_clip = cam.clipNear(h);
+
+  ASSERT_TRUE(a_clip.size() == 1);
+  ASSERT_TRUE(b_clip.empty());
+  ASSERT_TRUE(c_clip.size() == 1);
+  ASSERT_TRUE(d_clip.empty());
+  ASSERT_TRUE(e_clip.size()==2);
+  ASSERT_TRUE(f_clip.size()==1);
+  ASSERT_TRUE(g_clip.size()==1);
+  ASSERT_TRUE(h_clip.empty());
+}
+
+TEST(Camera, clipping_2d){
 
 }

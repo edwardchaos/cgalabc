@@ -14,7 +14,6 @@ class CameraApplication: public olc::PixelGameEngine{
  public:
   bool OnUserCreate() override{
     cam = std::make_shared<cg::Camera>(
-        (double)ScreenHeight()/(double)ScreenWidth(),
         M_PI/2.0,
         0.1,
         100,

@@ -32,7 +32,7 @@ class Camera{
    * Near plane distance in world units
    * Far plane distance in world units
    */
-  Camera(double aspect_ratio, double vertical_fov_rad, double near,
+  Camera(double vertical_fov_rad, double near,
          double far, int screen_width_px, int screen_height_px);
 
   /*
