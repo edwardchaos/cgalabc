@@ -10,6 +10,7 @@ set(TEST_SOURCES
 	TestMesh.cpp
 	TestCamera.cpp
 	TestUtility.cpp
+	TestPose.cpp
 )
 set(TEST_HEADERS
 
