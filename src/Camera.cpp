@@ -240,8 +240,10 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
     if(d[0] <= EPS && d[1] <= EPS && d[2] <= EPS) continue;
 
     // Triangle is completely on the 'in' side.
-    if(d[0] >= -EPS && d[1] >= -EPS && d[2] >= -EPS)
+    if(d[0] >= -EPS && d[1] >= -EPS && d[2] >= -EPS){
       clipped_triangles.push_back(tri);
+      continue;
+    }
 
     std::vector<Vector2d> in,out;
 
