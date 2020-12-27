@@ -68,7 +68,7 @@ class Camera{
    * Transform a 3D point in camera coordinate to the camera's projection
    * cube space.
    */
-  [[nodiscard]] Vector3d tfPointCameraToCube(const Vector3d &pt_cam)const;
+  [[nodiscard]] Vector4d tfPointCameraToCube(const Vector4d &pt_cam)const;
 
   /*
    * Clip triangle in camera coordinate space by the near plane.
@@ -94,7 +94,7 @@ class Camera{
    *
    * Returned point is homogenous coordinate
    */
-  [[nodiscard]] Vector4d tfPointWorldToCam(const Vector3d &pt_world) const;
+  [[nodiscard]] Vector4d tfPointWorldToCam(const Vector4d &pt_world) const;
 
   /*
    * Project a 3D point in world coordinate onto the camera's image plane.
@@ -104,7 +104,7 @@ class Camera{
    * To properly draw on screen, Add 1 and Multiply x by (screen width)/2
    * Multiply y by (screen height)/2
    */
-  [[nodiscard]] Vector2d projectPointInWorld(const Vector3d &pt_world)const;
+  [[nodiscard]] Vector2d projectPointInWorld(const Vector4d &pt_world)const;
 
   /*
    * Transform a point in world coordinate to the camera's unit cube space by
@@ -114,7 +114,7 @@ class Camera{
    * tfPointWorldToCam followed by tfPointCameraToCube
    *
    */
-  [[nodiscard]] Vector3d tfPointWorldToCube(const Vector3d &pt_world)
+  [[nodiscard]] Vector4d tfPointWorldToCube(const Vector4d &pt_world)
   const;
 
   /*

@@ -20,12 +20,12 @@ TEST(Camera, project_point_in_world){
   cg::Camera cam(vertical_fov, 1, 100, screen_width, screen_height);
 
   // Create 3D points in world frame
-  Vector3d A(0, 15.0*tan(vertical_fov/2.0), -15);
-  Vector3d B(0, 50*tan(vertical_fov/2.0), -50);
-  Vector3d C(0, -B(1), -50);
-  Vector3d D(0, -A(1), -15);
-  Vector3d E(0, 0, -15);
-  Vector3d F(0, 0, -50);
+  Vector4d A(0, 15.0*tan(vertical_fov/2.0), -15,1);
+  Vector4d B(0, 50*tan(vertical_fov/2.0), -50,1);
+  Vector4d C(0, -B(1), -50,1);
+  Vector4d D(0, -A(1), -15,1);
+  Vector4d E(0, 0, -15,1);
+  Vector4d F(0, 0, -50,1);
 
   auto a_proj = cam.projectPointInWorld(A);
   ASSERT_TRUE(a_proj.isApprox(Vector2d(0,-1)));
@@ -168,7 +168,7 @@ TEST(Camera, coordinate_transformation){
   cam2.pose_world.position = Vector4d(-1,-1,0,1);
   cam2.pose_world.orientation = orientation_2;
 
-  Vector3d pt_world(-1,1,0);
+  Vector4d pt_world(-1,1,0, 1);
   auto pt_cam1 = cam1.tfPointWorldToCam(pt_world);
   auto pt_cam2 = cam2.tfPointWorldToCam(pt_world);
 
@@ -176,14 +176,14 @@ TEST(Camera, coordinate_transformation){
   ASSERT_TRUE(pt_cam2.isApprox(Vector4d(0,0,-2,1)));
 
   try{
-    auto pt_cube1 = cam1.tfPointCameraToCube(pt_cam1.head<3>());
+    auto pt_cube1 = cam1.tfPointCameraToCube(pt_cam1);
     FAIL() << "Should throw exception";
   }catch(std::exception &e){
     ASSERT_STREQ(e.what(),
                  "Cannot project a point with z = 0; Perhaps clip first by "
                  "the near plane.");
   }
-  auto pt_cube2 = cam2.tfPointCameraToCube(pt_cam2.head<3>());
+  auto pt_cube2 = cam2.tfPointCameraToCube(pt_cam2);
   ASSERT_DOUBLE_EQ(pt_cube2(0), 0);
   ASSERT_DOUBLE_EQ(pt_cube2(1), 0);
   ASSERT_TRUE(pt_cube2(2) < 1.0);
@@ -196,13 +196,13 @@ TEST(Camera, coordinate_transformation){
   auto tri_cam1 = cam1.tfTriangleWorldToCam(tri_world);
   auto tri_cam2 = cam2.tfTriangleWorldToCam(tri_world);
 
-  ASSERT_TRUE(tri_cam1.points[0].isApprox(Vector3d(-1,0,0)));
-  ASSERT_TRUE(tri_cam1.points[1].isApprox(Vector3d(-1,1,-1)));
-  ASSERT_TRUE(tri_cam1.points[2].isApprox(Vector3d(-1,0,-1)));
+  ASSERT_TRUE(tri_cam1.points[0].isApprox(Vector4d(-1,0,0,1)));
+  ASSERT_TRUE(tri_cam1.points[1].isApprox(Vector4d(-1,1,-1,1)));
+  ASSERT_TRUE(tri_cam1.points[2].isApprox(Vector4d(-1,0,-1,1)));
 
-  ASSERT_TRUE(tri_cam2.points[0].isApprox(Vector3d(0,0,-2)));
-  ASSERT_TRUE(tri_cam2.points[1].isApprox(Vector3d(0,-1,-3)));
-  ASSERT_TRUE(tri_cam2.points[2].isApprox(Vector3d(0,-1,-2)));
+  ASSERT_TRUE(tri_cam2.points[0].isApprox(Vector4d(0,0,-2,1)));
+  ASSERT_TRUE(tri_cam2.points[1].isApprox(Vector4d(0,-1,-3,1)));
+  ASSERT_TRUE(tri_cam2.points[2].isApprox(Vector4d(0,-1,-2,1)));
 
   try{
     auto cube1 = cam1.tfPointWorldToCube(pt_world);

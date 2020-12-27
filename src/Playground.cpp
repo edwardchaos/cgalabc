@@ -20,11 +20,13 @@ class CameraApplication: public olc::PixelGameEngine{
         ScreenWidth(),
         ScreenHeight());
 
+//    auto spyro= cg::loadOBJ("/home/shooshan/Pictures/spyro.obj", true);
+//    mesh = *spyro;
 //    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
 //    mesh = *teddy;
-    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
-    mesh = *teapot;
-    //mesh = *cg::cube();
+//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+//    mesh = *teapot;
+    mesh = *cg::cube();
 //    cg::Triangle triangle{
 //      Vector3d(0,-5,-10),Vector3d(-5,0,-20),
 //      Vector3d(0,5,-10)};
@@ -56,10 +58,11 @@ class CameraApplication: public olc::PixelGameEngine{
 
     for(const auto& tri : mesh.tris){
       // Move original mesh to its world position
-      Eigen::Vector3d pt0_tf = cg::transformPoint(tri.points[0], tf);
-      Eigen::Vector3d pt1_tf = cg::transformPoint(tri.points[1], tf);
-      Eigen::Vector3d pt2_tf = cg::transformPoint(tri.points[2], tf);
-      cg::Triangle tri_world{pt0_tf, pt1_tf, pt2_tf};
+      Eigen::Vector4d pt0_tf = cg::transformPoint(tri.points[0], tf);
+      Eigen::Vector4d pt1_tf = cg::transformPoint(tri.points[1], tf);
+      Eigen::Vector4d pt2_tf = cg::transformPoint(tri.points[2], tf);
+      cg::Triangle tri_world{
+        pt0_tf.head<3>(), pt1_tf.head<3>(), pt2_tf.head<3>()};
 
       auto triangles_to_draw_screen = cam->projectTriangleInWorld(tri_world);
 
@@ -79,19 +82,19 @@ class CameraApplication: public olc::PixelGameEngine{
   void handleCameraMotion(double fElapsedTime){
     if(GetKey(olc::Key::E).bHeld){
       DrawString(50,50, "Forward");
-      cam->moveForward(0.001/fElapsedTime);
+      cam->moveForward(0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::S).bHeld){
       DrawString(50,50, "Strafe Left");
-      cam->strafeRight(-0.001/fElapsedTime);
+      cam->strafeRight(-0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::D).bHeld){
       DrawString(50,50, "Back");
-      cam->moveForward(-0.001/fElapsedTime);
+      cam->moveForward(-0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::F).bHeld){
       DrawString(50,50, "Strafe Right");
-      cam->strafeRight(0.001/fElapsedTime);
+      cam->strafeRight(0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::J).bHeld){
       DrawString(50,50, "Yaw Left");

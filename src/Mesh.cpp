@@ -4,16 +4,18 @@ namespace cg{
 
 Triangle::Triangle(
     Eigen::Vector3d pt1, Eigen::Vector3d pt2, Eigen::Vector3d pt3){
-points[0] = std::move(pt1);
-points[1] = std::move(pt2);
-points[2] = std::move(pt3);
-
+  points[0].head<3>() = pt1;
+  points[0][3] = 1;
+  points[1].head<3>() = pt2;
+  points[1][3] = 1;
+  points[2].head<3>() = pt3;
+  points[2][3] = 1;
 }
 
 std::vector<Eigen::Vector3d> Triangle::edges() const{
-  return {points[1] - points[0],
-          points[2] - points[1],
-          points[0] - points[2]};
+  return {(points[1] - points[0]).head<3>(),
+          (points[2] - points[1]).head<3>(),
+          (points[0] - points[2]).head<3>()};
 }
 
 Eigen::Vector3d Triangle::unit_normal() const{

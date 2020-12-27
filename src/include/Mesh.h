@@ -11,6 +11,7 @@
 
 #include "Pose.h"
 
+using Eigen::Vector4d;
 using Eigen::Vector3d;
 namespace cg{
 
@@ -21,7 +22,9 @@ typedef std::shared_ptr<Mesh> Mesh_ptr;
  * in the direction by the right hand rule
  */
 struct Triangle{
-  Vector3d points[3];
+  // Homogenous coordinates
+  Vector4d points[3]; // Coordinates in world frame
+  Vector3d t[3]; // Texture coordinates
 
   Triangle() = default;
   Triangle(Vector3d pt1, Vector3d pt2, Vector3d pt3);

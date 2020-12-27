@@ -58,8 +58,8 @@ Camera::projectTriangleInWorld(const Triangle& tri_world) const{
       auto pt_cube = tfPointCameraToCube(pt_cam);
 
       // Scale triangles to screen size
-      double screen_x = (pt_cube.x() + 1) * screen_width_ / 2.0;
-      double screen_y = (-pt_cube.y() + 1) * screen_height_ / 2.0;
+      double screen_x = (pt_cube.x()/pt_cube.w() + 1) * screen_width_ / 2.0;
+      double screen_y = (-pt_cube.y()/pt_cube.w() + 1) * screen_height_ / 2.0;
       tri_img_pts.emplace_back(screen_x, screen_y);
     }
 
@@ -77,7 +77,7 @@ bool Camera::isFacing(const Triangle& tri_world) const{
   // Transform triangle in world coordinate to camera's coordinate
   auto tri_cam = tfTriangleWorldToCam(tri_world);
 
-  Vector3d cam_2_tri = tri_cam.points[0];
+  Vector3d cam_2_tri = tri_cam.points[0].head<3>();
   cam_2_tri.normalize();
   return cam_2_tri.dot(tri_cam.unit_normal()) < -EPS;
 }
@@ -85,23 +85,20 @@ bool Camera::isFacing(const Triangle& tri_world) const{
 Triangle Camera::tfTriangleWorldToCam(const Triangle& tri_world) const{
   Triangle tri_cam;
   for(int i = 0; i < 3; ++i)
-    tri_cam.points[i] = tfPointWorldToCam(tri_world.points[i]).head<3>();
+    tri_cam.points[i] = tfPointWorldToCam(tri_world.points[i]);
 
   return tri_cam;
 }
 
-Vector3d Camera::tfPointCameraToCube(const Vector3d &pt_cam)const{
-  Eigen::RowVector4d row_pt;
-  row_pt.head<3>() = pt_cam;
-  row_pt(3) = 1;
+Vector4d Camera::tfPointCameraToCube(const Vector4d &pt_cam)const{
+  Eigen::RowVector4d row_pt(pt_cam);
   Eigen::RowVector4d pt = row_pt*projection_mat_;
 
   if(pt(3) == 0)
     throw std::invalid_argument(
         "Cannot project a point with z = 0; Perhaps clip first by the near "
         "plane.");
-  Vector3d pt_cube(pt(0)/pt(3), pt(1)/pt(3), pt(2)/pt(3));
-  return pt_cube;
+  return Vector4d(pt);
 }
 
 std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
@@ -113,9 +110,12 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
   // d holds dot products; Will be used for determining which side of the
   // plane the point is on.
   double d[3];
-  d[0] = near_plane_unit_normal.dot(tri_cam.points[0]-near_plane_pt);
-  d[1] = near_plane_unit_normal.dot(tri_cam.points[1]-near_plane_pt);
-  d[2] = near_plane_unit_normal.dot(tri_cam.points[2]-near_plane_pt);
+  d[0] = near_plane_unit_normal.dot(
+      tri_cam.points[0].head<3>()-near_plane_pt);
+  d[1] = near_plane_unit_normal.dot(
+      tri_cam.points[1].head<3>()-near_plane_pt);
+  d[2] = near_plane_unit_normal.dot(
+      tri_cam.points[2].head<3>()-near_plane_pt);
 
   // Triangle is completely on the 'out' side of near plane. Nothing to keep.
   if(d[0] <= EPS && d[1] <= EPS && d[2] <= EPS) return{};
@@ -129,8 +129,8 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
     int cur_idx = i;
     int next_idx = (i+1)%3;
 
-    auto cur_pt = tri_cam.points[cur_idx];
-    auto next_pt = tri_cam.points[next_idx];
+    auto cur_pt = tri_cam.points[cur_idx].head<3>();
+    auto next_pt = tri_cam.points[next_idx].head<3>();
 
     // Add current point in 'In' or 'Out'?
     if(d[cur_idx] < -EPS) { // 'Out' side
@@ -200,23 +200,18 @@ Camera::clipScreen2D(const std::vector<Vector2d>&tri_img) const{
   return tris_after_bottom_clip;
 }
 
-Vector4d Camera::tfPointWorldToCam(const Vector3d &pt_world) const{
-  Vector4d pt_cam;
-  Vector4d pt_world_homo;
-  pt_world_homo.head<3>() = pt_world;
-  pt_world_homo(3) = 1;
-  pt_cam = pose_world.matrix().inverse()*pt_world_homo;
-  return pt_cam;
+Vector4d Camera::tfPointWorldToCam(const Vector4d &pt_world) const{
+  return pose_world.matrix().inverse()*pt_world;
 }
 
-Vector2d Camera::projectPointInWorld(const Vector3d &pt_world) const{
+Vector2d Camera::projectPointInWorld(const Vector4d &pt_world) const{
   auto pt_cube = tfPointWorldToCube(pt_world);
-  return Vector2d(pt_cube(0), -pt_cube(1));
+  return Vector2d(pt_cube.x()/pt_cube.w(), -pt_cube.y()/pt_cube.w());
 }
 
-Vector3d Camera::tfPointWorldToCube(const Vector3d &pt_world) const{
+Vector4d Camera::tfPointWorldToCube(const Vector4d &pt_world) const{
   Vector4d pt_cam = tfPointWorldToCam(pt_world);
-  return tfPointCameraToCube(pt_cam.head<3>());
+  return tfPointCameraToCube(pt_cam);
 }
 
 std::vector<std::vector<Vector2d>>

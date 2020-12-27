@@ -47,7 +47,7 @@ Eigen::Matrix4d rotateZ(double theta);
  */
 Eigen::Matrix4d translation(double dx, double dy, double dz);
 
-Eigen::Vector3d transformPoint(const Eigen::Vector3d &pt,
+Eigen::Vector4d transformPoint(const Eigen::Vector4d &pt,
                                const Eigen::Matrix4d& tf);
 
 /*

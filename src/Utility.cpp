@@ -121,13 +121,9 @@ Eigen::Matrix4d translation(double dx, double dy, double dz){
   return translation;
 }
 
-Eigen::Vector3d transformPoint(const Eigen::Vector3d &pt,
-                               const Eigen::Matrix4d& tf){
-  Eigen::Vector4d pt_homo;
-  pt_homo.head<3>() = pt;
-  pt_homo(3) = 1;
-  Eigen::Vector4d pt_tf = tf*pt_homo;
-  return {pt_tf(0)/pt_tf(3), pt_tf(1)/pt_tf(3), pt_tf(2)/pt_tf(3)};
+Eigen::Vector4d transformPoint(const Eigen::Vector4d &pt,
+                               const Eigen::Matrix4d &tf){
+ return tf*pt;
 }
 
 std::shared_ptr<Vector3d> planeLineIntersect(
