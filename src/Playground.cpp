@@ -21,13 +21,13 @@ class CameraApplication: public olc::PixelGameEngine{
         ScreenWidth(),
         ScreenHeight());
 
-//    auto spyro= cg::loadOBJ("/home/shooshan/Pictures/spyro.obj", true);
-//    mesh = *spyro;
+    auto spyro= cg::loadOBJ("/home/shooshan/Pictures/spyro.obj", false);
+    mesh = *spyro;
 //    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
 //    mesh = *teddy;
 //    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
 //    mesh = *teapot;
-      mesh = *cg::cube();
+      //mesh = *cg::cube();
 //    cg::Triangle triangle{
 //      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
 //      Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};
@@ -91,19 +91,19 @@ class CameraApplication: public olc::PixelGameEngine{
   void handleCameraMotion(double fElapsedTime){
     if(GetKey(olc::Key::E).bHeld){
       DrawString(50,50, "Forward");
-      cam->moveForward(0.001/fElapsedTime);
+      cam->moveForward(0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::S).bHeld){
       DrawString(50,50, "Strafe Left");
-      cam->strafeRight(-0.001/fElapsedTime);
+      cam->strafeRight(-0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::D).bHeld){
       DrawString(50,50, "Back");
-      cam->moveForward(-0.001/fElapsedTime);
+      cam->moveForward(-0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::F).bHeld){
       DrawString(50,50, "Strafe Right");
-      cam->strafeRight(0.001/fElapsedTime);
+      cam->strafeRight(0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::J).bHeld){
       DrawString(50,50, "Yaw Left");

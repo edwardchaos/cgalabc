@@ -1,5 +1,6 @@
 #include "Utility.h"
 
+#include <algorithm>
 #include "Point2d.h"
 
 namespace cg{
@@ -9,6 +10,8 @@ Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points){
   if(!obj_file.is_open()) return nullptr;
 
   std::vector<Vector3d> vertices;
+  std::vector<Vector2d> texture_vertices;
+  std::vector<Vector3d> vertex_normals;
   Mesh_ptr mesh = std::make_shared<Mesh>();
 
   std::string line;
@@ -28,6 +31,25 @@ Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points){
 
         vertices.emplace_back(std::stod(x),std::stod(y),std::stod(z));
       }
+      else if("vt" == subs){
+        std::string x,y,junk;
+
+        iss >> x;
+        iss >> y;
+        iss >> junk;
+
+        texture_vertices.emplace_back(std::stod(x),std::stod(y));
+      }
+      else if("vn" == subs){
+        std::string x,y,z;
+
+        iss >> x;
+        iss >> y;
+        iss >> z;
+        Vector3d v_norm(std::stod(x),std::stod(y),std::stod(z));
+        v_norm.normalize();
+        vertex_normals.emplace_back(v_norm);
+      }
       else if("f" == subs) {
         std::string i1, i2, i3;
         if(ccw_points) {
@@ -40,9 +62,116 @@ Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points){
           iss >> i2;
         }
 
-        mesh->tris.emplace_back(vertices[std::stoi(i1)-1],
-                                vertices[std::stoi(i2)-1],
-                                vertices[std::stoi(i3)-1]);
+        // Counter number of slashes
+        auto num_slashes = std::count(i1.begin(),i1.end(),'/');
+        if(num_slashes == 0){
+          // Simplest case, each string is just a vertex index
+          int ii1,ii2,ii3;
+
+          ii1 = std::stoi(i1);
+          if(ii1 > 0) --ii1;
+          else ii1+=vertices.size();
+
+          ii2 = std::stoi(i2);
+          if(ii2 > 0) --ii2;
+          else ii2+=vertices.size();
+
+          ii3 = std::stoi(i3);
+          if(ii3 > 0) --ii3;
+          else ii3+=vertices.size();
+
+          mesh->tris.emplace_back(vertices[ii1],
+                                  vertices[ii2],
+                                  vertices[ii3]);
+        }else if(num_slashes == 1){
+          // [0] is vertex idx. [1] is texture vertex
+          int int_idx1[2];
+          std::string idx1;
+          std::stringstream ss1(i1);
+          int int_idx2[2];
+          std::string idx2;
+          std::stringstream ss2(i2);
+          int int_idx3[2];
+          std::string idx3;
+          std::stringstream ss3(i3);
+
+          for(int i = 0; i < 2; ++i){
+            std::getline(ss1, idx1, '/');
+            int_idx1[i] = std::stoi(idx1);
+            if(int_idx1[i] > 0) --int_idx1[i]; // change to 0 indexed
+            std::getline(ss2, idx2, '/');
+            int_idx2[i] = std::stoi(idx2);
+            if(int_idx2[i] > 0) --int_idx2[i]; // change to 0 indexed
+            std::getline(ss3, idx3, '/');
+            int_idx3[i] = std::stoi(idx3);
+            if(int_idx3[i] > 0) --int_idx3[i]; // change to 0 indexed
+            if(i==0){ // Vertex index
+              if(int_idx1[i] < 0) int_idx1[i]+=vertices.size();
+              if(int_idx2[i] < 0) int_idx2[i]+=vertices.size();
+              if(int_idx3[i] < 0) int_idx3[i]+=vertices.size();
+            }else{ // Texture index
+              if(int_idx1[i] < 0) int_idx1[i]+=texture_vertices.size();
+              if(int_idx2[i] < 0) int_idx2[i]+=texture_vertices.size();
+              if(int_idx3[i] < 0) int_idx3[i]+=texture_vertices.size();
+            }
+          }
+
+          mesh->tris.emplace_back(vertices[int_idx1[0]],
+                                  vertices[int_idx2[0]],
+                                  vertices[int_idx3[0]],
+                                  texture_vertices[int_idx1[1]],
+                                  texture_vertices[int_idx2[1]],
+                                  texture_vertices[int_idx3[1]]);
+        }else if(num_slashes == 2){
+          // Similar thing as above, but now with normal as well.
+          // [0] is vertex idx. [1] is texture idx. [2] is normal idx
+          int int_idx1[3];
+          std::string idx1;
+          std::stringstream ss1(i1);
+          int int_idx2[3];
+          std::string idx2;
+          std::stringstream ss2(i2);
+          int int_idx3[3];
+          std::string idx3;
+          std::stringstream ss3(i3);
+
+          for(int i = 0; i < 3; ++i){
+            std::getline(ss1, idx1, '/');
+            int_idx1[i] = std::stoi(idx1);
+            if(int_idx1[i] > 0) --int_idx1[i]; // change to 0 indexed
+            std::getline(ss2, idx2, '/');
+            int_idx2[i] = std::stoi(idx2);
+            if(int_idx2[i] > 0) --int_idx2[i]; // change to 0 indexed
+            std::getline(ss3, idx3, '/');
+            int_idx3[i] = std::stoi(idx3);
+            if(int_idx3[i] > 0) --int_idx3[i]; // change to 0 indexed
+            if(i==0){ // Vertex index
+              if(int_idx1[i] < 0) int_idx1[i]+=vertices.size();
+              if(int_idx2[i] < 0) int_idx2[i]+=vertices.size();
+              if(int_idx3[i] < 0) int_idx3[i]+=vertices.size();
+            }else if(i==1){ // Texture index
+              if(int_idx1[i] < 0) int_idx1[i]+=texture_vertices.size();
+              if(int_idx2[i] < 0) int_idx2[i]+=texture_vertices.size();
+              if(int_idx3[i] < 0) int_idx3[i]+=texture_vertices.size();
+            }else{
+              if(int_idx1[i] < 0) int_idx1[i]+=vertex_normals.size();
+              if(int_idx2[i] < 0) int_idx2[i]+=vertex_normals.size();
+              if(int_idx3[i] < 0) int_idx3[i]+=vertex_normals.size();
+            }
+          }
+
+          // Currently doesn't support creating triangles given vertex normals.
+          // It just ignores the normal information.
+          mesh->tris.emplace_back(vertices[int_idx1[0]],
+                                  vertices[int_idx2[0]],
+                                  vertices[int_idx3[0]],
+                                  texture_vertices[int_idx1[1]],
+                                  texture_vertices[int_idx2[1]],
+                                  texture_vertices[int_idx3[1]]);
+        }else{
+          throw std::invalid_argument("OBJ faces can only have 0,1, or 2 '/'.");
+        }
+
       }
     }
   }
