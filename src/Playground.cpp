@@ -52,8 +52,8 @@ class CameraApplication: public olc::PixelGameEngine{
     auto rotz_mat = cg::rotateZ(z_rot);
     mesh.pose.position = cg::translation(0,0,-10).rightCols<1>();
     mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
-    Eigen::Matrix4d tf = mesh.pose.matrix();
-    //Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+    //Eigen::Matrix4d tf = mesh.pose.matrix();
+    Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
     // Handle keyboard input
     handleCameraMotion(fElapsedTime);
@@ -70,7 +70,7 @@ class CameraApplication: public olc::PixelGameEngine{
       // Should return 2d triangles to draw along with 2d sprite coordinates.
 
       for(const auto& screen_tri : triangles_to_draw){
-        //DrawTexturedTriangle(screen_tri, sprite);
+        DrawTexturedTriangle(screen_tri, sprite);
 
         DrawTriangle(screen_tri.points[0].x(), screen_tri.points[0].y(),
                      screen_tri.points[1].x(), screen_tri.points[1].y(),
@@ -139,11 +139,14 @@ class CameraApplication: public olc::PixelGameEngine{
     // Scan horizontal lines from top to bottom of triangle
 
     // Acronyms short for variables in my math equations
+
     // The absolute differences between points
     double y12 = pt2.y() - pt1.y();
     double x12 = pt2.x() - pt1.x();
     double y13 = pt3.y() - pt1.y();
     double x13 = pt3.x() - pt1.x();
+
+    // Texture coordinates
     double u12 = tx2.x() - tx1.x();
     double v12 = tx2.y() - tx1.y();
     double u13 = tx3.x() - tx1.x();
@@ -156,6 +159,7 @@ class CameraApplication: public olc::PixelGameEngine{
     double dx13 = 0;
     if(y13 != 0) dx13 = x13/y13;
     double dy13 = 1; //1 pixel down at a time.
+
     double du12 = 0;
     if(y12!=0) du12 = u12/y12;
     double dv12 = 0;
@@ -179,7 +183,7 @@ class CameraApplication: public olc::PixelGameEngine{
       int sy = (int)(pt1.y()+dy);
 
       // Get end of line
-      int ex = (int)(pt1.x() + x13*t12);
+      int ex = (int)(pt1.x() + x13*t13);
       int ey = sy;
 
       // Get start line on texture
@@ -193,9 +197,12 @@ class CameraApplication: public olc::PixelGameEngine{
       // Drawing from left to right, swap start and end if they're reversed.
       if(ex <= sx){
         std::swap(sx,ex);
+        // sy and ey are the same since it's a horizontal line
 
         // Also swap texture start/end
         std::swap(s_tx,e_tx);
+        // Texture y values aren't necessarily along a horizontal line. It is
+        // defined by the texture map in the obj file.
         std::swap(s_ty, e_ty);
       }
 
@@ -210,9 +217,11 @@ class CameraApplication: public olc::PixelGameEngine{
         double screen_y = pt1.y() + dy;
         double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
         double spr_y = s_ty + (e_ty-s_ty)*t_horizontal;
+        //TODO: Need to also interpolate w value
         auto px_color = spr.Sample(spr_x,spr_y);
 
         Draw(screen_x, screen_y, px_color);
+        t_horizontal += dt_horizontal;
       }
       t12 += dt12;
       t13 += dt13;
