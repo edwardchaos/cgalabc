@@ -35,7 +35,9 @@ class CameraApplication: public olc::PixelGameEngine{
     mesh.tris.push_back(triangle);
 //    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
 //    mesh = *axis;
-    sprite.LoadFromFile("/home/shooshan/Pictures/free.png");
+
+    //sprite.LoadFromFile("/home/shooshan/Pictures/free.png");
+    sprite.LoadFromFile("/home/shooshan/Pictures/checkerboard.png");
 
     return true;
   }

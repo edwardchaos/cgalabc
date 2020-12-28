@@ -273,8 +273,8 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       auto next_pt = tri.points[next_idx];
 
       // Texture coordinates
-      auto cur_tx = tri.points[cur_idx];
-      auto next_tx = tri.points[next_idx];
+      auto cur_tx = tri.t[cur_idx];
+      auto next_tx = tri.t[next_idx];
 
       // Add current point in 'In' or 'Out'?
       if(d[cur_idx] < -EPS) { // 'Out' side
