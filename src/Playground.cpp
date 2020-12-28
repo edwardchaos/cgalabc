@@ -33,6 +33,7 @@ class CameraApplication: public olc::PixelGameEngine{
 //    mesh.tris.push_back(triangle);
 //    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
 //    mesh = *axis;
+    sprite.LoadFromFile("/home/shooshan/Pictures/free.png");
 
     return true;
   }
@@ -65,11 +66,15 @@ class CameraApplication: public olc::PixelGameEngine{
         pt0_tf.head<3>(), pt1_tf.head<3>(), pt2_tf.head<3>()};
 
       auto triangles_to_draw_screen = cam->projectTriangleInWorld(tri_world);
+      // Should return 2d triangles to draw along with 2d sprite coordinates.
 
-      for(const auto& screen_tri : triangles_to_draw_screen)
-      DrawTriangle(screen_tri[0].x(), screen_tri[0].y(),
-                   screen_tri[1].x(), screen_tri[1].y(),
-                   screen_tri[2].x(), screen_tri[2].y());
+      for(const auto& screen_tri : triangles_to_draw_screen){
+        //DrawTexturedTriangle(screen_tri, sprite);
+
+        DrawTriangle(screen_tri[0].x(), screen_tri[0].y(),
+                     screen_tri[1].x(), screen_tri[1].y(),
+                     screen_tri[2].x(), screen_tri[2].y());
+      }
     }
 
     return true;
@@ -78,6 +83,7 @@ class CameraApplication: public olc::PixelGameEngine{
  private:
   cg::Camera_ptr cam;
   cg::Mesh mesh;
+  olc::Sprite sprite;
 
   void handleCameraMotion(double fElapsedTime){
     if(GetKey(olc::Key::E).bHeld){
@@ -105,6 +111,20 @@ class CameraApplication: public olc::PixelGameEngine{
       cam->yawRight(0.0005/fElapsedTime);
     }
   }
+
+//  void DrawTexturedTriangle(triangle, const olc::Sprite &sprite){
+//    // Iterate from top to bottom of triangle
+//
+//    // Iterate across a horizontal line
+//
+//    // Get textile pixel value
+//    auto color = sprite.Sample(0.5,0.5);
+//
+//    // Get screen x,y
+//    int screen_x, screen_y;
+//
+//    Draw(screen_x, screen_y, color);
+//  }
 };
 
 int main(){
