@@ -16,8 +16,8 @@ class CameraApplication: public olc::PixelGameEngine{
   bool OnUserCreate() override{
     cam = std::make_shared<cg::Camera>(
         M_PI/2.0,
-        0.1,
-        100,
+        0.01,
+        50,
         ScreenWidth(),
         ScreenHeight());
 
@@ -29,10 +29,9 @@ class CameraApplication: public olc::PixelGameEngine{
 //    mesh = *teapot;
     //mesh = *cg::cube();
     cg::Triangle triangle{
-      Vector3d(0,0,-10),Vector3d(-1,0,-10),
-      Vector3d(0,1,-10),
+      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
       Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};
-    mesh.tris.push_back(triangle);
+  mesh.tris.push_back(triangle);
 //    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
 //    mesh = *axis;
 
@@ -160,27 +159,6 @@ class CameraApplication: public olc::PixelGameEngine{
     double w12 = tx2.z() - tx1.z(); // Vector2d z() is index [2] (x,y,w)
     double w13 = tx3.z() - tx1.z();
 
-    // The incremental deltas for scanning through triangle area
-    double dx12 = 0;
-    if(y12 != 0) dx12 = x12/y12;
-    double dy12 = 1; //1 pixel down at a time.
-    double dx13 = 0;
-    if(y13 != 0) dx13 = x13/y13;
-    double dy13 = 1; //1 pixel down at a time.
-
-    double du12 = 0;
-    if(y12!=0) du12 = u12/y12_abs;
-    double dv12 = 0;
-    if(y12!=0) dv12 = v12/y12_abs;
-    double dw12 = 0;
-    if(y12!=0) dw12 = w12/y12_abs;
-    double du13 = 0;
-    if(y13!=0) du13 = u13/y13_abs;
-    double dv13 = 0;
-    if(y13!=0) dv13 = v13/y13_abs;
-    double dw13 = 0;
-    if(y13!=0) dw13 = w13/y13_abs;
-
     double dt12 = 0;
     double dt13 = 0;
     if(y12!=0) dt12=1.0/y12_abs;
@@ -198,7 +176,7 @@ class CameraApplication: public olc::PixelGameEngine{
       int ex = (int)(pt1.x() + x13*t13);
       int ey = sy;
 
-      // Get start line on texture
+      // Get start of line on texture
       double s_tx = tx1.x() + t12*u12;
       double s_ty = tx1.y() + t12*v12;
       double s_tw = tx1.z() + t12*w12;
@@ -228,11 +206,12 @@ class CameraApplication: public olc::PixelGameEngine{
         // Get texture pixel value
         double screen_x = sx + dx;
         double screen_y = pt1.y() + dy;
-        double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
-        double spr_y = s_ty + (e_ty-s_ty)*t_horizontal;
-        double spr_w = s_tw + (e_tw-s_tw)*t_horizontal;
+        //double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
+        double spr_x = s_tx/s_tw + (e_tx/e_tw-s_tx/s_tw)*t_horizontal;
+        double spr_y = s_ty/s_tw + (e_ty/e_tw-s_ty/s_tw)*t_horizontal;
+        double spr_w = 1.0/s_tw + (1.0/e_tw-1.0/s_tw)*t_horizontal;
         //auto px_color = spr.Sample(spr_x/spr_w,spr_y/spr_w);
-        auto px_color = spr.Sample(spr_x,spr_y);
+        auto px_color = spr.Sample(spr_x/spr_w,spr_y/spr_w);
 
         Draw(screen_x, screen_y, px_color);
         t_horizontal += dt_horizontal;
