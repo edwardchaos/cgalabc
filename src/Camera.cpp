@@ -37,7 +37,7 @@ void Camera::constructProjectionMatrix(){
   projection_mat_(2,3) = -1;
 }
 
-[[nodiscard]] std::vector<std::vector<Vector2d>>
+[[nodiscard]] std::vector<Triangle2D>
 Camera::projectTriangleInWorld(const Triangle& tri_world) const{
   // Backface culling
   if(!isFacing(tri_world)) return {};
@@ -48,23 +48,29 @@ Camera::projectTriangleInWorld(const Triangle& tri_world) const{
   // Clip triangle in cam coordinate frame by near plane
   auto near_clipped_tris_cam = clipNear(original_tri_cam);
 
-  std::vector<std::vector<Vector2d>> finished_2d_triangles;
+  std::vector<Triangle2D> finished_2d_triangles;
 
   for(const auto &tri_cam : near_clipped_tris_cam) {
-    std::vector<Eigen::Vector2d> tri_img_pts;
-    tri_img_pts.reserve(3);
-    for (const auto &pt_cam : tri_cam.points) {
+    cg::Triangle2D tri_img;
+
+    for (int i = 0; i < 3; ++i){
+      auto pt_cam = tri_cam.points[i];
       // Perspective transformation
       auto pt_cube = tfPointCameraToCube(pt_cam);
 
       // Scale triangles to screen size
       double screen_x = (pt_cube.x()/pt_cube.w() + 1) * screen_width_ / 2.0;
       double screen_y = (-pt_cube.y()/pt_cube.w() + 1) * screen_height_ / 2.0;
-      tri_img_pts.emplace_back(screen_x, screen_y);
+
+      // Carry the w value with the points for correcting for perspective on the
+      // texture as well. We're not making a PS1 game
+      tri_img.points[i] = Vector3d(screen_x, screen_y, 1);
+      tri_img.t[i] = tri_cam.t[i];
+      tri_img.t[i][2] = pt_cube.w();
     }
 
     // Clip 2D triangle in screen space
-    auto tris_screen_clipped = clipScreen2D(tri_img_pts);
+    auto tris_screen_clipped = clipScreen2D(tri_img);
     finished_2d_triangles.insert(finished_2d_triangles.end(),
                                  tris_screen_clipped.begin(),
                                  tris_screen_clipped.end());
@@ -182,9 +188,9 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
         Triangle(in[0],in[2],in[3],in_t[0],in_t[2],in_t[3])};
 }
 
-std::vector<std::vector<Vector2d>>
-Camera::clipScreen2D(const std::vector<Vector2d>&tri_img) const{
-  std::vector<std::vector<Vector2d>> triangles{tri_img};
+std::vector<Triangle2D>
+Camera::clipScreen2D(const Triangle2D &tri_img) const{
+  std::vector<Triangle2D> triangles{tri_img};
   // Clip on Left edge
   Vector2d left_edge_normal(1,0);
   Vector2d pt_on_left_edge(0,0);
@@ -227,22 +233,20 @@ Vector4d Camera::tfPointWorldToCube(const Vector4d &pt_world) const{
   return tfPointCameraToCube(pt_cam);
 }
 
-std::vector<std::vector<Vector2d>>
+std::vector<Triangle2D>
 Camera::clip2DEdge(const Vector2d &edge_unit_normal,
                    const Vector2d &pt_on_edge,
-                   const std::vector<std::vector<Vector2d>> &tris) const{
+                   const std::vector<Triangle2D> &tris) const{
 
-  std::vector<std::vector<Vector2d>> clipped_triangles;
+  std::vector<Triangle2D> clipped_triangles;
 
   for(const auto& tri: tris){
-    assert(tri.size()==3); // Triangle has 3 points
-
     // d holds dot products; Will be used for determining which side of the
     // line the point is on.
     double d[3];
-    d[0] = edge_unit_normal.dot(tri[0]-pt_on_edge);
-    d[1] = edge_unit_normal.dot(tri[1]-pt_on_edge);
-    d[2] = edge_unit_normal.dot(tri[2]-pt_on_edge);
+    d[0] = edge_unit_normal.dot(tri.points[0].head<2>()-pt_on_edge);
+    d[1] = edge_unit_normal.dot(tri.points[1].head<2>()-pt_on_edge);
+    d[2] = edge_unit_normal.dot(tri.points[2].head<2>()-pt_on_edge);
 
     // Triangle is completely on the 'out' side. Nothing to keep.
     if(d[0] <= EPS && d[1] <= EPS && d[2] <= EPS) continue;
@@ -253,49 +257,92 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       continue;
     }
 
-    std::vector<Vector2d> in,out;
+    std::vector<Vector3d> in,out;
+
+    // Texture coordinates need clip too. Vector3d because we can't forget
+    // about the w value which will be used for textile perspective.
+    std::vector<Vector3d> in_t, out_t;
 
     for(int i = 0; i < 3; ++i){
       int cur_idx = i;
       int next_idx = (i+1)%3;
 
-      auto cur_pt = tri[cur_idx];
-      auto next_pt = tri[next_idx];
+      auto cur_pt = tri.points[cur_idx];
+      auto next_pt = tri.points[next_idx];
+
+      // Texture coordinates
+      auto cur_tx = tri.points[cur_idx];
+      auto next_tx = tri.points[next_idx];
 
       // Add current point in 'In' or 'Out'?
       if(d[cur_idx] < -EPS) { // 'Out' side
         // Last point is not already there (for edge case when a point is
         // directly on the plane)
         if (out.empty() || (!out.empty() && !cur_pt.isApprox(out.back()))){
-          out.push_back(cur_pt);
+          out.emplace_back(cur_pt);
+          out_t.emplace_back(cur_tx);
         }
       }
-        // 'In' side
+      // 'In' side
       else if(in.empty() || (!in.empty() && !cur_pt.isApprox(in.back()))){
-        in.push_back(cur_pt);
+        in.emplace_back(cur_pt);
+        in_t.emplace_back(cur_tx);
       }
 
       // Is there an intersection point to add?
       if(d[cur_idx] * d[next_idx] < EPS){
         // current point on one side, next point on other side. There is an
         // intersection point.
+        double t;
         auto int_pt = lineLineIntersect2d(
-            cur_pt, next_pt, edge_unit_normal, pt_on_edge);
+            cur_pt.head<2>(), next_pt.head<2>(), edge_unit_normal,
+            pt_on_edge,t);
 
         assert(int_pt!=nullptr);
-        in.push_back(*int_pt);
-        out.push_back(*int_pt);
+        Vector3d intersection_point;
+        intersection_point.head<2>() = *int_pt;
+        intersection_point.z() = 1;
+        in.emplace_back(intersection_point);
+        out.emplace_back(intersection_point);
+
+        // Compute intersection point in textile space
+        auto int_tx = cur_tx + (next_tx-cur_tx)*t;
+        in_t.emplace_back(int_tx);
+        out_t.emplace_back(int_tx);
       }
     }
 
+    assert(in_t.size() == in.size());
+    assert(out_t.size() == out.size());
     assert(in.size() == 3 || in.size() == 4);
     // Add clipped triangles on the 'in' side of the line.
     if(in.size() == 3) {
-      clipped_triangles.push_back({in[0], in[1], in[2]});
+      Triangle2D new_tri;
+      new_tri.points[0] = in[0];
+      new_tri.points[1] = in[1];
+      new_tri.points[2] = in[2];
+      new_tri.t[0] = in_t[0];
+      new_tri.t[1] = in_t[1];
+      new_tri.t[2] = in_t[2];
+      clipped_triangles.push_back(std::move(new_tri));
     }
     else{
-      clipped_triangles.push_back({in[0],in[1],in[2]});
-      clipped_triangles.push_back({in[0],in[2],in[3]});
+      Triangle2D new_tri1, new_tri2;
+      new_tri1.points[0] = in[0];
+      new_tri1.points[1] = in[1];
+      new_tri1.points[2] = in[2];
+      new_tri1.t[0] = in_t[0];
+      new_tri1.t[1] = in_t[1];
+      new_tri1.t[2] = in_t[2];
+
+      new_tri2.points[0] = in[0];
+      new_tri2.points[1] = in[2];
+      new_tri2.points[2] = in[3];
+      new_tri2.t[0] = in_t[0];
+      new_tri2.t[1] = in_t[2];
+      new_tri2.t[2] = in_t[3];
+      clipped_triangles.emplace_back(std::move(new_tri1));
+      clipped_triangles.emplace_back(std::move(new_tri2));
     }
   }
 
