@@ -65,15 +65,15 @@ class CameraApplication: public olc::PixelGameEngine{
       cg::Triangle tri_world{
         pt0_tf.head<3>(), pt1_tf.head<3>(), pt2_tf.head<3>()};
 
-      auto triangles_to_draw_screen = cam->projectTriangleInWorld(tri_world);
+      auto triangles_to_draw = cam->projectTriangleInWorld(tri_world);
       // Should return 2d triangles to draw along with 2d sprite coordinates.
 
-      for(const auto& screen_tri : triangles_to_draw_screen){
+      for(const auto& screen_tri : triangles_to_draw){
         //DrawTexturedTriangle(screen_tri, sprite);
 
-        DrawTriangle(screen_tri[0].x(), screen_tri[0].y(),
-                     screen_tri[1].x(), screen_tri[1].y(),
-                     screen_tri[2].x(), screen_tri[2].y());
+        DrawTriangle(screen_tri.points[0].x(), screen_tri.points[0].y(),
+                     screen_tri.points[1].x(), screen_tri.points[1].y(),
+                     screen_tri.points[2].x(), screen_tri.points[2].y());
       }
     }
 
