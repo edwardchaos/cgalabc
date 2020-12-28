@@ -35,8 +35,8 @@ class CameraApplication: public olc::PixelGameEngine{
 //    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
 //    mesh = *axis;
 
-    //sprite.LoadFromFile("/home/shooshan/Pictures/free.png");
-    sprite.LoadFromFile("/home/shooshan/Pictures/checkerboard.png");
+    sprite.LoadFromFile("/home/shooshan/Pictures/free.png");
+    //sprite.LoadFromFile("/home/shooshan/Pictures/checkerboard.png");
 
     return true;
   }
@@ -162,6 +162,7 @@ class CameraApplication: public olc::PixelGameEngine{
     double t13 = 0;
 
     // Scan horizontal lines from top to bottom of triangle
+    // This is for the top "half" of the triangle
     for(int dy=0; pt1.y()+dy<=pt2.y(); ++dy){
       if(y12 == 0)break; // Top edge of triangle is horizontal. nothing to draw.
       // Get start of horizontal line
@@ -212,12 +213,72 @@ class CameraApplication: public olc::PixelGameEngine{
       t12 += dt12;
       t13 += dt13;
     }
+
+    double y23 = pt3.y()-pt2.y();
+    double x23 = pt3.x()-pt2.x();
+    double u23 = tx3.x()-tx2.x();
+    double v23 = tx3.y()-tx2.y();
+    double w23 = tx3.z()-tx2.z();
+
+    double dt23 = 0;
+    if(y23!=0) dt23 = 1.0/fabs(y23);
+    double t23 = 0;
+    // Similar drawing as above, but for the bottom "Half" of the triangle now.
+    for(int dy=0; pt2.y()+dy<=pt3.y(); ++dy){
+      // Get start of horizontal line
+      int sx = (int)(pt2.x() + x23*t23);
+
+      // Get end of horizontal line
+      int ex = (int)(pt1.x() + x13*t13);
+
+      // Get start of line on texture
+      double s_tx = tx2.x() + t23*u23;
+      double s_ty = tx2.y() + t23*v23;
+      double s_tw = tx2.z() + t23*w23;
+
+      // Get end of line on texture
+      double e_tx = tx1.x() + t13*u13;
+      double e_ty = tx1.y() + t13*v13;
+      double e_tw = tx1.z() + t13*w13;
+
+      // Drawing from left to right, swap start and end if they're reversed.
+      if(ex <= sx){
+        std::swap(sx,ex);
+        // sy and ey are the same since it's a horizontal line
+
+        // Also swap texture start/end
+        std::swap(s_tx,e_tx);
+        std::swap(s_ty, e_ty);
+        std::swap(s_tw, e_tw);
+      }
+
+      // Draw along the horizontal line from start to end
+      double t_horizontal = 0;
+      double dt_horizontal = 0;
+      if(ex-sx != 0) dt_horizontal = 1.0/abs(ex-sx);
+
+      for(int dx=0; sx+dx <= ex; ++dx){
+        // Get texture pixel value
+        double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
+        double spr_y = s_ty + (e_ty-s_ty)*t_horizontal;
+        double spr_w = s_tw + (e_tw-s_tw)*t_horizontal;
+        auto px_color = spr.Sample(spr_x/spr_w,spr_y/spr_w);
+
+        // Draw the pixel value from texture in the screen xy position
+        double screen_x = sx + dx;
+        double screen_y = pt2.y() + dy;
+        Draw(screen_x, screen_y, px_color);
+        t_horizontal += dt_horizontal;
+      }
+      t23 += dt23;
+      t13 += dt13;
+    }
   }
 };
 
 int main(){
   CameraApplication app;
-  if(!app.Construct(1920, 1080, 1, 1)) return 0;
+  if(!app.Construct(640, 480, 10, 10)) return 0;
   app.Start();
   return 0;
 }
