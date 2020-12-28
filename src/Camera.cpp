@@ -124,6 +124,7 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
   if(d[0] >= -EPS && d[1] >= -EPS && d[2] >= -EPS) return{tri_cam};
 
   std::vector<Vector3d> in,out;
+  std::vector<Vector2d> in_t, out_t; // Texture coordinates
 
   for(int i = 0 ; i < 3; ++i){
     int cur_idx = i;
@@ -131,42 +132,54 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
 
     auto cur_pt = tri_cam.points[cur_idx].head<3>();
     auto next_pt = tri_cam.points[next_idx].head<3>();
+    auto cur_tx = tri_cam.t[cur_idx].head<2>();
+    auto next_tx = tri_cam.t[next_idx].head<2>();
 
     // Add current point in 'In' or 'Out'?
     if(d[cur_idx] < -EPS) { // 'Out' side
       // Last point is not already there (for edge case when a point is
       // directly on the plane)
       if (out.empty() || (!out.empty() && !cur_pt.isApprox(out.back()))){
-        out.push_back(cur_pt);
+        out.emplace_back(cur_pt);
+        out_t.emplace_back(cur_tx);
       }
     }
       // 'In' side
     else if(in.empty() || (!in.empty() && !cur_pt.isApprox(in.back()))){
-      in.push_back(cur_pt);
+      in.emplace_back(cur_pt);
+      in_t.emplace_back(cur_tx);
     }
 
     // Is there an intersection point to add?
     if(d[cur_idx] * d[next_idx] < EPS){
       // current point on one side, next point on other side. There is an
       // intersection point.
+      double t;
       auto int_pt = planeLineIntersect(
-          cur_pt, next_pt, near_plane_unit_normal, near_plane_pt);
+          cur_pt, next_pt, near_plane_unit_normal, near_plane_pt, t);
 
       assert(int_pt!=nullptr);
       in.push_back(*int_pt);
       out.push_back(*int_pt);
+
+      // Compute the corresponding intersect point in textile space
+      auto int_tx = cur_tx + (next_tx - cur_tx)*t;
+      in_t.emplace_back(int_tx);
+      out_t.emplace_back(int_tx);
     }
   }
 
+  assert(in_t.size()==in.size());
+  assert(out_t.size()==out.size());
   assert(in.size() == 3 || in.size() == 4);
   // Create triangles with 'In' points
   if(in.size() == 3) {
-    return {Triangle(in[0], in[1], in[2])};
+    return {Triangle(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2])};
   }
   else
     return {
-        Triangle(in[0],in[1],in[2]),
-        Triangle(in[0],in[2],in[3])};
+        Triangle(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2]),
+        Triangle(in[0],in[2],in[3],in_t[0],in_t[2],in_t[3])};
 }
 
 std::vector<std::vector<Vector2d>>
