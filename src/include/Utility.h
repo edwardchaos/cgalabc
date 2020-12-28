@@ -55,10 +55,16 @@ Eigen::Vector4d transformPoint(const Eigen::Vector4d &pt,
  * "in" side of the plane as well as 2 points that define a line, returns the
  * point of intersection between plane and line or nullptr if they do not
  * intersect.
+ *
+ * If the line and plane intersect, t is a value in range [0,1] that
+ * represents the interpolation from pt1 to pt2.
+ * i.e. when t == 0, the intersection point is exactly pt1.
+ * when t == 1, the intersection point is exactly pt2.
+ * when t == 0.5, the intersection point is exactly between pt1 and pt2.
  */
 std::shared_ptr<Vector3d> planeLineIntersect(
     const Vector3d &pt1, const Vector3d &pt2,
-    const Vector3d &plane_unit_normal, const Vector3d &pt_on_plane);
+    const Vector3d &plane_unit_normal, const Vector3d &pt_on_plane, double&t);
 
 /*
  * 2D version of planeLineIntersect.
