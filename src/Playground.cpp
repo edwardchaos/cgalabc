@@ -139,42 +139,36 @@ class CameraApplication: public olc::PixelGameEngine{
       std::swap(tx3,tx2);
     }
 
-    // Scan horizontal lines from top to bottom of triangle
-
-    // Acronyms short for variables in my math equations
-
-    // The absolute differences between points
+    // Some variables used in math
+    // Difference between screen vertices
     double y12 = pt2.y() - pt1.y();
     double x12 = pt2.x() - pt1.x();
     double y13 = pt3.y() - pt1.y();
     double x13 = pt3.x() - pt1.x();
-    double y12_abs = fabs(y12);
-    double y13_abs = fabs(y13);
 
-    // Texture coordinates
+    // Differences between texture vertices
     double u12 = tx2.x() - tx1.x();
     double v12 = tx2.y() - tx1.y();
     double u13 = tx3.x() - tx1.x();
     double v13 = tx3.y() - tx1.y();
-    double w12 = tx2.z() - tx1.z(); // Vector2d z() is index [2] (x,y,w)
+    double w12 = tx2.z() - tx1.z();
     double w13 = tx3.z() - tx1.z();
 
     double dt12 = 0;
     double dt13 = 0;
-    if(y12!=0) dt12=1.0/y12_abs;
-    if(y13!=0) dt13=1.0/y13_abs;
+    if(y12!=0) dt12=1.0/fabs(y12);
+    if(y13!=0) dt13=1.0/fabs(y13);
     double t12 = 0;
     double t13 = 0;
 
+    // Scan horizontal lines from top to bottom of triangle
     for(int dy=0; pt1.y()+dy<=pt2.y(); ++dy){
       if(y12 == 0)break; // Top edge of triangle is horizontal. nothing to draw.
-      // Get start of line
+      // Get start of horizontal line
       int sx = (int)(pt1.x() + x12*t12);
-      int sy = (int)(pt1.y()+dy);
 
-      // Get end of line
+      // Get end of horizontal line
       int ex = (int)(pt1.x() + x13*t13);
-      int ey = sy;
 
       // Get start of line on texture
       double s_tx = tx1.x() + t12*u12;
@@ -204,15 +198,14 @@ class CameraApplication: public olc::PixelGameEngine{
 
       for(int dx=0; sx+dx <= ex; ++dx){
         // Get texture pixel value
-        double screen_x = sx + dx;
-        double screen_y = pt1.y() + dy;
-        //double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
-        double spr_x = s_tx/s_tw + (e_tx/e_tw-s_tx/s_tw)*t_horizontal;
-        double spr_y = s_ty/s_tw + (e_ty/e_tw-s_ty/s_tw)*t_horizontal;
-        double spr_w = 1.0/s_tw + (1.0/e_tw-1.0/s_tw)*t_horizontal;
-        //auto px_color = spr.Sample(spr_x/spr_w,spr_y/spr_w);
+        double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
+        double spr_y = s_ty + (e_ty-s_ty)*t_horizontal;
+        double spr_w = s_tw + (e_tw-s_tw)*t_horizontal;
         auto px_color = spr.Sample(spr_x/spr_w,spr_y/spr_w);
 
+        // Draw the pixel value from texture in the screen xy position
+        double screen_x = sx + dx;
+        double screen_y = pt1.y() + dy;
         Draw(screen_x, screen_y, px_color);
         t_horizontal += dt_horizontal;
       }
@@ -224,7 +217,7 @@ class CameraApplication: public olc::PixelGameEngine{
 
 int main(){
   CameraApplication app;
-  if(!app.Construct(640, 480, 10, 10)) return 0;
+  if(!app.Construct(1920, 1080, 1, 1)) return 0;
   app.Start();
   return 0;
 }
