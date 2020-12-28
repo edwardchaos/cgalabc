@@ -72,6 +72,6 @@ std::shared_ptr<Vector3d> planeLineIntersect(
  */
 std::shared_ptr<Vector2d> lineLineIntersect2d(
     const Vector2d &pt1, const Vector2d &pt2,
-    const Vector2d &line_unit_normal, const Vector2d &pt_on_line);
+    const Vector2d &line_unit_normal, const Vector2d &pt_on_line, double&t);
 
 } // namespace cg
