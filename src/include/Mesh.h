@@ -53,4 +53,18 @@ struct Mesh{
   Pose pose;
 };
 
+struct Triangle2D{
+ public:
+  Vector3d points[3]; // x y w
+  Vector3d t[3]; // x y w
+
+  Triangle2D() = default;
+  Triangle2D(const Vector2d& pt1, const Vector2d &pt2, const Vector2d &pt3);
+  Triangle2D(const Vector2d &pt1, const Vector2d &pt2, const Vector2d &pt3,
+             const Vector2d &t1, const Vector2d &t2, const Vector2d &t3);
+
+ private:
+
+};
+
 } // namespace cg
