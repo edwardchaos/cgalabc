@@ -1,6 +1,7 @@
 #define OLC_PGE_APPLICATION
 
 #include <memory>
+#include <algorithm>
 
 #include <olcPixelGameEngine.h>
 
@@ -69,7 +70,7 @@ class CameraApplication: public olc::PixelGameEngine{
       // Should return 2d triangles to draw along with 2d sprite coordinates.
 
       for(const auto& screen_tri : triangles_to_draw){
-        //DrawTexturedTriangle(screen_tri, sprite);
+        DrawTexturedTriangle(screen_tri, sprite);
 
         DrawTriangle(screen_tri.points[0].x(), screen_tri.points[0].y(),
                      screen_tri.points[1].x(), screen_tri.points[1].y(),
@@ -112,19 +113,40 @@ class CameraApplication: public olc::PixelGameEngine{
     }
   }
 
-//  void DrawTexturedTriangle(triangle, const olc::Sprite &sprite){
-//    // Iterate from top to bottom of triangle
-//
-//    // Iterate across a horizontal line
-//
-//    // Get textile pixel value
-//    auto color = sprite.Sample(0.5,0.5);
-//
-//    // Get screen x,y
-//    int screen_x, screen_y;
-//
-//    Draw(screen_x, screen_y, color);
-//  }
+  void DrawTexturedTriangle(const cg::Triangle2D &tri, const olc::Sprite &spr){
+    // Sort triangle vertices from top to bottom
+    auto pt1 = tri.points[0];
+    auto pt2 = tri.points[1];
+    auto pt3 = tri.points[2];
+
+    auto tx1 = tri.t[0];
+    auto tx2 = tri.t[1];
+    auto tx3 = tri.t[2];
+
+    if(pt2.y() < pt1.y()){
+      std::swap(pt2,pt1);
+      std::swap(tx2,tx1);
+    }
+    if(pt3.y() < pt1.y()){
+      std::swap(pt3,pt1);
+      std::swap(tx3,tx1);
+    }
+    if(pt3.y() < pt2.y()){
+      std::swap(pt3,pt2);
+      std::swap(tx3,tx2);
+    }
+
+    // Scan horizontal lines from top to bottom of triangle
+    // Scan across a horizontal line
+
+    // Get textile pixel value
+    auto color = spr.Sample(0.5,0.5);
+
+    // Get screen x,y
+    int screen_x, screen_y;
+
+    Draw(screen_x, screen_y, color);
+  }
 };
 
 int main(){
