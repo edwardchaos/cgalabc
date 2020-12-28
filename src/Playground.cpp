@@ -27,11 +27,12 @@ class CameraApplication: public olc::PixelGameEngine{
 //    mesh = *teddy;
 //    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
 //    mesh = *teapot;
-    mesh = *cg::cube();
-//    cg::Triangle triangle{
-//      Vector3d(0,-5,-10),Vector3d(-5,0,-20),
-//      Vector3d(0,5,-10)};
-//    mesh.tris.push_back(triangle);
+    //mesh = *cg::cube();
+    cg::Triangle triangle{
+      Vector3d(0,0,-10),Vector3d(-1,0,-10),
+      Vector3d(0,1,-10),
+      Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};
+    mesh.tris.push_back(triangle);
 //    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
 //    mesh = *axis;
     sprite.LoadFromFile("/home/shooshan/Pictures/free.png");
@@ -64,7 +65,8 @@ class CameraApplication: public olc::PixelGameEngine{
       Eigen::Vector4d pt1_tf = cg::transformPoint(tri.points[1], tf);
       Eigen::Vector4d pt2_tf = cg::transformPoint(tri.points[2], tf);
       cg::Triangle tri_world{
-        pt0_tf.head<3>(), pt1_tf.head<3>(), pt2_tf.head<3>()};
+        pt0_tf.head<3>(), pt1_tf.head<3>(), pt2_tf.head<3>(),
+            tri.t[0].head<2>(), tri.t[1].head<2>(), tri.t[2].head<2>()};
 
       auto triangles_to_draw = cam->projectTriangleInWorld(tri_world);
       // Should return 2d triangles to draw along with 2d sprite coordinates.
@@ -145,12 +147,16 @@ class CameraApplication: public olc::PixelGameEngine{
     double x12 = pt2.x() - pt1.x();
     double y13 = pt3.y() - pt1.y();
     double x13 = pt3.x() - pt1.x();
+    double y12_abs = fabs(y12);
+    double y13_abs = fabs(y13);
 
     // Texture coordinates
     double u12 = tx2.x() - tx1.x();
     double v12 = tx2.y() - tx1.y();
     double u13 = tx3.x() - tx1.x();
     double v13 = tx3.y() - tx1.y();
+    double w12 = tx2.z() - tx1.z(); // Vector2d z() is index [2] (x,y,w)
+    double w13 = tx3.z() - tx1.z();
 
     // The incremental deltas for scanning through triangle area
     double dx12 = 0;
@@ -161,18 +167,22 @@ class CameraApplication: public olc::PixelGameEngine{
     double dy13 = 1; //1 pixel down at a time.
 
     double du12 = 0;
-    if(y12!=0) du12 = u12/y12;
+    if(y12!=0) du12 = u12/y12_abs;
     double dv12 = 0;
-    if(y12!=0) dv12 = v12/y12;
+    if(y12!=0) dv12 = v12/y12_abs;
+    double dw12 = 0;
+    if(y12!=0) dw12 = w12/y12_abs;
     double du13 = 0;
-    if(y13!=0) du13 = u13/y13;
+    if(y13!=0) du13 = u13/y13_abs;
     double dv13 = 0;
-    if(y13!=0) dv13 = v13/y13;
+    if(y13!=0) dv13 = v13/y13_abs;
+    double dw13 = 0;
+    if(y13!=0) dw13 = w13/y13_abs;
 
     double dt12 = 0;
     double dt13 = 0;
-    if(y12!=0) dt12=1.0/y12;
-    if(y13!=0) dt13=1.0/y13;
+    if(y12!=0) dt12=1.0/y12_abs;
+    if(y13!=0) dt13=1.0/y13_abs;
     double t12 = 0;
     double t13 = 0;
 
@@ -187,12 +197,14 @@ class CameraApplication: public olc::PixelGameEngine{
       int ey = sy;
 
       // Get start line on texture
-      double s_tx = tx1.x() + t12*du12;
-      double s_ty = tx1.y() + t12*dv12;
+      double s_tx = tx1.x() + t12*u12;
+      double s_ty = tx1.y() + t12*v12;
+      double s_tw = tx1.z() + t12*w12;
 
       // Get end of line on texture
-      double e_tx = tx1.x() + t13*du13;
-      double e_ty = tx1.y() + t13*dv13;
+      double e_tx = tx1.x() + t13*u13;
+      double e_ty = tx1.y() + t13*v13;
+      double e_tw = tx1.z() + t13*w13;
 
       // Drawing from left to right, swap start and end if they're reversed.
       if(ex <= sx){
@@ -201,15 +213,14 @@ class CameraApplication: public olc::PixelGameEngine{
 
         // Also swap texture start/end
         std::swap(s_tx,e_tx);
-        // Texture y values aren't necessarily along a horizontal line. It is
-        // defined by the texture map in the obj file.
         std::swap(s_ty, e_ty);
+        std::swap(s_tw, e_tw);
       }
 
       // Draw along the horizontal line from start to end
       double t_horizontal = 0;
       double dt_horizontal = 0;
-      if(ex-sx != 0) dt_horizontal = 1.0/ex-sx;
+      if(ex-sx != 0) dt_horizontal = 1.0/abs(ex-sx);
 
       for(int dx=0; sx+dx <= ex; ++dx){
         // Get texture pixel value
@@ -217,7 +228,8 @@ class CameraApplication: public olc::PixelGameEngine{
         double screen_y = pt1.y() + dy;
         double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
         double spr_y = s_ty + (e_ty-s_ty)*t_horizontal;
-        //TODO: Need to also interpolate w value
+        double spr_w = s_tw + (e_tw-s_tw)*t_horizontal;
+        //auto px_color = spr.Sample(spr_x/spr_w,spr_y/spr_w);
         auto px_color = spr.Sample(spr_x,spr_y);
 
         Draw(screen_x, screen_y, px_color);

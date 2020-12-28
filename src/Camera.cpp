@@ -64,9 +64,9 @@ Camera::projectTriangleInWorld(const Triangle& tri_world) const{
 
       // Carry the w value with the points for correcting for perspective on the
       // texture as well. We're not making a PS1 game
-      tri_img.points[i] = Vector3d(screen_x, screen_y, 1);
+      tri_img.points[i] = Vector3d(screen_x, screen_y, 1); //<- in cartesian
       tri_img.t[i] = tri_cam.t[i];
-      tri_img.t[i][2] = pt_cube.w();
+      tri_img.t[i][2] = pt_cube.w(); // <- homogenous
     }
 
     // Clip 2D triangle in screen space
@@ -90,8 +90,10 @@ bool Camera::isFacing(const Triangle& tri_world) const{
 
 Triangle Camera::tfTriangleWorldToCam(const Triangle& tri_world) const{
   Triangle tri_cam;
-  for(int i = 0; i < 3; ++i)
+  for(int i = 0; i < 3; ++i) {
     tri_cam.points[i] = tfPointWorldToCam(tri_world.points[i]);
+    tri_cam.t[i] = tri_world.t[i];
+  }
 
   return tri_cam;
 }
