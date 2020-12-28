@@ -27,11 +27,11 @@ class CameraApplication: public olc::PixelGameEngine{
 //    mesh = *teddy;
 //    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
 //    mesh = *teapot;
-    //mesh = *cg::cube();
-    cg::Triangle triangle{
-      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
-      Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};
-  mesh.tris.push_back(triangle);
+      mesh = *cg::cube();
+//    cg::Triangle triangle{
+//      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
+//      Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};
+//    mesh.tris.push_back(triangle);
 //    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
 //    mesh = *axis;
 
@@ -70,14 +70,13 @@ class CameraApplication: public olc::PixelGameEngine{
             tri.t[0].head<2>(), tri.t[1].head<2>(), tri.t[2].head<2>()};
 
       auto triangles_to_draw = cam->projectTriangleInWorld(tri_world);
-      // Should return 2d triangles to draw along with 2d sprite coordinates.
 
       for(const auto& screen_tri : triangles_to_draw){
         DrawTexturedTriangle(screen_tri, sprite);
 
-        DrawTriangle(screen_tri.points[0].x(), screen_tri.points[0].y(),
-                     screen_tri.points[1].x(), screen_tri.points[1].y(),
-                     screen_tri.points[2].x(), screen_tri.points[2].y());
+//        DrawTriangle(screen_tri.points[0].x(), screen_tri.points[0].y(),
+//                     screen_tri.points[1].x(), screen_tri.points[1].y(),
+//                     screen_tri.points[2].x(), screen_tri.points[2].y());
       }
     }
 
@@ -164,7 +163,6 @@ class CameraApplication: public olc::PixelGameEngine{
     // Scan horizontal lines from top to bottom of triangle
     // This is for the top "half" of the triangle
     for(int dy=0; pt1.y()+dy<=pt2.y(); ++dy){
-      if(y12 == 0)break; // Top edge of triangle is horizontal. nothing to draw.
       // Get start of horizontal line
       int sx = (int)(pt1.x() + x12*t12);
 
