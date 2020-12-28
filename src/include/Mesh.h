@@ -13,6 +13,8 @@
 
 using Eigen::Vector4d;
 using Eigen::Vector3d;
+using Eigen::Vector2d;
+
 namespace cg{
 
 struct Mesh;
@@ -27,7 +29,16 @@ struct Triangle{
   Vector3d t[3]; // Texture coordinates
 
   Triangle() = default;
+  /*
+   * Triangle in world without texture
+   */
   Triangle(Vector3d pt1, Vector3d pt2, Vector3d pt3);
+
+  /*
+   * Triangle in world with corresponding 2d points on a texture
+   */
+  Triangle(Vector3d pt1, Vector3d pt2, Vector3d pt3,
+           Vector2d t1, Vector2d t2, Vector2d t3);
 
   /*
    * Returns the unit normal vector of the triangle's surface.
