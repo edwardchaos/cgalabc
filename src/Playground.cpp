@@ -70,7 +70,7 @@ class CameraApplication: public olc::PixelGameEngine{
       // Should return 2d triangles to draw along with 2d sprite coordinates.
 
       for(const auto& screen_tri : triangles_to_draw){
-        DrawTexturedTriangle(screen_tri, sprite);
+        //DrawTexturedTriangle(screen_tri, sprite);
 
         DrawTriangle(screen_tri.points[0].x(), screen_tri.points[0].y(),
                      screen_tri.points[1].x(), screen_tri.points[1].y(),
@@ -137,15 +137,86 @@ class CameraApplication: public olc::PixelGameEngine{
     }
 
     // Scan horizontal lines from top to bottom of triangle
-    // Scan across a horizontal line
 
-    // Get textile pixel value
-    auto color = spr.Sample(0.5,0.5);
+    // Acronyms short for variables in my math equations
+    // The absolute differences between points
+    double y12 = pt2.y() - pt1.y();
+    double x12 = pt2.x() - pt1.x();
+    double y13 = pt3.y() - pt1.y();
+    double x13 = pt3.x() - pt1.x();
+    double u12 = tx2.x() - tx1.x();
+    double v12 = tx2.y() - tx1.y();
+    double u13 = tx3.x() - tx1.x();
+    double v13 = tx3.y() - tx1.y();
 
-    // Get screen x,y
-    int screen_x, screen_y;
+    // The incremental deltas for scanning through triangle area
+    double dx12 = 0;
+    if(y12 != 0) dx12 = x12/y12;
+    double dy12 = 1; //1 pixel down at a time.
+    double dx13 = 0;
+    if(y13 != 0) dx13 = x13/y13;
+    double dy13 = 1; //1 pixel down at a time.
+    double du12 = 0;
+    if(y12!=0) du12 = u12/y12;
+    double dv12 = 0;
+    if(y12!=0) dv12 = v12/y12;
+    double du13 = 0;
+    if(y13!=0) du13 = u13/y13;
+    double dv13 = 0;
+    if(y13!=0) dv13 = v13/y13;
 
-    Draw(screen_x, screen_y, color);
+    double dt12 = 0;
+    double dt13 = 0;
+    if(y12!=0) dt12=1.0/y12;
+    if(y13!=0) dt13=1.0/y13;
+    double t12 = 0;
+    double t13 = 0;
+
+    for(int dy=0; pt1.y()+dy<=pt2.y(); ++dy){
+      if(y12 == 0)break; // Top edge of triangle is horizontal. nothing to draw.
+      // Get start of line
+      int sx = (int)(pt1.x() + x12*t12);
+      int sy = (int)(pt1.y()+dy);
+
+      // Get end of line
+      int ex = (int)(pt1.x() + x13*t12);
+      int ey = sy;
+
+      // Get start line on texture
+      double s_tx = tx1.x() + t12*du12;
+      double s_ty = tx1.y() + t12*dv12;
+
+      // Get end of line on texture
+      double e_tx = tx1.x() + t13*du13;
+      double e_ty = tx1.y() + t13*dv13;
+
+      // Drawing from left to right, swap start and end if they're reversed.
+      if(ex <= sx){
+        std::swap(sx,ex);
+
+        // Also swap texture start/end
+        std::swap(s_tx,e_tx);
+        std::swap(s_ty, e_ty);
+      }
+
+      // Draw along the horizontal line from start to end
+      double t_horizontal = 0;
+      double dt_horizontal = 0;
+      if(ex-sx != 0) dt_horizontal = 1.0/ex-sx;
+
+      for(int dx=0; sx+dx <= ex; ++dx){
+        // Get texture pixel value
+        double screen_x = sx + dx;
+        double screen_y = pt1.y() + dy;
+        double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
+        double spr_y = s_ty + (e_ty-s_ty)*t_horizontal;
+        auto px_color = spr.Sample(spr_x,spr_y);
+
+        Draw(screen_x, screen_y, px_color);
+      }
+      t12 += dt12;
+      t13 += dt13;
+    }
   }
 };
 
