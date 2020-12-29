@@ -1,7 +1,7 @@
 #define OLC_PGE_APPLICATION
 
 #include <memory>
-#include <algorithm>
+#include <iostream>
 
 #include <olcPixelGameEngine.h>
 
@@ -29,14 +29,14 @@ class CameraApplication: public olc::PixelGameEngine{
 //    mesh = *spyro;
 //    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
 //    mesh = *teddy;
-//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
-//    mesh = *teapot;
-      mesh = *cg::cube();
+    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+    mesh = *teapot;
+      //mesh = *cg::cube();
 //    cg::Triangle triangle{
 //      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
 //      Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};
 //    mesh.tris.push_back(triangle);
-//    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj");
+//    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj", true);
 //    mesh = *axis;
 
     sprite.LoadFromFile("/home/shooshan/Pictures/rainbow.png");
@@ -57,10 +57,10 @@ class CameraApplication: public olc::PixelGameEngine{
     auto rotx_mat = cg::rotateX(x_rot);
     auto roty_mat = cg::rotateY(y_rot);
     auto rotz_mat = cg::rotateZ(z_rot);
-    mesh.pose.position = cg::translation(0,0,-10).rightCols<1>();
-    mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
-    //Eigen::Matrix4d tf = mesh.pose.matrix();
-    Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+    mesh.pose.position = cg::translation(0,0,-20).rightCols<1>();
+    //mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
+    Eigen::Matrix4d tf = mesh.pose.matrix();
+    //Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
     // Handle keyboard input
     handleCameraMotion(fElapsedTime);
@@ -208,8 +208,10 @@ class CameraApplication: public olc::PixelGameEngine{
         auto px_color = spr.Sample(spr_x/spr_w,spr_y/spr_w);
 
         // Draw the pixel value from texture in the screen xy position
-        double screen_x = sx + dx;
-        double screen_y = pt1.y() + dy;
+        int screen_x = sx + dx;
+        int screen_y = pt1.y() + dy;
+        assert(screen_x >= sx);
+        assert(screen_x <= ex);
         Draw(screen_x, screen_y, px_color);
         t_horizontal += dt_horizontal;
       }
@@ -227,7 +229,7 @@ class CameraApplication: public olc::PixelGameEngine{
     if(y23!=0) dt23 = 1.0/fabs(y23);
     double t23 = 0;
     // Similar drawing as above, but for the bottom "Half" of the triangle now.
-    for(int dy=0; pt2.y()+dy<=pt3.y(); ++dy){
+    for(int dy=0; pt2.y()+dy<pt3.y()-1; ++dy){
       // Get start of horizontal line
       int sx = (int)(pt2.x() + x23*t23);
 
@@ -268,8 +270,10 @@ class CameraApplication: public olc::PixelGameEngine{
         auto px_color = spr.Sample(spr_x/spr_w,spr_y/spr_w);
 
         // Draw the pixel value from texture in the screen xy position
-        double screen_x = sx + dx;
-        double screen_y = pt2.y() + dy;
+        int screen_x = sx + dx;
+        int screen_y = pt2.y() + dy;
+        assert(screen_x >= sx);
+        assert(screen_x <= ex);
         Draw(screen_x, screen_y, px_color);
         t_horizontal += dt_horizontal;
       }
