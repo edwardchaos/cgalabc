@@ -36,8 +36,8 @@ class CameraApplication: public olc::PixelGameEngine{
 //      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
 //      Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};
 //    mesh.tris.push_back(triangle);
-//    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj", true);
-//    mesh = *axis;
+    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj", false);
+    mesh = *axis;
 
     sprite.LoadFromFile("/home/shooshan/Pictures/rainbow.png");
     //sprite.LoadFromFile("/home/shooshan/Pictures/free.png");
@@ -162,18 +162,22 @@ class CameraApplication: public olc::PixelGameEngine{
     double dt13 = 0;
     if((int)fabs(y12)!=0) dt12=1.0/fabs(y12);
     if((int)fabs(y13)!=0) dt13=1.0/fabs(y13);
+    assert(dt12>=0 && dt12<=1.0);
+    assert(dt13>=0 && dt13<=1.0);
     double t12 = 0;
     double t13 = 0;
 
     // Scan horizontal lines from top to bottom of triangle
     // This is for the top "half" of the triangle
-    for(int dy=0; pt1.y()+dy<=pt2.y(); ++dy){
+    for(int dy=0;
+    pt1.y()+dy<=pt2.y() && t12<=1.0+cg::EPS && t13<=1.0+cg::EPS;
+    ++dy){
       // Get start of horizontal line
       int sx = (int)(pt1.x() + x12*t12);
 
       // Get end of horizontal line
       int ex = (int)(pt1.x() + x13*t13);
-      if(y12==0) ex = pt2.x();
+      //if(y12==0) ex = pt2.x();
 
       // Get start of line on texture
       double s_tx = tx1.x() + t12*u12;
@@ -231,10 +235,15 @@ class CameraApplication: public olc::PixelGameEngine{
     double w23 = tx3.z()-tx2.z();
 
     double dt23 = 0;
-    if(y23!=0) dt23 = 1.0/fabs(y23);
+    if((int)y23!=0) dt23 = 1.0/fabs(y23);
+    assert(dt23>=0 && dt23<=1.0);
     double t23 = 0;
     // Similar drawing as above, but for the bottom "Half" of the triangle now.
-    for(int dy=0; pt2.y()+dy<=pt3.y(); ++dy){
+    for(int dy=0;
+    pt2.y()+dy<=pt3.y() && t13<=1.0+cg::EPS&& t23<=1.0+cg::EPS;
+    ++dy){
+      assert(t23 >= 0.0 && t23 <= 1.0+cg::EPS);
+      assert(t13 >= 0.0 && t13 <= 1.0+cg::EPS);
       // Get start of horizontal line
       int sx = (int)(pt2.x() + x23*t23);
 
