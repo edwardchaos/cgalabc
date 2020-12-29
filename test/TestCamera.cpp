@@ -261,9 +261,9 @@ TEST(Camera, clipping_2d){
                  screen_width,
                  screen_height);
 
-  std::vector<Vector2d> tri1{Vector2d(-10,200),
-                             Vector2d(300,-10),
-                             Vector2d(650,200)};
+  cg::Triangle2D tri1(Vector2d(-10,200),
+                      Vector2d(300,-10),
+                      Vector2d(650,200));
 
   auto tri1_clipped = cam.clipScreen2D(tri1);
   ASSERT_EQ(tri1_clipped.size(),5);
@@ -271,24 +271,24 @@ TEST(Camera, clipping_2d){
 
   for(const auto & tri: tri1_clipped){
     // Check that each triangle is within the screen boundary
-    for(int i = 0; i < 3; ++i){
-      ASSERT_TRUE(tri[i].x()>=0 && tri[i].x()<=screen_width);
-      ASSERT_TRUE(tri[i].y()>=0 && tri[i].y()<=screen_height);
+    for(const auto &tri_pt : tri.points){
+      ASSERT_TRUE(tri_pt.x()>=0 && tri_pt.x()<=screen_width);
+      ASSERT_TRUE(tri_pt.y()>=0 && tri_pt.y()<=screen_height);
     }
   }
 
   // Triangle is completely within the screen. No clipping necessary.
-  std::vector<Vector2d> tri2{Vector2d(10,200),
-                             Vector2d(300,10),
-                             Vector2d(500,200)};
+  cg::Triangle2D tri2(Vector2d(10,200),
+                      Vector2d(300,10),
+                      Vector2d(500,200));
 
   auto tri2_clipped = cam.clipScreen2D(tri2);
   ASSERT_EQ(tri2_clipped.size(), 1);
 
   // Triangle completely out of screen.
-  std::vector<Vector2d> tri3{Vector2d(-10,200),
-                             Vector2d(-300,10),
-                             Vector2d(-500,200)};
+  cg::Triangle2D tri3(Vector2d(-10,200),
+                      Vector2d(-300,10),
+                      Vector2d(-500,200));
 
   auto tri3_clipped = cam.clipScreen2D(tri3);
   ASSERT_EQ(tri3_clipped.size(), 0);
