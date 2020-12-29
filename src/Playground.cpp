@@ -160,8 +160,8 @@ class CameraApplication: public olc::PixelGameEngine{
 
     double dt12 = 0;
     double dt13 = 0;
-    if(y12!=0) dt12=1.0/fabs(y12);
-    if(y13!=0) dt13=1.0/fabs(y13);
+    if((int)fabs(y12)!=0) dt12=1.0/fabs(y12);
+    if((int)fabs(y13)!=0) dt13=1.0/fabs(y13);
     double t12 = 0;
     double t13 = 0;
 
@@ -173,6 +173,7 @@ class CameraApplication: public olc::PixelGameEngine{
 
       // Get end of horizontal line
       int ex = (int)(pt1.x() + x13*t13);
+      if(y12==0) ex = pt2.x();
 
       // Get start of line on texture
       double s_tx = tx1.x() + t12*u12;
@@ -205,7 +206,11 @@ class CameraApplication: public olc::PixelGameEngine{
         double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
         double spr_y = s_ty + (e_ty-s_ty)*t_horizontal;
         double spr_w = s_tw + (e_tw-s_tw)*t_horizontal;
-        auto px_color = spr.Sample(spr_x/spr_w,spr_y/spr_w);
+        double real_sprx = std::min(std::max(spr_x/spr_w,0.0),1.0);
+        double real_spry = std::min(std::max(spr_y/spr_w,0.0),1.0);
+        assert(real_sprx >= 0.0 && real_sprx <= 1.0);
+        assert(real_spry >= 0.0 && real_spry <= 1.0);
+        auto px_color = spr.Sample(real_sprx,real_spry);
 
         // Draw the pixel value from texture in the screen xy position
         int screen_x = sx + dx;
@@ -229,7 +234,7 @@ class CameraApplication: public olc::PixelGameEngine{
     if(y23!=0) dt23 = 1.0/fabs(y23);
     double t23 = 0;
     // Similar drawing as above, but for the bottom "Half" of the triangle now.
-    for(int dy=0; pt2.y()+dy<pt3.y()-1; ++dy){
+    for(int dy=0; pt2.y()+dy<=pt3.y(); ++dy){
       // Get start of horizontal line
       int sx = (int)(pt2.x() + x23*t23);
 
@@ -267,7 +272,11 @@ class CameraApplication: public olc::PixelGameEngine{
         double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
         double spr_y = s_ty + (e_ty-s_ty)*t_horizontal;
         double spr_w = s_tw + (e_tw-s_tw)*t_horizontal;
-        auto px_color = spr.Sample(spr_x/spr_w,spr_y/spr_w);
+        double real_sprx = std::min(std::max(spr_x/spr_w,0.0),1.0);
+        double real_spry = std::min(std::max(spr_y/spr_w,0.0),1.0);
+        assert(real_sprx >= 0.0 && real_sprx <= 1.0);
+        assert(real_spry >= 0.0 && real_spry <= 1.0);
+        auto px_color = spr.Sample(real_sprx,real_spry);
 
         // Draw the pixel value from texture in the screen xy position
         int screen_x = sx + dx;
