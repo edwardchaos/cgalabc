@@ -173,7 +173,7 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
       in.push_back(*int_pt);
       out.push_back(*int_pt);
 
-      // Compute the corresponding intersect point in textile space
+      // Compute the corresponding intersect point in texel space
       auto int_tx = cur_tx + (next_tx - cur_tx)*t;
       in_t.emplace_back(int_tx);
       out_t.emplace_back(int_tx);
