@@ -232,6 +232,9 @@ TEST(Camera, clipping_3d){
   cg::Triangle f(Vector3d(93,-28,-8), Vector3d(3,1,-0.87), Vector3d(0.32,328,2));
   cg::Triangle g(Vector3d(23,81,-1), Vector3d(8,34,-1), Vector3d(1,1,-99));
   cg::Triangle h(Vector3d(8,4,-1), Vector3d(10,10,-1), Vector3d(9,44,9));
+  cg::Triangle i(Vector3d(0,100,-1.0000000001),
+                 Vector3d(0,-100,-0.99999999999),
+                 Vector3d(2,1,1));
 
   auto a_clip = cam.clipNear(a);
   auto b_clip = cam.clipNear(b);
@@ -241,6 +244,7 @@ TEST(Camera, clipping_3d){
   auto f_clip = cam.clipNear(f);
   auto g_clip = cam.clipNear(g);
   auto h_clip = cam.clipNear(h);
+  auto i_clip = cam.clipNear(i);
 
   // Lazy tests don't check triangle vertex values
   ASSERT_TRUE(a_clip.size() == 1);
@@ -251,6 +255,7 @@ TEST(Camera, clipping_3d){
   ASSERT_TRUE(f_clip.size()==1);
   ASSERT_TRUE(g_clip.size()==1);
   ASSERT_TRUE(h_clip.empty());
+  ASSERT_TRUE(i_clip.size()==1);
 }
 
 TEST(Camera, clipping_2d){

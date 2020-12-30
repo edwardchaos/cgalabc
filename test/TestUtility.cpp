@@ -117,6 +117,31 @@ TEST(Utility, plane_line_intersect){
   Vector3d pt6(1,10,0);
   auto int_pt8 = cg::planeLineIntersect(pt6,pt1,plane_normal,pt_on_plane,t);
   ASSERT_EQ(int_pt8, nullptr);
+
+  Vector3d pt7(0.00000001,-15,0);
+  Vector3d pt8(-0.00000001, 15, 0);
+  auto int_78 = cg::planeLineIntersect(pt7,pt8,plane_normal,pt_on_plane,t);
+  ASSERT_NE(int_78, nullptr);
+  ASSERT_TRUE(int_78->isApprox(pt_on_plane));
+  ASSERT_DOUBLE_EQ(t,0.5);
+
+  // Line that is effectively parallel with the plane
+  Vector3d pt9(0.00000000001,-15,0);
+  Vector3d pt10(-0.0000000001, 15, 0);
+  auto int_910 = cg::planeLineIntersect(pt9,pt10,plane_normal,pt_on_plane,t);
+  ASSERT_EQ(int_910, nullptr);
+
+  Vector3d pt_on_plane2(0,0,-0.01);
+  Vector3d plane_normal2(-1,0,0);
+  // Create test case from seg fault bug
+  Vector3d pt11(-0.041560198948820293,3.0811500000000001,-0.0099063945511068813);
+  Vector3d pt12(-0.041377821209217291,3.0348000000000002,-0.0099794107143673788);
+  auto int_1112 = cg::planeLineIntersect(
+      pt11,pt12,plane_normal2,pt_on_plane2,t);
+
+  // Technically, they're both behind the near plane.
+  ASSERT_EQ(int_1112, nullptr);
+
 }
 
 TEST(Utility, line_line_intersect){

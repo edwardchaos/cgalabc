@@ -118,21 +118,15 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
   // Point on the near plane in camera coordinates
   Vector3d near_plane_pt(0,0,-near_plane_dist_);
 
-  // d holds dot products; Will be used for determining which side of the
-  // plane the point is on.
-  double d[3];
-  d[0] = near_plane_unit_normal.dot(
-      tri_cam.points[0].head<3>()-near_plane_pt);
-  d[1] = near_plane_unit_normal.dot(
-      tri_cam.points[1].head<3>()-near_plane_pt);
-  d[2] = near_plane_unit_normal.dot(
-      tri_cam.points[2].head<3>()-near_plane_pt);
-
   // Triangle is completely on the 'out' side of near plane. Nothing to keep.
-  if(d[0] <= EPS && d[1] <= EPS && d[2] <= EPS) return{};
+  if(tri_cam.points[0].z() >= -near_plane_dist_
+  && tri_cam.points[1].z() >= -near_plane_dist_
+  && tri_cam.points[2].z() >= -near_plane_dist_)return {};
 
   // Triangle is completely on the 'in' side of the near plane.
-  if(d[0] >= -EPS && d[1] >= -EPS && d[2] >= -EPS) return{tri_cam};
+  if(tri_cam.points[0].z() <= -near_plane_dist_
+  && tri_cam.points[1].z() <= -near_plane_dist_
+  && tri_cam.points[2].z() <= -near_plane_dist_)return {tri_cam};
 
   std::vector<Vector3d> in,out;
   std::vector<Vector2d> in_t, out_t; // Texture coordinates
@@ -147,7 +141,7 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
     auto next_tx = tri_cam.t[next_idx].head<2>();
 
     // Add current point in 'In' or 'Out'?
-    if(d[cur_idx] < -EPS) { // 'Out' side
+    if(cur_pt.z() > -near_plane_dist_){
       // Last point is not already there (for edge case when a point is
       // directly on the plane)
       if (out.empty() || (!out.empty() && !cur_pt.isApprox(out.back()))){
@@ -161,15 +155,12 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
       in_t.emplace_back(cur_tx);
     }
 
+    double t;
+    auto int_pt = planeLineIntersect(
+        cur_pt, next_pt, near_plane_unit_normal, near_plane_pt, t);
     // Is there an intersection point to add?
-    if(d[cur_idx] * d[next_idx] < EPS){
-      // current point on one side, next point on other side. There is an
-      // intersection point.
-      double t;
-      auto int_pt = planeLineIntersect(
-          cur_pt, next_pt, near_plane_unit_normal, near_plane_pt, t);
-
-      assert(int_pt!=nullptr);
+    if(int_pt!=nullptr){
+      // There is an intersection point
       in.push_back(*int_pt);
       out.push_back(*int_pt);
 
@@ -246,12 +237,25 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
   std::vector<Triangle2D> clipped_triangles;
 
   for(const auto& tri: tris){
+    Vector2d pt_to_line1 = tri.points[0].head<2>()-pt_on_edge;
+    Vector2d pt_to_line2 = tri.points[1].head<2>()-pt_on_edge;
+    Vector2d pt_to_line3 = tri.points[2].head<2>()-pt_on_edge;
+
     // d holds dot products; Will be used for determining which side of the
     // line the point is on.
     double d[3];
-    d[0] = edge_unit_normal.dot(tri.points[0].head<2>()-pt_on_edge);
-    d[1] = edge_unit_normal.dot(tri.points[1].head<2>()-pt_on_edge);
-    d[2] = edge_unit_normal.dot(tri.points[2].head<2>()-pt_on_edge);
+    if(pt_to_line1.norm() > cg::EPS){
+      pt_to_line1.normalize();
+      d[0] = edge_unit_normal.dot(pt_to_line1);
+    }else d[0] = 0;
+    if(pt_to_line2.norm() > cg::EPS){
+      pt_to_line2.normalize();
+      d[1] = edge_unit_normal.dot(pt_to_line2);
+    }else d[1] = 0;
+    if(pt_to_line3.norm() > cg::EPS){
+      pt_to_line3.normalize();
+      d[2] = edge_unit_normal.dot(pt_to_line3);
+    }else d[2] = 0;
 
     // Triangle is completely on the 'out' side. Nothing to keep.
     if(d[0] <= EPS && d[1] <= EPS && d[2] <= EPS) continue;
