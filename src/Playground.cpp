@@ -212,7 +212,7 @@ class CameraApplication: public olc::PixelGameEngine{
 
 int main(){
   CameraApplication app;
-  if(!app.Construct(1920, 1080, 1, 1)) return 0;
+  if(!app.Construct(640, 480, 10, 10)) return 0;
   app.Start();
   return 0;
 }
