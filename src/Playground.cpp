@@ -34,13 +34,23 @@ class CameraApplication: public olc::PixelGameEngine{
 //    mesh = *spyro;
 //    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
 //    mesh = *teddy;
-    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
-    mesh = *teapot;
+//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+//    mesh = *teapot;
       //mesh = *cg::cube();
 //    cg::Triangle triangle{
 //      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
 //      Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};
 //    mesh.tris.push_back(triangle);
+
+// 2 Thin triangles
+cg::Triangle thin_bottom{
+  Vector3d(0,0,-10),Vector3d(-10,0,-10),Vector3d(-10,0.5,-10)
+};
+mesh.tris.push_back(thin_bottom);
+//    cg::Triangle thin_top{
+//        Vector3d(0,0,-10),Vector3d(-10,0.5,-10),Vector3d(0,0.5,-10)
+//    };
+//    mesh.tris.push_back(thin_top);
 //    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj", false);
 //    mesh = *axis;
 
@@ -87,7 +97,7 @@ class CameraApplication: public olc::PixelGameEngine{
       for(const auto& screen_tri : triangles_to_draw){
         DrawTexturedTriangle(screen_tri, sprite);
 
-//        DrawTriangle(screen_tri.points[0].x(), screen_tri.points[0].y(),
+//        FillTriangle(screen_tri.points[0].x(), screen_tri.points[0].y(),
 //                     screen_tri.points[1].x(), screen_tri.points[1].y(),
 //                     screen_tri.points[2].x(), screen_tri.points[2].y());
       }
@@ -148,15 +158,19 @@ class CameraApplication: public olc::PixelGameEngine{
       std::swap(pt3,pt2);
       std::swap(tx3,tx2);}
 
+//    DrawCircle(pt1.x(),pt1.y(),2,olc::DARK_BLUE);
+//    DrawCircle(pt2.x(),pt2.y(),2,olc::DARK_GREEN);
+//    DrawCircle(pt3.x(),pt3.y(),2,olc::DARK_RED);
+
     double y12 = pt2.y() - pt1.y();
     double x12 = pt2.x() - pt1.x();
     double y13 = pt3.y() - pt1.y();
     double x13 = pt3.x() - pt1.x();
     double dx12 = 0;
-    if(pt2.y()-pt1.y()>-cg::EPS)
+    if(fabs(pt2.y()-pt1.y())>cg::EPS)
       dx12=x12/y12;
     double dx13 = 0;
-    if(pt3.y()-pt1.y()>-cg::EPS)
+    if(fabs(pt3.y()-pt1.y())>cg::EPS)
       dx13=x13/y13;
 
     // _d as reminder that it's double
@@ -165,42 +179,43 @@ class CameraApplication: public olc::PixelGameEngine{
 
     // Scan horizontal lines from top to bottom of triangle
     // This is for the top "half" of the triangle
-    for(int dy=0; pt1.y()+dy<pt2.y(); ++dy){
+    for(int dy=0; pt1.y()+dy<=pt2.y()+cg::EPS; ++dy){
       // Select actual pixel indices using the double type values
-      int sx = std::floor(sx_d);
-      int ex = std::floor(ex_d);
+      int sx = std::round(sx_d);
+      int ex = std::round(ex_d);
       if(ex < sx){std::swap(sx,ex);}
 
       for(int dx=0; sx+dx <= ex; ++dx){
         // Draw the pixel value from texture in the screen xy position
         int screen_x = sx + dx;
-        int screen_y = (int)pt1.y() + dy;
+        int screen_y = std::round(pt1.y()) + dy;
         Draw(screen_x, screen_y, olc::WHITE);
       }
       // Increment start and end x values
       sx_d += dx12;
-      ex_d += dx13;
+
+      if(pt1.y()+dy+1 > pt2.y()) ex_d += dx13*(pt2.y()-(pt1.y()+dy));
+      else ex_d += dx13;
     }
 
     double y23 = pt3.y()-pt2.y();
     double x23 = pt3.x()-pt2.x();
     double dx23 = 0;
-    if(pt3.y()-pt2.y()>-cg::EPS)
+    if(fabs(pt3.y()-pt2.y())>cg::EPS)
       dx23=x23/y23;
 
-    ex_d -= dx13;
     sx_d = pt2.x();
 
-    for(int dy=0; pt2.y()+dy<pt3.y(); ++dy){
+    for(int dy=0; pt2.y()+dy<=pt3.y()+cg::EPS; ++dy){
       // Select actual pixel indices using the double type values
-      int sx = std::floor(sx_d);
-      int ex = std::floor(ex_d);
+      int sx = std::round(sx_d);
+      int ex = std::round(ex_d);
       if(ex < sx){std::swap(sx,ex);}
 
       for(int dx=0; sx+dx <= ex; ++dx){
         // Draw the pixel value from texture in the screen xy position
         int screen_x = sx + dx;
-        int screen_y = (int)pt2.y() + dy;
+        int screen_y = std::round(pt2.y()) + dy;
         Draw(screen_x, screen_y, olc::WHITE);
       }
       // Increment start and end x values
