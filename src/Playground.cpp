@@ -1,5 +1,6 @@
 #define OLC_PGE_APPLICATION
 
+#include <cmath>
 #include <memory>
 #include <iostream>
 
@@ -66,8 +67,8 @@ class CameraApplication: public olc::PixelGameEngine{
     auto rotz_mat = cg::rotateZ(z_rot);
     mesh.pose.position = cg::translation(0,0,-20).rightCols<1>();
     //mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
-    //Eigen::Matrix4d tf = mesh.pose.matrix();
-    Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+    Eigen::Matrix4d tf = mesh.pose.matrix();
+    //Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
     // Handle keyboard input
     handleCameraMotion(fElapsedTime);
@@ -133,180 +134,85 @@ class CameraApplication: public olc::PixelGameEngine{
     auto pt1 = tri.points[0];
     auto pt2 = tri.points[1];
     auto pt3 = tri.points[2];
-
     auto tx1 = tri.t[0];
     auto tx2 = tri.t[1];
     auto tx3 = tri.t[2];
 
     if(pt2.y() < pt1.y()){
       std::swap(pt2,pt1);
-      std::swap(tx2,tx1);
-    }
+      std::swap(tx2,tx1);}
     if(pt3.y() < pt1.y()){
       std::swap(pt3,pt1);
-      std::swap(tx3,tx1);
-    }
+      std::swap(tx3,tx1);}
     if(pt3.y() < pt2.y()){
       std::swap(pt3,pt2);
-      std::swap(tx3,tx2);
-    }
+      std::swap(tx3,tx2);}
 
-    // Some variables used in math
-    // Difference between screen vertices theoretically these are integer values
     double y12 = pt2.y() - pt1.y();
     double x12 = pt2.x() - pt1.x();
     double y13 = pt3.y() - pt1.y();
     double x13 = pt3.x() - pt1.x();
+    double dx12 = 0;
+    if(pt2.y()-pt1.y()>-cg::EPS)
+      dx12=x12/y12;
+    double dx13 = 0;
+    if(pt3.y()-pt1.y()>-cg::EPS)
+      dx13=x13/y13;
 
-    // Differences between texture vertices theoretically double values.
-    double u12 = tx2.x() - tx1.x();
-    double v12 = tx2.y() - tx1.y();
-    double u13 = tx3.x() - tx1.x();
-    double v13 = tx3.y() - tx1.y();
-    double w12 = tx2.z() - tx1.z();
-    double w13 = tx3.z() - tx1.z();
-
-    double dt12 = 0;
-    double dt13 = 0;
-    if((int)fabs(y12)!=0) dt12=1.0/fabs(y12);
-    if((int)fabs(y13)!=0) dt13=1.0/fabs(y13);
-    assert(dt12>=0 && dt12<=1.0);
-    assert(dt13>=0 && dt13<=1.0);
-    double t12 = 0;
-    double t13 = 0;
+    // _d as reminder that it's double
+    double sx_d = pt1.x();
+    double ex_d = pt1.x();
 
     // Scan horizontal lines from top to bottom of triangle
     // This is for the top "half" of the triangle
-    for(double dy=0.0;
-    pt1.y()+dy<=pt2.y()+cg::EPS && t12<=1.0+cg::EPS && t13<=1.0+cg::EPS;
-    dy+=1.0){
-      // Get start and end of horizontal line
-      double sx = pt1.x() + x12*t12;
-      double ex = pt1.x() + x13*t13;
+    for(int dy=0; pt1.y()+dy<pt2.y(); ++dy){
+      // Select actual pixel indices using the double type values
+      int sx = std::floor(sx_d);
+      int ex = std::floor(ex_d);
+      if(ex < sx){std::swap(sx,ex);}
 
-      // Get start of line on texture
-      double s_tx = tx1.x() + t12*u12;
-      double s_ty = tx1.y() + t12*v12;
-      double s_tw = tx1.z() + t12*w12;
-
-      // Get end of line on texture
-      double e_tx = tx1.x() + t13*u13;
-      double e_ty = tx1.y() + t13*v13;
-      double e_tw = tx1.z() + t13*w13;
-
-      // Drawing from left to right, swap start and end if they're reversed.
-      if(ex < sx){
-        std::swap(sx,ex);
-        // sy and ey are the same since it's a horizontal line
-
-        // Also swap texture start/end
-        std::swap(s_tx,e_tx);
-        std::swap(s_ty, e_ty);
-        std::swap(s_tw, e_tw);
-      }
-
-      // Draw along the horizontal line from start to end
-      double t_horizontal = 0;
-      double dt_horizontal = 0;
-      if(fabs(ex-sx) > 0.0) dt_horizontal = 1.0/abs(ex-sx);
-
-      for(double dx=0.0; sx+dx <= ex+cg::EPS; dx+=1.0){
-        // Get texture pixel value
-        double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
-        double spr_y = s_ty + (e_ty-s_ty)*t_horizontal;
-        double spr_w = s_tw + (e_tw-s_tw)*t_horizontal;
-        double real_sprx = std::min(std::max(spr_x/spr_w,0.0),1.0);
-        double real_spry = std::min(std::max(spr_y/spr_w,0.0),1.0);
-        assert(real_sprx >= 0.0 && real_sprx <= 1.0);
-        assert(real_spry >= 0.0 && real_spry <= 1.0);
-        auto px_color = spr.Sample(real_sprx,real_spry);
-
+      for(int dx=0; sx+dx <= ex; ++dx){
         // Draw the pixel value from texture in the screen xy position
-        int screen_x = (int)std::round(sx + dx);
-        int screen_y = (int)std::round(pt1.y() + dy);
-        int db_h = depth_buffer.size();
-        int db_w = depth_buffer[0].size();
-        if(spr_w > depth_buffer[screen_y][screen_x]){
-          Draw(screen_x, screen_y, px_color);
-          depth_buffer[screen_y][screen_x] = spr_w;
-        }
-        t_horizontal += dt_horizontal;
+        int screen_x = sx + dx;
+        int screen_y = (int)pt1.y() + dy;
+        Draw(screen_x, screen_y, olc::WHITE);
       }
-      t12 += dt12;
-      t13 += dt13;
+      // Increment start and end x values
+      sx_d += dx12;
+      ex_d += dx13;
     }
 
     double y23 = pt3.y()-pt2.y();
     double x23 = pt3.x()-pt2.x();
-    double u23 = tx3.x()-tx2.x();
-    double v23 = tx3.y()-tx2.y();
-    double w23 = tx3.z()-tx2.z();
+    double dx23 = 0;
+    if(pt3.y()-pt2.y()>-cg::EPS)
+      dx23=x23/y23;
 
-    double dt23 = 0;
-    if((int)fabs(y23)!=0) dt23 = 1.0/fabs(y23);
-    assert(dt23>=0 && dt23<=1.0);
-    double t23 = 0;
-    // Similar drawing as above, but for the bottom "Half" of the triangle now.
-    for(double dy=0.0;
-    pt2.y()+dy<=pt3.y()+cg::EPS && t13<=1.0+cg::EPS && t23<=1.0+cg::EPS;
-    dy+=1.0){
-      // Get start and end of horizontal line
-      double sx = pt2.x() + x23*t23;
-      double ex = pt1.x() + x13*t13;
+    ex_d -= dx13;
+    sx_d = pt2.x();
 
-      // Get start of line on texture
-      double s_tx = tx2.x() + t23*u23;
-      double s_ty = tx2.y() + t23*v23;
-      double s_tw = tx2.z() + t23*w23;
+    for(int dy=0; pt2.y()+dy<pt3.y(); ++dy){
+      // Select actual pixel indices using the double type values
+      int sx = std::floor(sx_d);
+      int ex = std::floor(ex_d);
+      if(ex < sx){std::swap(sx,ex);}
 
-      // Get end of line on texture
-      double e_tx = tx1.x() + t13*u13;
-      double e_ty = tx1.y() + t13*v13;
-      double e_tw = tx1.z() + t13*w13;
-
-      // Drawing from left to right, swap start and end if they're reversed.
-      if(ex < sx){
-        std::swap(sx,ex);
-        // sy and ey are the same since it's a horizontal line
-
-        // Also swap texture start/end
-        std::swap(s_tx,e_tx);
-        std::swap(s_ty, e_ty);
-        std::swap(s_tw, e_tw);
-      }
-
-      // Draw along the horizontal line from start to end
-      double t_horizontal = 0;
-      double dt_horizontal = 0;
-      if(fabs(ex-sx) > cg::EPS) dt_horizontal = 1.0/fabs(ex-sx);
-
-      for(double dx=0.0; sx+dx<=ex+cg::EPS; dx+=1.0){
-        // Get texture pixel value
-        double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
-        double spr_y = s_ty + (e_ty-s_ty)*t_horizontal;
-        double spr_w = s_tw + (e_tw-s_tw)*t_horizontal;
-        double real_sprx = std::min(std::max(spr_x/spr_w,0.0),1.0);
-        double real_spry = std::min(std::max(spr_y/spr_w,0.0),1.0);
-        auto px_color = spr.Sample(real_sprx,real_spry);
-
+      for(int dx=0; sx+dx <= ex; ++dx){
         // Draw the pixel value from texture in the screen xy position
-        int screen_x = (int)std::round(sx + dx);
-        int screen_y = (int)std::round(pt2.y() + dy);
-        if(spr_w > depth_buffer[screen_y][screen_x]){
-          Draw(screen_x, screen_y, px_color);
-          depth_buffer[screen_y][screen_x] = spr_w;
-        }
-        t_horizontal += dt_horizontal;
+        int screen_x = sx + dx;
+        int screen_y = (int)pt2.y() + dy;
+        Draw(screen_x, screen_y, olc::WHITE);
       }
-      t23 += dt23;
-      t13 += dt13;
+      // Increment start and end x values
+      sx_d += dx23;
+      ex_d += dx13;
     }
   }
 };
 
 int main(){
   CameraApplication app;
-  if(!app.Construct(640, 480, 10, 10)) return 0;
+  if(!app.Construct(1920, 1080, 1, 1)) return 0;
   app.Start();
   return 0;
 }
