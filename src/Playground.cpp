@@ -25,19 +25,19 @@ class CameraApplication: public olc::PixelGameEngine{
 //        "/home/shooshan/Documents/objs/Santa_Claus_v1_L2"
 //        ".123cb4fe07b2-55dd-461b-9f27-42ccf1b3f3f5/santaclaus.obj", false);
 //    mesh = *saint;
-//    auto spyro= cg::loadOBJ("/home/shooshan/Pictures/spyro.obj", false);
-//    mesh = *spyro;
+    auto spyro= cg::loadOBJ("/home/shooshan/Pictures/spyro.obj", false);
+    mesh = *spyro;
 //    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
 //    mesh = *teddy;
-    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
-    mesh = *teapot;
+//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+//    mesh = *teapot;
       //mesh = *cg::cube();
 //    cg::Triangle triangle{
 //      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
 //      Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};
 //    mesh.tris.push_back(triangle);
-    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj", false);
-    mesh = *axis;
+//    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj", false);
+//    mesh = *axis;
 
     sprite.LoadFromFile("/home/shooshan/Pictures/rainbow.png");
     //sprite.LoadFromFile("/home/shooshan/Pictures/free.png");
@@ -59,8 +59,8 @@ class CameraApplication: public olc::PixelGameEngine{
     auto rotz_mat = cg::rotateZ(z_rot);
     mesh.pose.position = cg::translation(0,0,-20).rightCols<1>();
     //mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
-    Eigen::Matrix4d tf = mesh.pose.matrix();
-    //Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+    //Eigen::Matrix4d tf = mesh.pose.matrix();
+    Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
     // Handle keyboard input
     handleCameraMotion(fElapsedTime);
@@ -96,19 +96,19 @@ class CameraApplication: public olc::PixelGameEngine{
   void handleCameraMotion(double fElapsedTime){
     if(GetKey(olc::Key::E).bHeld){
       DrawString(50,50, "Forward");
-      cam->moveForward(0.001/fElapsedTime);
+      cam->moveForward(0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::S).bHeld){
       DrawString(50,50, "Strafe Left");
-      cam->strafeRight(-0.001/fElapsedTime);
+      cam->strafeRight(-0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::D).bHeld){
       DrawString(50,50, "Back");
-      cam->moveForward(-0.001/fElapsedTime);
+      cam->moveForward(-0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::F).bHeld){
       DrawString(50,50, "Strafe Right");
-      cam->strafeRight(0.001/fElapsedTime);
+      cam->strafeRight(0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::J).bHeld){
       DrawString(50,50, "Yaw Left");
@@ -144,13 +144,13 @@ class CameraApplication: public olc::PixelGameEngine{
     }
 
     // Some variables used in math
-    // Difference between screen vertices
+    // Difference between screen vertices theoretically these are integer values
     double y12 = pt2.y() - pt1.y();
     double x12 = pt2.x() - pt1.x();
     double y13 = pt3.y() - pt1.y();
     double x13 = pt3.x() - pt1.x();
 
-    // Differences between texture vertices
+    // Differences between texture vertices theoretically double values.
     double u12 = tx2.x() - tx1.x();
     double v12 = tx2.y() - tx1.y();
     double u13 = tx3.x() - tx1.x();
@@ -169,15 +169,12 @@ class CameraApplication: public olc::PixelGameEngine{
 
     // Scan horizontal lines from top to bottom of triangle
     // This is for the top "half" of the triangle
-    for(int dy=0;
-    pt1.y()+dy<=pt2.y() && t12<=1.0+cg::EPS && t13<=1.0+cg::EPS;
-    ++dy){
-      // Get start of horizontal line
-      int sx = (int)(pt1.x() + x12*t12);
-
-      // Get end of horizontal line
-      int ex = (int)(pt1.x() + x13*t13);
-      //if(y12==0) ex = pt2.x();
+    for(double dy=0.0;
+    pt1.y()+dy<=pt2.y()+cg::EPS && t12<=1.0+cg::EPS && t13<=1.0+cg::EPS;
+    dy+=1.0){
+      // Get start and end of horizontal line
+      double sx = pt1.x() + x12*t12;
+      double ex = pt1.x() + x13*t13;
 
       // Get start of line on texture
       double s_tx = tx1.x() + t12*u12;
@@ -190,7 +187,7 @@ class CameraApplication: public olc::PixelGameEngine{
       double e_tw = tx1.z() + t13*w13;
 
       // Drawing from left to right, swap start and end if they're reversed.
-      if(ex <= sx){
+      if(ex < sx){
         std::swap(sx,ex);
         // sy and ey are the same since it's a horizontal line
 
@@ -203,9 +200,9 @@ class CameraApplication: public olc::PixelGameEngine{
       // Draw along the horizontal line from start to end
       double t_horizontal = 0;
       double dt_horizontal = 0;
-      if(ex-sx != 0) dt_horizontal = 1.0/abs(ex-sx);
+      if(fabs(ex-sx) > 0.0) dt_horizontal = 1.0/abs(ex-sx);
 
-      for(int dx=0; sx+dx <= ex; ++dx){
+      for(double dx=0.0; sx+dx <= ex+cg::EPS; dx+=1.0){
         // Get texture pixel value
         double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
         double spr_y = s_ty + (e_ty-s_ty)*t_horizontal;
@@ -217,8 +214,8 @@ class CameraApplication: public olc::PixelGameEngine{
         auto px_color = spr.Sample(real_sprx,real_spry);
 
         // Draw the pixel value from texture in the screen xy position
-        int screen_x = sx + dx;
-        int screen_y = pt1.y() + dy;
+        int screen_x = (int)std::round(sx + dx);
+        int screen_y = (int)std::round(pt1.y() + dy);
         assert(screen_x >= sx);
         assert(screen_x <= ex);
         Draw(screen_x, screen_y, px_color);
@@ -235,20 +232,16 @@ class CameraApplication: public olc::PixelGameEngine{
     double w23 = tx3.z()-tx2.z();
 
     double dt23 = 0;
-    if((int)y23!=0) dt23 = 1.0/fabs(y23);
+    if((int)fabs(y23)!=0) dt23 = 1.0/fabs(y23);
     assert(dt23>=0 && dt23<=1.0);
     double t23 = 0;
     // Similar drawing as above, but for the bottom "Half" of the triangle now.
-    for(int dy=0;
-    pt2.y()+dy<=pt3.y() && t13<=1.0+cg::EPS&& t23<=1.0+cg::EPS;
-    ++dy){
-      assert(t23 >= 0.0 && t23 <= 1.0+cg::EPS);
-      assert(t13 >= 0.0 && t13 <= 1.0+cg::EPS);
-      // Get start of horizontal line
-      int sx = (int)(pt2.x() + x23*t23);
-
-      // Get end of horizontal line
-      int ex = (int)(pt1.x() + x13*t13);
+    for(double dy=0.0;
+    pt2.y()+dy<=pt3.y()+cg::EPS && t13<=1.0+cg::EPS && t23<=1.0+cg::EPS;
+    dy+=1.0){
+      // Get start and end of horizontal line
+      double sx = pt2.x() + x23*t23;
+      double ex = pt1.x() + x13*t13;
 
       // Get start of line on texture
       double s_tx = tx2.x() + t23*u23;
@@ -261,7 +254,7 @@ class CameraApplication: public olc::PixelGameEngine{
       double e_tw = tx1.z() + t13*w13;
 
       // Drawing from left to right, swap start and end if they're reversed.
-      if(ex <= sx){
+      if(ex < sx){
         std::swap(sx,ex);
         // sy and ey are the same since it's a horizontal line
 
@@ -274,22 +267,20 @@ class CameraApplication: public olc::PixelGameEngine{
       // Draw along the horizontal line from start to end
       double t_horizontal = 0;
       double dt_horizontal = 0;
-      if(ex-sx != 0) dt_horizontal = 1.0/abs(ex-sx);
+      if(fabs(ex-sx) > cg::EPS) dt_horizontal = 1.0/fabs(ex-sx);
 
-      for(int dx=0; sx+dx <= ex; ++dx){
+      for(double dx=0.0; sx+dx<=ex+cg::EPS; dx+=1.0){
         // Get texture pixel value
         double spr_x = s_tx + (e_tx-s_tx)*t_horizontal;
         double spr_y = s_ty + (e_ty-s_ty)*t_horizontal;
         double spr_w = s_tw + (e_tw-s_tw)*t_horizontal;
         double real_sprx = std::min(std::max(spr_x/spr_w,0.0),1.0);
         double real_spry = std::min(std::max(spr_y/spr_w,0.0),1.0);
-        assert(real_sprx >= 0.0 && real_sprx <= 1.0);
-        assert(real_spry >= 0.0 && real_spry <= 1.0);
         auto px_color = spr.Sample(real_sprx,real_spry);
 
         // Draw the pixel value from texture in the screen xy position
-        int screen_x = sx + dx;
-        int screen_y = pt2.y() + dy;
+        int screen_x = (int)std::round(sx + dx);
+        int screen_y = (int)std::round(pt2.y() + dy);
         assert(screen_x >= sx);
         assert(screen_x <= ex);
         Draw(screen_x, screen_y, px_color);
