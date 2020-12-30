@@ -269,7 +269,7 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
     std::vector<Vector3d> in,out;
 
     // Texture coordinates need clip too. Vector3d because we can't forget
-    // about the w value which will be used for textile perspective.
+    // about the w value which will be used for texel perspective.
     std::vector<Vector3d> in_t, out_t;
 
     for(int i = 0; i < 3; ++i){
@@ -298,23 +298,22 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
         in_t.emplace_back(cur_tx);
       }
 
+      double t;
+      auto int_pt = lineLineIntersect2d(
+          cur_pt.head<2>(), next_pt.head<2>(), edge_unit_normal,
+          pt_on_edge,t);
       // Is there an intersection point to add?
-      if(d[cur_idx] * d[next_idx] < EPS){
-        // current point on one side, next point on other side. There is an
-        // intersection point.
-        double t;
-        auto int_pt = lineLineIntersect2d(
-            cur_pt.head<2>(), next_pt.head<2>(), edge_unit_normal,
-            pt_on_edge,t);
-
-        assert(int_pt!=nullptr);
+      // note: additional checks for t in range [0,1] for floating point
+      // numerical accuracy reasons
+      if(int_pt!=nullptr && t>=0.0 && t<=1.0){
+        // There is an intersection point.
         Vector3d intersection_point;
         intersection_point.head<2>() = *int_pt;
         intersection_point.z() = 1;
         in.emplace_back(intersection_point);
         out.emplace_back(intersection_point);
 
-        // Compute intersection point in textile space
+        // Compute intersection point in texel space
         auto int_tx = cur_tx + (next_tx-cur_tx)*t;
         in_t.emplace_back(int_tx);
         out_t.emplace_back(int_tx);
