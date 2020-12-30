@@ -21,16 +21,20 @@ class CameraApplication: public olc::PixelGameEngine{
         ScreenWidth(),
         ScreenHeight());
 
+    depth_buffer.resize(ScreenHeight()+1);
+    for(auto &row:depth_buffer)
+      row.assign(ScreenWidth()+1, -1e9);
+
 //    auto saint= cg::loadOBJ(
 //        "/home/shooshan/Documents/objs/Santa_Claus_v1_L2"
 //        ".123cb4fe07b2-55dd-461b-9f27-42ccf1b3f3f5/santaclaus.obj", false);
 //    mesh = *saint;
-    auto spyro= cg::loadOBJ("/home/shooshan/Pictures/spyro.obj", false);
-    mesh = *spyro;
+//    auto spyro= cg::loadOBJ("/home/shooshan/Pictures/spyro.obj", false);
+//    mesh = *spyro;
 //    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
 //    mesh = *teddy;
-//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
-//    mesh = *teapot;
+    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+    mesh = *teapot;
       //mesh = *cg::cube();
 //    cg::Triangle triangle{
 //      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
@@ -48,6 +52,9 @@ class CameraApplication: public olc::PixelGameEngine{
 
   bool OnUserUpdate(float fElapsedTime) override {
     Clear(olc::DARK_GREY);
+    // reset depth buffer
+    for(auto &row:depth_buffer)
+      row.assign(ScreenWidth(), -1e9);
 
     // Modify mesh's world position
     double z_rot = 0.0001/fElapsedTime;
@@ -92,23 +99,24 @@ class CameraApplication: public olc::PixelGameEngine{
   cg::Camera_ptr cam;
   cg::Mesh mesh;
   olc::Sprite sprite;
+  std::vector<std::vector<double>> depth_buffer;
 
   void handleCameraMotion(double fElapsedTime){
     if(GetKey(olc::Key::E).bHeld){
       DrawString(50,50, "Forward");
-      cam->moveForward(0.1/fElapsedTime);
+      cam->moveForward(0.001/fElapsedTime);
     }
     if(GetKey(olc::Key::S).bHeld){
       DrawString(50,50, "Strafe Left");
-      cam->strafeRight(-0.1/fElapsedTime);
+      cam->strafeRight(-0.001/fElapsedTime);
     }
     if(GetKey(olc::Key::D).bHeld){
       DrawString(50,50, "Back");
-      cam->moveForward(-0.1/fElapsedTime);
+      cam->moveForward(-0.001/fElapsedTime);
     }
     if(GetKey(olc::Key::F).bHeld){
       DrawString(50,50, "Strafe Right");
-      cam->strafeRight(0.1/fElapsedTime);
+      cam->strafeRight(0.001/fElapsedTime);
     }
     if(GetKey(olc::Key::J).bHeld){
       DrawString(50,50, "Yaw Left");
@@ -216,9 +224,12 @@ class CameraApplication: public olc::PixelGameEngine{
         // Draw the pixel value from texture in the screen xy position
         int screen_x = (int)std::round(sx + dx);
         int screen_y = (int)std::round(pt1.y() + dy);
-        assert(screen_x >= sx);
-        assert(screen_x <= ex);
-        Draw(screen_x, screen_y, px_color);
+        int db_h = depth_buffer.size();
+        int db_w = depth_buffer[0].size();
+        if(spr_w > depth_buffer[screen_y][screen_x]){
+          Draw(screen_x, screen_y, px_color);
+          depth_buffer[screen_y][screen_x] = spr_w;
+        }
         t_horizontal += dt_horizontal;
       }
       t12 += dt12;
@@ -281,9 +292,10 @@ class CameraApplication: public olc::PixelGameEngine{
         // Draw the pixel value from texture in the screen xy position
         int screen_x = (int)std::round(sx + dx);
         int screen_y = (int)std::round(pt2.y() + dy);
-        assert(screen_x >= sx);
-        assert(screen_x <= ex);
-        Draw(screen_x, screen_y, px_color);
+        if(spr_w > depth_buffer[screen_y][screen_x]){
+          Draw(screen_x, screen_y, px_color);
+          depth_buffer[screen_y][screen_x] = spr_w;
+        }
         t_horizontal += dt_horizontal;
       }
       t23 += dt23;
