@@ -65,7 +65,7 @@ class CameraApplication: public olc::PixelGameEngine{
     Clear(olc::DARK_GREY);
     // reset depth buffer
     for(auto &row:depth_buffer)
-      row.assign(ScreenWidth(), -1e9);
+      row.assign(ScreenWidth()+1, -1e9);
 
     // Modify mesh's world position
     double z_rot = 0.0001/fElapsedTime;
@@ -77,8 +77,8 @@ class CameraApplication: public olc::PixelGameEngine{
     auto rotz_mat = cg::rotateZ(z_rot);
     mesh.pose.position = cg::translation(0,0,-20).rightCols<1>();
     //mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
-    Eigen::Matrix4d tf = mesh.pose.matrix();
-    //Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+    //Eigen::Matrix4d tf = mesh.pose.matrix();
+    Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
     // Handle keyboard input
     handleCameraMotion(fElapsedTime);
@@ -194,16 +194,16 @@ class CameraApplication: public olc::PixelGameEngine{
     double w12 = tx2.z() - tx1.z();
     double w13 = tx3.z() - tx1.z();
 
-    if(flat_top && flat_bottom){
-      // Triangle points are on a single line
-      int min_x = std::min(std::min(p1x,p2x),p3x);
-      int max_x = std::max(std::max(p1x,p2x),p3x);
-
-      for(int dx=0; min_x+dx<=max_x; ++dx){
-        // TODO: Consider texture
-        Draw(min_x+dx,p1y,olc::WHITE);
-      }
-    }
+//    if(flat_top && flat_bottom){
+//      // Triangle points are on a single line
+//      int min_x = std::min(std::min(p1x,p2x),p3x);
+//      int max_x = std::max(std::max(p1x,p2x),p3x);
+//
+//      for(int dx=0; min_x+dx<=max_x; ++dx){
+//        // TODO: Consider texture
+//        Draw(min_x+dx,p1y,olc::WHITE);
+//      }
+//    }
 
     // _d as reminder that it's double
     double sx_d = p1x;
@@ -248,7 +248,12 @@ class CameraApplication: public olc::PixelGameEngine{
 
         int screen_x = sx + dx;
         int screen_y = p1y + dy;
-        Draw(screen_x, screen_y, px_color);
+        if(screen_x>ScreenWidth()||screen_x<0)continue;
+        if(screen_y>ScreenHeight()||screen_y<0)continue;
+        if(interp_texel_w > depth_buffer[screen_y][screen_x]){
+          Draw(screen_x, screen_y, px_color);
+          depth_buffer[screen_y][screen_x] = interp_texel_w;
+        }
       }
       // Increment start and end x values
       sx_d += dx12;
@@ -304,7 +309,12 @@ class CameraApplication: public olc::PixelGameEngine{
 
         int screen_x = sx + dx;
         int screen_y = p2y + dy;
-        Draw(screen_x, screen_y, px_color);
+        if(screen_x>ScreenWidth()||screen_x<0)continue;
+        if(screen_y>ScreenHeight()||screen_y<0)continue;
+        if(interp_texel_w > depth_buffer[screen_y][screen_x]){
+          Draw(screen_x, screen_y, px_color);
+          depth_buffer[screen_y][screen_x] = interp_texel_w;
+        }
       }
       // Increment start and end x values
       sx_d += dx23;
