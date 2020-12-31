@@ -34,9 +34,9 @@ class CameraApplication: public olc::PixelGameEngine{
 //    mesh = *spyro;
 //    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
 //    mesh = *teddy;
-    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
-    mesh = *teapot;
-      //mesh = *cg::cube();
+//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+//    mesh = *teapot;
+      mesh = *cg::cube();
 //    cg::Triangle triangle{
 //      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
 //      Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};
@@ -187,12 +187,20 @@ class CameraApplication: public olc::PixelGameEngine{
     bool flat_top = y12==0;
     bool flat_bottom = y23==0;
 
+    double u12 = tx2.x() - tx1.x();
+    double u13 = tx3.x() - tx1.x();
+    double v13 = tx3.y() - tx1.y();
+    double v12 = tx2.y() - tx1.y();
+    double w12 = tx2.z() - tx1.z();
+    double w13 = tx3.z() - tx1.z();
+
     if(flat_top && flat_bottom){
       // Triangle points are on a single line
       int min_x = std::min(std::min(p1x,p2x),p3x);
       int max_x = std::max(std::max(p1x,p2x),p3x);
 
       for(int dx=0; min_x+dx<=max_x; ++dx){
+        // TODO: Consider texture
         Draw(min_x+dx,p1y,olc::WHITE);
       }
     }
@@ -211,12 +219,36 @@ class CameraApplication: public olc::PixelGameEngine{
       // Select actual pixel indices using the double type values
       int sx = std::round(sx_d);
       int ex = std::round(ex_d);
-      if(ex < sx){std::swap(sx,ex);}
+
+      // Start and end of texel along this horizontal line
+      double stx_u = tx1.x() + u12*((double)dy/y12);
+      double etx_u = tx1.x() + u13*((double)dy/y13);
+      double stx_v = tx1.y() + v12*((double)dy/y12);
+      double etx_v = tx1.y() + v13*((double)dy/y13);
+      double stx_w = tx1.z() + w12*((double)dy/y12);
+      double etx_w = tx1.z() + w13*((double)dy/y13);
+
+      if(ex < sx){
+        std::swap(sx,ex);
+        std::swap(stx_u,etx_u);
+        std::swap(stx_v,etx_v);
+        std::swap(stx_w,etx_w);
+      }
 
       for(int dx=0; sx+dx <= ex; ++dx){
+        // Pick texel color
+        double d_horizontal=0;
+        if(sx!=ex) d_horizontal = (double)dx/(double)(ex-sx);
+        double interp_texel_u = stx_u + (etx_u-stx_u)*d_horizontal;
+        double interp_texel_v = stx_v + (etx_v-stx_v)*d_horizontal;
+        double interp_texel_w = stx_w + (etx_w-stx_w)*d_horizontal;
+        double real_u = std::min(1.0,std::max(0.0,interp_texel_u/interp_texel_w));
+        double real_v = std::min(1.0,std::max(0.0,interp_texel_v/interp_texel_w));
+        auto px_color = spr.Sample(real_u,real_v);
+
         int screen_x = sx + dx;
         int screen_y = p1y + dy;
-        Draw(screen_x, screen_y, olc::WHITE);
+        Draw(screen_x, screen_y, px_color);
       }
       // Increment start and end x values
       sx_d += dx12;
@@ -229,6 +261,10 @@ class CameraApplication: public olc::PixelGameEngine{
     if(y23!=0)
       dx23=(double)x23/(double)y23;
 
+    double u23 = tx3.x() - tx2.x();
+    double v23 = tx3.y() - tx2.y();
+    double w23 = tx3.z() - tx2.z();
+
     sx_d = p2x;
 
     for(int dy=0; p2y+dy<=p3y; ++dy){
@@ -239,12 +275,36 @@ class CameraApplication: public olc::PixelGameEngine{
       // Select actual pixel indices using the double type values
       int sx = std::round(sx_d);
       int ex = std::round(ex_d);
-      if(ex < sx){std::swap(sx,ex);}
+
+      // Start and end of texel along this horizontal line
+      double stx_u = tx2.x() + u23*((double)dy/y23);
+      double etx_u = tx1.x() + u13*((double)(dy+y12)/y13);
+      double stx_v = tx2.y() + v23*((double)dy/y23);
+      double etx_v = tx1.y() + v13*((double)(dy+y12)/y13);
+      double stx_w = tx2.z() + w23*((double)dy/y23);
+      double etx_w = tx1.z() + w13*((double)(dy+y12)/y13);
+
+      if(ex < sx){
+        std::swap(sx,ex);
+        std::swap(stx_u,etx_u);
+        std::swap(stx_v,etx_v);
+        std::swap(stx_w,etx_w);
+      }
 
       for(int dx=0; sx+dx <= ex; ++dx){
+        // Pick texel color
+        double d_horizontal=0;
+        if(sx!=ex) d_horizontal = (double)dx/(double)(ex-sx);
+        double interp_texel_u = stx_u + (etx_u-stx_u)*d_horizontal;
+        double interp_texel_v = stx_v + (etx_v-stx_v)*d_horizontal;
+        double interp_texel_w = stx_w + (etx_w-stx_w)*d_horizontal;
+        double real_u = std::min(1.0,std::max(0.0,interp_texel_u/interp_texel_w));
+        double real_v = std::min(1.0,std::max(0.0,interp_texel_v/interp_texel_w));
+        auto px_color = spr.Sample(real_u,real_v);
+
         int screen_x = sx + dx;
         int screen_y = p2y + dy;
-        Draw(screen_x, screen_y, olc::WHITE);
+        Draw(screen_x, screen_y, px_color);
       }
       // Increment start and end x values
       sx_d += dx23;
