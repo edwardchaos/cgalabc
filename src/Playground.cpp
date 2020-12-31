@@ -169,10 +169,6 @@ class CameraApplication: public olc::PixelGameEngine{
       std::swap(p3y,p2y);
       std::swap(tx3,tx2);}
 
-//    DrawCircle(p1x,p1y,2,olc::DARK_BLUE);
-//    DrawCircle(p2x,p2y,2,olc::DARK_GREEN);
-//    DrawCircle(p3x,p3y,2,olc::DARK_RED);
-
     int y12 = p2y-p1y; assert(y12>=0);
     int x12 = p2x-p1x;
     int y13 = p3y-p1y; assert(y13>=0);
