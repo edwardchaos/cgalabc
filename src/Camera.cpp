@@ -189,25 +189,25 @@ Camera::clipScreen2D(const Triangle2D &tri_img) const{
   std::vector<Triangle2D> triangles{tri_img};
   // Clip on Left edge
   Vector2d left_edge_normal(1,0);
-  Vector2d pt_on_left_edge(-2,0);
+  Vector2d pt_on_left_edge(0,0);
   auto tris_after_left_clip = clip2DEdge(left_edge_normal,
                                          pt_on_left_edge,
                                          triangles);
   // Clip on Right edge
   Vector2d right_edge_normal(-1,0);
-  Vector2d pt_on_right_edge(screen_width_+1,0);
+  Vector2d pt_on_right_edge(screen_width_,0);
   auto tris_after_right_clip = clip2DEdge(right_edge_normal,
                                           pt_on_right_edge,
                                           tris_after_left_clip);
   // Clip on Top edge
   Vector2d top_edge_normal(0,1);
-  Vector2d pt_on_top_edge(0,-1);
+  Vector2d pt_on_top_edge(0,0);
   auto tris_after_top_clip = clip2DEdge(top_edge_normal,
                                         pt_on_top_edge,
                                         tris_after_right_clip);
   // Clip on Bottom edge
   Vector2d bottom_edge_normal(0,-1);
-  Vector2d pt_on_bottom_edge(0,screen_height_+1);
+  Vector2d pt_on_bottom_edge(0,screen_height_);
   auto tris_after_bottom_clip = clip2DEdge(bottom_edge_normal,
                                            pt_on_bottom_edge,
                                            tris_after_top_clip);
