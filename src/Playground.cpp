@@ -34,8 +34,8 @@ class CameraApplication: public olc::PixelGameEngine{
 //    mesh = *spyro;
 //    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
 //    mesh = *teddy;
-//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
-//    mesh = *teapot;
+    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+    mesh = *teapot;
       //mesh = *cg::cube();
 //    cg::Triangle triangle{
 //      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
@@ -43,10 +43,10 @@ class CameraApplication: public olc::PixelGameEngine{
 //    mesh.tris.push_back(triangle);
 
 // 2 Thin triangles
-cg::Triangle thin_bottom{
-  Vector3d(0,0,-10),Vector3d(-10,0,-10),Vector3d(-10,0.5,-10)
-};
-mesh.tris.push_back(thin_bottom);
+//cg::Triangle thin_bottom{
+//  Vector3d(0,0,-10),Vector3d(-10,0,-10),Vector3d(-10,0.5,-10)
+//};
+//mesh.tris.push_back(thin_bottom);
 //    cg::Triangle thin_top{
 //        Vector3d(0,0,-10),Vector3d(-10,0.5,-10),Vector3d(0,0.5,-10)
 //    };
@@ -144,78 +144,106 @@ mesh.tris.push_back(thin_bottom);
     auto pt1 = tri.points[0];
     auto pt2 = tri.points[1];
     auto pt3 = tri.points[2];
+
+    int p1x = std::round(pt1.x());
+    int p1y = std::round(pt1.y());
+    int p2x = std::round(pt2.x());
+    int p2y = std::round(pt2.y());
+    int p3x = std::round(pt3.x());
+    int p3y = std::round(pt3.y());
+
     auto tx1 = tri.t[0];
     auto tx2 = tri.t[1];
     auto tx3 = tri.t[2];
 
-    if(pt2.y() < pt1.y()){
-      std::swap(pt2,pt1);
+    if(p2y < p1y){
+      std::swap(p2x,p1x);
+      std::swap(p2y,p1y);
       std::swap(tx2,tx1);}
-    if(pt3.y() < pt1.y()){
-      std::swap(pt3,pt1);
+    if(p3y < p1y){
+      std::swap(p3x,p1x);
+      std::swap(p3y,p1y);
       std::swap(tx3,tx1);}
-    if(pt3.y() < pt2.y()){
-      std::swap(pt3,pt2);
+    if(p3y < p2y){
+      std::swap(p3x,p2x);
+      std::swap(p3y,p2y);
       std::swap(tx3,tx2);}
 
-//    DrawCircle(pt1.x(),pt1.y(),2,olc::DARK_BLUE);
-//    DrawCircle(pt2.x(),pt2.y(),2,olc::DARK_GREEN);
-//    DrawCircle(pt3.x(),pt3.y(),2,olc::DARK_RED);
+//    DrawCircle(p1x,p1y,2,olc::DARK_BLUE);
+//    DrawCircle(p2x,p2y,2,olc::DARK_GREEN);
+//    DrawCircle(p3x,p3y,2,olc::DARK_RED);
 
-    double y12 = pt2.y() - pt1.y();
-    double x12 = pt2.x() - pt1.x();
-    double y13 = pt3.y() - pt1.y();
-    double x13 = pt3.x() - pt1.x();
+    int y12 = p2y-p1y; assert(y12>=0);
+    int x12 = p2x-p1x;
+    int y13 = p3y-p1y; assert(y13>=0);
+    int x13 = p3x-p1x;
+    int y23 = p3y-p2y; assert(y23 >= 0);
     double dx12 = 0;
-    if(fabs(pt2.y()-pt1.y())>cg::EPS)
-      dx12=x12/y12;
+    if(y12!=0)
+      dx12=(double)x12/(double)y12;
     double dx13 = 0;
-    if(fabs(pt3.y()-pt1.y())>cg::EPS)
-      dx13=x13/y13;
+    if(y13!=0)
+      dx13=(double)x13/(double)y13;
+    bool flat_top = y12==0;
+    bool flat_bottom = y23==0;
+
+    if(flat_top && flat_bottom){
+      // Triangle points are on a single line
+      int min_x = std::min(std::min(p1x,p2x),p3x);
+      int max_x = std::max(std::max(p1x,p2x),p3x);
+
+      for(int dx=0; min_x+dx<=max_x; ++dx){
+        Draw(min_x+dx,p1y,olc::WHITE);
+      }
+    }
 
     // _d as reminder that it's double
-    double sx_d = pt1.x();
-    double ex_d = pt1.x();
+    double sx_d = p1x;
+    double ex_d = p1x;
 
     // Scan horizontal lines from top to bottom of triangle
     // This is for the top "half" of the triangle
-    for(int dy=0; pt1.y()+dy<=pt2.y()+cg::EPS; ++dy){
+    for(int dy=0; p1y+dy<=p2y; ++dy){
+      // Flat-top triangle will be taken care of completely in bottom half
+      // loop below.
+      if(flat_top)break;
+
       // Select actual pixel indices using the double type values
       int sx = std::round(sx_d);
       int ex = std::round(ex_d);
       if(ex < sx){std::swap(sx,ex);}
 
       for(int dx=0; sx+dx <= ex; ++dx){
-        // Draw the pixel value from texture in the screen xy position
         int screen_x = sx + dx;
-        int screen_y = std::round(pt1.y()) + dy;
+        int screen_y = p1y + dy;
         Draw(screen_x, screen_y, olc::WHITE);
       }
       // Increment start and end x values
       sx_d += dx12;
-
-      if(pt1.y()+dy+1 > pt2.y()) ex_d += dx13*(pt2.y()-(pt1.y()+dy));
-      else ex_d += dx13;
+      ex_d += dx13;
     }
+    if(!flat_top) ex_d -= dx13;
 
-    double y23 = pt3.y()-pt2.y();
-    double x23 = pt3.x()-pt2.x();
+    int x23 = p3x-p2x;
     double dx23 = 0;
-    if(fabs(pt3.y()-pt2.y())>cg::EPS)
-      dx23=x23/y23;
+    if(y23!=0)
+      dx23=(double)x23/(double)y23;
 
-    sx_d = pt2.x();
+    sx_d = p2x;
 
-    for(int dy=0; pt2.y()+dy<=pt3.y()+cg::EPS; ++dy){
+    for(int dy=0; p2y+dy<=p3y; ++dy){
+      // Bottom-flat triangle should have been completely drawn already by
+      // the loop above.
+      if(flat_bottom) break;
+
       // Select actual pixel indices using the double type values
       int sx = std::round(sx_d);
       int ex = std::round(ex_d);
       if(ex < sx){std::swap(sx,ex);}
 
       for(int dx=0; sx+dx <= ex; ++dx){
-        // Draw the pixel value from texture in the screen xy position
         int screen_x = sx + dx;
-        int screen_y = std::round(pt2.y()) + dy;
+        int screen_y = p2y + dy;
         Draw(screen_x, screen_y, olc::WHITE);
       }
       // Increment start and end x values
