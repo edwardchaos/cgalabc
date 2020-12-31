@@ -34,9 +34,9 @@ class CameraApplication: public olc::PixelGameEngine{
 //    mesh = *spyro;
 //    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
 //    mesh = *teddy;
-//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
-//    mesh = *teapot;
-      mesh = *cg::cube();
+    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+    mesh = *teapot;
+//      mesh = *cg::cube();
 //    cg::Triangle triangle{
 //      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
 //      Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};
