@@ -14,6 +14,8 @@ set (SOURCES
         Algo3d.cpp
         Utility.cpp
         Pose.cpp
+        Material.cpp
+        Light.cpp
         )
 
 set (HEADERS
@@ -30,6 +32,8 @@ set (HEADERS
         include/Algo3d.h
         include/Utility.h
         include/Pose.h
+        include/Material.h
+        include/Light.h
 )
 
 # Create library object so it can be linked with in tests
