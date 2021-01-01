@@ -70,6 +70,9 @@ Camera::projectTriangleInWorld(const Triangle& tri_world) const{
       tri_img.t[i] = Vector3d(tri_cam.t[i].x()/pt_cube.w(),
                               tri_cam.t[i].y()/pt_cube.w(),
                               tri_cam.t[i].z()/pt_cube.w());
+
+      // Carry over vertex normal for shading algorithm
+      tri_img.vertex_normals[i] = tri_cam.vertex_normals[i];
     }
 
     // Clip 2D triangle in screen space
