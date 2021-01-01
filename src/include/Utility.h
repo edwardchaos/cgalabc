@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -74,4 +75,17 @@ std::shared_ptr<Vector2d> lineLineIntersect2d(
     const Vector2d &pt1, const Vector2d &pt2,
     const Vector2d &line_unit_normal, const Vector2d &pt_on_line, double&t);
 
+/*
+ * Spherical linear interpolation of 2 unit vectors
+ *
+ * argument s in range [0,1].
+ * when s==0, result is 'from'
+ * when s==1, result is 'to'
+ */
+Vector3d slerp(const Vector3d &from, const Vector3d &to, double s){
+  double theta = acos(from.dot(to));
+  double alpha = sin((1-s)*theta)/sin(theta);
+  double beta = sin(s*theta)/sin(theta);
+  return alpha*from+beta*to;
+}
 } // namespace cg
