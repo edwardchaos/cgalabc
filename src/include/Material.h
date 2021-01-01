@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "olcPixelGameEngine.h"
+#include <olcPixelGameEngine.h>
 
 namespace cg{
 

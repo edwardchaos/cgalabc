@@ -1,5 +1,3 @@
-#define OLC_PGE_APPLICATION
-
 #include <cmath>
 #include <memory>
 #include <iostream>

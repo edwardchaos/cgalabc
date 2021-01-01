@@ -82,10 +82,5 @@ std::shared_ptr<Vector2d> lineLineIntersect2d(
  * when s==0, result is 'from'
  * when s==1, result is 'to'
  */
-Vector3d slerp(const Vector3d &from, const Vector3d &to, double s){
-  double theta = acos(from.dot(to));
-  double alpha = sin((1-s)*theta)/sin(theta);
-  double beta = sin(s*theta)/sin(theta);
-  return alpha*from+beta*to;
-}
+Vector3d slerp(const Vector3d &from, const Vector3d &to, double s);
 } // namespace cg
