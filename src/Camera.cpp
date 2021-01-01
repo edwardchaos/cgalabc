@@ -133,6 +133,7 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
 
   std::vector<Vector3d> in,out;
   std::vector<Vector2d> in_t, out_t; // Texture coordinates
+  std::vector<Vector3d> in_norm, out_norm;
 
   for(int i = 0 ; i < 3; ++i){
     int cur_idx = i;
@@ -142,6 +143,8 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
     auto next_pt = tri_cam.points[next_idx].head<3>();
     auto cur_tx = tri_cam.t[cur_idx].head<2>();
     auto next_tx = tri_cam.t[next_idx].head<2>();
+    auto cur_norm = tri_cam.vertex_normals[cur_idx];
+    auto next_norm = tri_cam.vertex_normals[next_idx];
 
     // Add current point in 'In' or 'Out'?
     if(cur_pt.z() > -near_plane_dist_){
@@ -171,6 +174,9 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
       auto int_tx = cur_tx + (next_tx - cur_tx)*t;
       in_t.emplace_back(int_tx);
       out_t.emplace_back(int_tx);
+
+      // Also interpolate the normal vector
+      // TODO: need slerp
     }
   }
 
