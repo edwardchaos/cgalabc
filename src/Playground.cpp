@@ -90,7 +90,7 @@ class CameraApplication: public olc::PixelGameEngine{
       Eigen::Vector4d pt2_tf = cg::transformPoint(tri.points[2], tf);
       cg::Triangle tri_world{
         pt0_tf.head<3>(), pt1_tf.head<3>(), pt2_tf.head<3>(),
-            tri.t[0].head<2>(), tri.t[1].head<2>(), tri.t[2].head<2>()};
+        Vector2d(tri.t[0].head<2>()), tri.t[1].head<2>(),tri.t[2].head<2>()};
 
       auto triangles_to_draw = cam->projectTriangleInWorld(tri_world);
 
