@@ -187,4 +187,20 @@ TEST(Utility, line_line_intersect){
   ASSERT_EQ(int_pt8, nullptr);
 }
 
+TEST(Slerp, doit){
+  Vector3d a(1,0,0);
+  Vector3d b(0,1,0);
 
+  auto res1 = cg::slerp(a,b,0);
+  ASSERT_TRUE(res1.isApprox(a));
+
+  auto res2 = cg::slerp(a,b,1);
+  ASSERT_DOUBLE_EQ(res2.x(),0);
+  ASSERT_DOUBLE_EQ(res2.y(),1);
+  ASSERT_DOUBLE_EQ(res2.z(),0);
+
+  auto res3 = cg::slerp(a,b,0.5);
+  ASSERT_DOUBLE_EQ(res3.x(),1/sqrt(2));
+  ASSERT_DOUBLE_EQ(res3.y(),1/sqrt(2));
+  ASSERT_DOUBLE_EQ(res3.z(),0);
+}
