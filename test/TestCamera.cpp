@@ -256,6 +256,8 @@ TEST(Camera, clipping_3d){
   ASSERT_TRUE(g_clip.size()==1);
   ASSERT_TRUE(h_clip.empty());
   ASSERT_TRUE(i_clip.size()==1);
+
+  //TODO: Test clipping norm slerp
 }
 
 TEST(Camera, clipping_2d){

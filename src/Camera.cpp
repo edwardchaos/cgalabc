@@ -176,7 +176,14 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
       out_t.emplace_back(int_tx);
 
       // Also interpolate the normal vector
-      // TODO: need slerp
+      if(cur_norm.isApprox(next_norm)){
+        in_norm.emplace_back(cur_norm);
+        out_norm.emplace_back(cur_norm);
+      }else{
+        auto slerped_norm = slerp(cur_norm,next_norm,t);
+        in_norm.emplace_back(slerped_norm);
+        out_norm.emplace_back(slerped_norm);
+      }
     }
   }
 
@@ -185,12 +192,15 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
   assert(in.size() == 3 || in.size() == 4);
   // Create triangles with 'In' points
   if(in.size() == 3) {
-    return {Triangle(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2])};
+    return {Triangle(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2],
+                     in_norm[0],in_norm[1],in_norm[2])};
   }
   else
     return {
-        Triangle(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2]),
-        Triangle(in[0],in[2],in[3],in_t[0],in_t[2],in_t[3])};
+        Triangle(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2],
+                 in_norm[0],in_norm[1],in_norm[2]),
+        Triangle(in[0],in[2],in[3],in_t[0],in_t[2],in_t[3],
+                 in_norm[0],in_norm[2],in_norm[3])};
 }
 
 std::vector<Triangle2D>
