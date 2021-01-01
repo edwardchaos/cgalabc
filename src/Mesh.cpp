@@ -80,7 +80,7 @@ Triangle::Triangle(
 void Triangle::defaultTextureMap(){
   // default values to avoid unknown unknowns
   this->t[0]=Vector3d(1,0,1);
-  this->t[1]=Vector3d(0,0,0);
+  this->t[1]=Vector3d(0,0,1);
   this->t[2]=Vector3d(0,1,1);
 }
 
@@ -140,7 +140,7 @@ Triangle2D::Triangle2D(
 void Triangle2D::defaultTextureMap(){
   // default values to avoid unknown unknowns
   this->t[0]=Vector3d(1,0,1);
-  this->t[1]=Vector3d(0,0,0);
+  this->t[1]=Vector3d(0,0,1);
   this->t[2]=Vector3d(0,1,1);
 }
 
