@@ -290,6 +290,7 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
     // Texture coordinates need clip too. Vector3d because we can't forget
     // about the w value which will be used for texel perspective.
     std::vector<Vector3d> in_t, out_t;
+    std::vector<Vector3d> in_norm, out_norm;
 
     for(int i = 0; i < 3; ++i){
       int cur_idx = i;
@@ -301,6 +302,10 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       // Texture coordinates
       auto cur_tx = tri.t[cur_idx];
       auto next_tx = tri.t[next_idx];
+
+      // Vertex normals
+      auto cur_norm = tri.vertex_normals[cur_idx];
+      auto next_norm = tri.vertex_normals[next_idx];
 
       // Add current point in 'In' or 'Out'?
       if(d[cur_idx] < -EPS) { // 'Out' side
@@ -336,6 +341,16 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
         auto int_tx = cur_tx + (next_tx-cur_tx)*t;
         in_t.emplace_back(int_tx);
         out_t.emplace_back(int_tx);
+
+        // Also interpolate the normal vector
+        if(cur_norm.isApprox(next_norm)){
+          in_norm.emplace_back(cur_norm);
+          out_norm.emplace_back(cur_norm);
+        }else{
+          auto slerped_norm = slerp(cur_norm,next_norm,t);
+          in_norm.emplace_back(slerped_norm);
+          out_norm.emplace_back(slerped_norm);
+        }
       }
     }
 
@@ -351,6 +366,9 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       new_tri.t[0] = in_t[0];
       new_tri.t[1] = in_t[1];
       new_tri.t[2] = in_t[2];
+      new_tri.vertex_normals[0] = in_norm[0];
+      new_tri.vertex_normals[1] = in_norm[1];
+      new_tri.vertex_normals[2] = in_norm[2];
       clipped_triangles.push_back(std::move(new_tri));
     }
     else{
@@ -361,6 +379,9 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       new_tri1.t[0] = in_t[0];
       new_tri1.t[1] = in_t[1];
       new_tri1.t[2] = in_t[2];
+      new_tri1.vertex_normals[0] = in_norm[0];
+      new_tri1.vertex_normals[1] = in_norm[1];
+      new_tri1.vertex_normals[2] = in_norm[2];
 
       new_tri2.points[0] = in[0];
       new_tri2.points[1] = in[2];
@@ -368,6 +389,9 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       new_tri2.t[0] = in_t[0];
       new_tri2.t[1] = in_t[2];
       new_tri2.t[2] = in_t[3];
+      new_tri2.vertex_normals[0] = in_norm[0];
+      new_tri2.vertex_normals[1] = in_norm[2];
+      new_tri2.vertex_normals[2] = in_norm[3];
       clipped_triangles.emplace_back(std::move(new_tri1));
       clipped_triangles.emplace_back(std::move(new_tri2));
     }
