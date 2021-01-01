@@ -88,11 +88,8 @@ class CameraApplication: public olc::PixelGameEngine{
       auto triangles_to_draw = cam->projectTriangleInWorld(tri_world);
 
       for(const auto& screen_tri : triangles_to_draw){
+        //cg::shadeAndDrawTriangle(screen_tri,lights);
         DrawTexturedTriangle(screen_tri, sprite);
-
-//        FillTriangle(screen_tri.points[0].x(), screen_tri.points[0].y(),
-//                     screen_tri.points[1].x(), screen_tri.points[1].y(),
-//                     screen_tri.points[2].x(), screen_tri.points[2].y());
       }
     }
 
