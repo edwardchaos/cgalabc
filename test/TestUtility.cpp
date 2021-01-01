@@ -203,4 +203,8 @@ TEST(Slerp, doit){
   ASSERT_DOUBLE_EQ(res3.x(),1/sqrt(2));
   ASSERT_DOUBLE_EQ(res3.y(),1/sqrt(2));
   ASSERT_DOUBLE_EQ(res3.z(),0);
+
+  auto res4 = cg::slerp(a,b,0.76);
+  ASSERT_NEAR(res4.x(), cos(1.19380520836), 1e-9);
+  ASSERT_NEAR(res4.y(), sin(1.19380520836), 1e-9);
 }
