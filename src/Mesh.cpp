@@ -113,11 +113,8 @@ Triangle2D::Triangle2D(
   points[2].head<2>() = pt3;
   points[2][2] = 1;
 
-  // There is no texture
-  // Default values so clipping doesn't crash
-  t[0] = Vector3d(0,0, 1);
-  t[1] = Vector3d(1,0, 1);
-  t[2] = Vector3d(0,1, 1);
+  defaultTextureMap();
+  defaultVertexNorms();
 }
 
 Triangle2D::Triangle2D(
@@ -136,6 +133,21 @@ Triangle2D::Triangle2D(
   t[0][2] = 1;
   t[2].head<2>() = t3;
   t[0][2] = 1;
+
+  defaultVertexNorms();
+}
+
+void Triangle2D::defaultTextureMap(){
+  // default values to avoid unknown unknowns
+  this->t[0]=Vector3d(1,0,1);
+  this->t[1]=Vector3d(0,0,0);
+  this->t[2]=Vector3d(0,1,1);
+}
+
+void Triangle2D::defaultVertexNorms(){
+  this->vertex_normals[0] = Vector3d(1,0,0);
+  this->vertex_normals[1] = Vector3d(1,0,0);
+  this->vertex_normals[2] = Vector3d(1,0,0);
 }
 } // namespace cg
 

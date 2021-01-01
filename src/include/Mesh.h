@@ -61,6 +61,9 @@ struct Mesh{
   Pose pose;
 };
 
+/* An explicit 2D triangle class for after perspective transform is done on
+ * the 3D triangle.
+ */
 struct Triangle2D{
  public:
   Vector3d points[3]; // x y w
@@ -72,7 +75,8 @@ struct Triangle2D{
   Triangle2D(const Vector2d &pt1, const Vector2d &pt2, const Vector2d &pt3,
              const Vector2d &t1, const Vector2d &t2, const Vector2d &t3);
 
- private:
+  void defaultTextureMap();
+  void defaultVertexNorms();
 
 };
 
