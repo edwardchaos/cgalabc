@@ -88,7 +88,7 @@ bool Camera::isFacing(const Triangle& tri_world) const{
 
   Vector3d cam_2_tri = tri_cam.points[0].head<3>();
   cam_2_tri.normalize();
-  return cam_2_tri.dot(tri_cam.unit_normal()) < -EPS;
+  return cam_2_tri.dot(tri_cam.face_unit_normal()) < -EPS;
 }
 
 Triangle Camera::tfTriangleWorldToCam(const Triangle& tri_world) const{

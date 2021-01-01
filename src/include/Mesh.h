@@ -42,8 +42,9 @@ struct Triangle{
 
   /*
    * Returns the unit normal vector of the triangle's surface.
+   * This may be different from the triangle's vertex normals.
    */
-  [[nodiscard]] Vector3d unit_normal() const;
+  [[nodiscard]] Vector3d face_unit_normal() const;
 
   [[nodiscard]] std::vector<Vector3d> edges() const;
 };

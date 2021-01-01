@@ -12,5 +12,5 @@ TEST(Mesh, create){
   ASSERT_EQ(m.tris[0].edges()[0], Vector3d(2,0,0));
   ASSERT_EQ(m.tris[0].edges()[1], Vector3d(-1,1,0));
   ASSERT_EQ(m.tris[0].edges()[2], Vector3d(-1,-1,0));
-  ASSERT_EQ(m.tris[0].unit_normal(), Vector3d(0,0,1));
+  ASSERT_EQ(m.tris[0].face_unit_normal(), Vector3d(0,0,1));
 }

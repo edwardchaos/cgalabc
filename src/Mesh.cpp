@@ -43,7 +43,7 @@ std::vector<Eigen::Vector3d> Triangle::edges() const{
           (points[0] - points[2]).head<3>()};
 }
 
-Eigen::Vector3d Triangle::unit_normal() const{
+Eigen::Vector3d Triangle::face_unit_normal() const{
   auto e = edges();
   auto unit_normal = e[0].cross(e[1]);
   unit_normal.normalize();
