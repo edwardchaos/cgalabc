@@ -2,6 +2,7 @@ set (BINARY ${CMAKE_PROJECT_NAME}_test)
 
 # specify source files
 set(TEST_SOURCES
+	olcPixelGameEngine.cpp
 	TestPoint2d.cpp
 	TestLine2d.cpp
 	TestAlgo2d.cpp
@@ -23,4 +24,4 @@ add_test(NAME ${BINARY}
 		 COMMAND ${BINARY})
 
 # link with cgalabc library
-target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib gtest_main)
+target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib gtest_main png X11 GL pthread)

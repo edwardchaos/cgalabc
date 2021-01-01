@@ -2,6 +2,7 @@
 set (BINARY ${CMAKE_PROJECT_NAME})
 
 set (SOURCES
+        olcPixelGameEngine.cpp
         type.cpp
         Point2d.cpp
         Line2d.cpp
@@ -16,7 +17,7 @@ set (SOURCES
         Pose.cpp
         Material.cpp
         Light.cpp
-        )
+)
 
 set (HEADERS
         include/type.h
