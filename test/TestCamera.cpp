@@ -299,4 +299,6 @@ TEST(Camera, clipping_2d){
 
   auto tri3_clipped = cam.clipScreen2D(tri3);
   ASSERT_EQ(tri3_clipped.size(), 0);
+
+  // TODO: Add test for norm slerp
 }

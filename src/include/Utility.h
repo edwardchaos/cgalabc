@@ -12,6 +12,8 @@
 
 #include "Mesh.h"
 
+using Eigen::Matrix4d;
+using Eigen::Vector4d;
 using Eigen::Vector3d;
 using Eigen::Vector2d;
 
@@ -31,25 +33,25 @@ Mesh_ptr cube();
 /*
  * Rotate counterclockwise by theta radian along the +X axis
  */
-Eigen::Matrix4d rotateX(double theta);
+Matrix4d rotateX(double theta);
 
 /*
  * Rotate counterclockwise by theta radian along the +Y axis
  */
-Eigen::Matrix4d rotateY(double theta);
+Matrix4d rotateY(double theta);
 
 /*
  * Rotate counterclockwise along the +Z axis
  */
-Eigen::Matrix4d rotateZ(double theta);
+Matrix4d rotateZ(double theta);
 
 /*
  * returns a 4x4 matrix for a 3D translation
  */
-Eigen::Matrix4d translation(double dx, double dy, double dz);
+Matrix4d translation(double dx, double dy, double dz);
 
-Eigen::Vector4d transformPoint(const Eigen::Vector4d &pt,
-                               const Eigen::Matrix4d& tf);
+Vector4d transformPoint(const Eigen::Vector4d &pt, const Eigen::Matrix4d& tf);
+
 
 /*
  * Given a point on a plane along with the unit normal vector pointing in the
