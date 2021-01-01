@@ -50,8 +50,8 @@ Matrix4d rotateZ(double theta);
  */
 Matrix4d translation(double dx, double dy, double dz);
 
-Vector4d transformPoint(const Eigen::Vector4d &pt, const Eigen::Matrix4d& tf);
-
+Vector4d transformPoint(const Vector4d &pt, const Matrix4d& tf);
+Triangle transformTriangle(const Triangle& tri, const Matrix4d& tf);
 
 /*
  * Given a point on a plane along with the unit normal vector pointing in the
