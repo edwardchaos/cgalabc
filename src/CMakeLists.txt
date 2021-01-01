@@ -2,6 +2,7 @@
 set (BINARY ${CMAKE_PROJECT_NAME})
 
 set (SOURCES
+        olcPixelGameEngine.cpp
         type.cpp
         Point2d.cpp
         Line2d.cpp
@@ -14,7 +15,9 @@ set (SOURCES
         Algo3d.cpp
         Utility.cpp
         Pose.cpp
-        )
+        Material.cpp
+        Light.cpp
+)
 
 set (HEADERS
         include/type.h
@@ -30,6 +33,8 @@ set (HEADERS
         include/Algo3d.h
         include/Utility.h
         include/Pose.h
+        include/Material.h
+        include/Light.h
 )
 
 # Create library object so it can be linked with in tests

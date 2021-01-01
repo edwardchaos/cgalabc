@@ -1,5 +1,3 @@
-#define OLC_PGE_APPLICATION
-
 #include <cmath>
 #include <memory>
 #include <iostream>
@@ -85,21 +83,13 @@ class CameraApplication: public olc::PixelGameEngine{
 
     for(const auto& tri : mesh.tris){
       // Move original mesh to its world position
-      Eigen::Vector4d pt0_tf = cg::transformPoint(tri.points[0], tf);
-      Eigen::Vector4d pt1_tf = cg::transformPoint(tri.points[1], tf);
-      Eigen::Vector4d pt2_tf = cg::transformPoint(tri.points[2], tf);
-      cg::Triangle tri_world{
-        pt0_tf.head<3>(), pt1_tf.head<3>(), pt2_tf.head<3>(),
-            tri.t[0].head<2>(), tri.t[1].head<2>(), tri.t[2].head<2>()};
+      cg::Triangle tri_world = cg::transformTriangle(tri, tf);
 
       auto triangles_to_draw = cam->projectTriangleInWorld(tri_world);
 
       for(const auto& screen_tri : triangles_to_draw){
+        //cg::shadeAndDrawTriangle(screen_tri,lights);
         DrawTexturedTriangle(screen_tri, sprite);
-
-//        FillTriangle(screen_tri.points[0].x(), screen_tri.points[0].y(),
-//                     screen_tri.points[1].x(), screen_tri.points[1].y(),
-//                     screen_tri.points[2].x(), screen_tri.points[2].y());
       }
     }
 

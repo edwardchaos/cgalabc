@@ -70,6 +70,9 @@ Camera::projectTriangleInWorld(const Triangle& tri_world) const{
       tri_img.t[i] = Vector3d(tri_cam.t[i].x()/pt_cube.w(),
                               tri_cam.t[i].y()/pt_cube.w(),
                               tri_cam.t[i].z()/pt_cube.w());
+
+      // Carry over vertex normal for shading algorithm
+      tri_img.vertex_normals[i] = tri_cam.vertex_normals[i];
     }
 
     // Clip 2D triangle in screen space
@@ -88,7 +91,7 @@ bool Camera::isFacing(const Triangle& tri_world) const{
 
   Vector3d cam_2_tri = tri_cam.points[0].head<3>();
   cam_2_tri.normalize();
-  return cam_2_tri.dot(tri_cam.unit_normal()) < -EPS;
+  return cam_2_tri.dot(tri_cam.face_unit_normal()) < -EPS;
 }
 
 Triangle Camera::tfTriangleWorldToCam(const Triangle& tri_world) const{
@@ -130,6 +133,7 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
 
   std::vector<Vector3d> in,out;
   std::vector<Vector2d> in_t, out_t; // Texture coordinates
+  std::vector<Vector3d> in_norm, out_norm;
 
   for(int i = 0 ; i < 3; ++i){
     int cur_idx = i;
@@ -139,6 +143,8 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
     auto next_pt = tri_cam.points[next_idx].head<3>();
     auto cur_tx = tri_cam.t[cur_idx].head<2>();
     auto next_tx = tri_cam.t[next_idx].head<2>();
+    auto cur_norm = tri_cam.vertex_normals[cur_idx];
+    auto next_norm = tri_cam.vertex_normals[next_idx];
 
     // Add current point in 'In' or 'Out'?
     if(cur_pt.z() > -near_plane_dist_){
@@ -168,6 +174,16 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
       auto int_tx = cur_tx + (next_tx - cur_tx)*t;
       in_t.emplace_back(int_tx);
       out_t.emplace_back(int_tx);
+
+      // Also interpolate the normal vector
+      if(cur_norm.isApprox(next_norm)){
+        in_norm.emplace_back(cur_norm);
+        out_norm.emplace_back(cur_norm);
+      }else{
+        auto slerped_norm = slerp(cur_norm,next_norm,t);
+        in_norm.emplace_back(slerped_norm);
+        out_norm.emplace_back(slerped_norm);
+      }
     }
   }
 
@@ -176,12 +192,15 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
   assert(in.size() == 3 || in.size() == 4);
   // Create triangles with 'In' points
   if(in.size() == 3) {
-    return {Triangle(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2])};
+    return {Triangle(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2],
+                     in_norm[0],in_norm[1],in_norm[2])};
   }
   else
     return {
-        Triangle(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2]),
-        Triangle(in[0],in[2],in[3],in_t[0],in_t[2],in_t[3])};
+        Triangle(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2],
+                 in_norm[0],in_norm[1],in_norm[2]),
+        Triangle(in[0],in[2],in[3],in_t[0],in_t[2],in_t[3],
+                 in_norm[0],in_norm[2],in_norm[3])};
 }
 
 std::vector<Triangle2D>
@@ -271,6 +290,7 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
     // Texture coordinates need clip too. Vector3d because we can't forget
     // about the w value which will be used for texel perspective.
     std::vector<Vector3d> in_t, out_t;
+    std::vector<Vector3d> in_norm, out_norm;
 
     for(int i = 0; i < 3; ++i){
       int cur_idx = i;
@@ -282,6 +302,10 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       // Texture coordinates
       auto cur_tx = tri.t[cur_idx];
       auto next_tx = tri.t[next_idx];
+
+      // Vertex normals
+      auto cur_norm = tri.vertex_normals[cur_idx];
+      auto next_norm = tri.vertex_normals[next_idx];
 
       // Add current point in 'In' or 'Out'?
       if(d[cur_idx] < -EPS) { // 'Out' side
@@ -317,6 +341,16 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
         auto int_tx = cur_tx + (next_tx-cur_tx)*t;
         in_t.emplace_back(int_tx);
         out_t.emplace_back(int_tx);
+
+        // Also interpolate the normal vector
+        if(cur_norm.isApprox(next_norm)){
+          in_norm.emplace_back(cur_norm);
+          out_norm.emplace_back(cur_norm);
+        }else{
+          auto slerped_norm = slerp(cur_norm,next_norm,t);
+          in_norm.emplace_back(slerped_norm);
+          out_norm.emplace_back(slerped_norm);
+        }
       }
     }
 
@@ -332,6 +366,9 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       new_tri.t[0] = in_t[0];
       new_tri.t[1] = in_t[1];
       new_tri.t[2] = in_t[2];
+      new_tri.vertex_normals[0] = in_norm[0];
+      new_tri.vertex_normals[1] = in_norm[1];
+      new_tri.vertex_normals[2] = in_norm[2];
       clipped_triangles.push_back(std::move(new_tri));
     }
     else{
@@ -342,6 +379,9 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       new_tri1.t[0] = in_t[0];
       new_tri1.t[1] = in_t[1];
       new_tri1.t[2] = in_t[2];
+      new_tri1.vertex_normals[0] = in_norm[0];
+      new_tri1.vertex_normals[1] = in_norm[1];
+      new_tri1.vertex_normals[2] = in_norm[2];
 
       new_tri2.points[0] = in[0];
       new_tri2.points[1] = in[2];
@@ -349,6 +389,9 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       new_tri2.t[0] = in_t[0];
       new_tri2.t[1] = in_t[2];
       new_tri2.t[2] = in_t[3];
+      new_tri2.vertex_normals[0] = in_norm[0];
+      new_tri2.vertex_normals[1] = in_norm[2];
+      new_tri2.vertex_normals[2] = in_norm[3];
       clipped_triangles.emplace_back(std::move(new_tri1));
       clipped_triangles.emplace_back(std::move(new_tri2));
     }

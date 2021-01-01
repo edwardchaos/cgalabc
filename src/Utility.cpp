@@ -267,6 +267,19 @@ Eigen::Vector4d transformPoint(const Eigen::Vector4d &pt,
  return tf*pt;
 }
 
+Triangle transformTriangle(const Triangle& tri, const Matrix4d& tf){
+  Triangle transformed_tri;
+  for(int i = 0; i < 3; ++i){
+    transformed_tri.points[i] = std::move(transformPoint(tri.points[i],tf));
+    transformed_tri.t[i] = Vector3d(tri.t[i]); // Transform doesn't affect
+
+    // Vertex normals only define direction.
+    transformed_tri.vertex_normals[i] =
+        tf.block(0,0,3,3)*tri.vertex_normals[i];
+  }
+  return transformed_tri;
+}
+
 std::shared_ptr<Vector3d> planeLineIntersect(
     const Vector3d &pt1, const Vector3d &pt2,
     const Vector3d &plane_unit_normal, const Vector3d &pt_on_plane, double&t){
@@ -315,5 +328,12 @@ std::shared_ptr<Vector2d> lineLineIntersect2d(
   *intersect_pt = pt1 + (pt2-pt1)*t;
 
   return intersect_pt;
+}
+
+Vector3d slerp(const Vector3d &from, const Vector3d &to, double s){
+  double theta = acos(from.dot(to));
+  double alpha = sin((1-s)*theta)/sin(theta);
+  double beta = sin(s*theta)/sin(theta);
+  return alpha*from+beta*to;
 }
 } // namespace cg

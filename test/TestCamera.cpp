@@ -256,6 +256,8 @@ TEST(Camera, clipping_3d){
   ASSERT_TRUE(g_clip.size()==1);
   ASSERT_TRUE(h_clip.empty());
   ASSERT_TRUE(i_clip.size()==1);
+
+  //TODO: Test clipping norm slerp
 }
 
 TEST(Camera, clipping_2d){
@@ -297,4 +299,6 @@ TEST(Camera, clipping_2d){
 
   auto tri3_clipped = cam.clipScreen2D(tri3);
   ASSERT_EQ(tri3_clipped.size(), 0);
+
+  // TODO: Add test for norm slerp
 }
