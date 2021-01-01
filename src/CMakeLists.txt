@@ -17,7 +17,7 @@ set (SOURCES
         Pose.cpp
         Material.cpp
         Light.cpp
-        Shader.cpp
+        Renderer.cpp
 )
 
 set (HEADERS
@@ -36,7 +36,7 @@ set (HEADERS
         include/Pose.h
         include/Material.h
         include/Light.h
-        include/Shader.h
+        include/Renderer.h
 )
 
 # Create library object so it can be linked with in tests
