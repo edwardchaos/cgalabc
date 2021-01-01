@@ -10,6 +10,7 @@
 #include <Eigen/Dense>
 
 #include "Pose.h"
+#include "Material.h"
 
 using Eigen::Vector4d;
 using Eigen::Vector3d;
@@ -28,6 +29,7 @@ struct Triangle{
   Vector4d points[3]; // Coordinates in world frame
   Vector3d t[3]; // Texture coordinates
   Vector3d vertex_normals[3];
+  Material_ptr material = nullptr;
 
   Triangle() = default;
   //Triangle vertices only
@@ -69,6 +71,7 @@ struct Triangle2D{
   Vector3d points[3]; // x y w
   Vector3d t[3]; // x y w
   Vector3d vertex_normals[3];
+  Material_ptr material = nullptr;
 
   Triangle2D() = default;
   Triangle2D(const Vector2d& pt1, const Vector2d &pt2, const Vector2d &pt3);
