@@ -25,6 +25,8 @@ namespace cg{
  */
 Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points);
 
+std::string getResourcesPath();
+
 // Functions for creating sample meshes for dev/debugging
 Mesh_ptr cube();
 Mesh_ptr spyro();

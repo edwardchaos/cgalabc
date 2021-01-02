@@ -14,7 +14,6 @@ TEST(Utility, load_obj){
   std::string file_path = __FILE__;
   std::string dir_path = file_path.substr(0, file_path.rfind("/"));
   dir_path += "/resource/cube.obj";
-  std::cout << dir_path << std::endl;
 
   // Load cube obj
   bool ccw_points = true;

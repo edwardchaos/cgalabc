@@ -24,8 +24,8 @@ class CameraApplication: public olc::PixelGameEngine{
 
     //meshes.emplace("spyro", cg::spyro());
     //meshes.emplace("teddy", cg::teddy());
-    //meshes.emplace("teapot", cg::teapot());
-    meshes.emplace("cube", cg::cube());
+    meshes.emplace("teapot", cg::teapot());
+    //meshes.emplace("cube", cg::cube());
     //meshes.emplace("simple_tri", cg::simpleTriangle());
     //meshes.emplace("thin_triangles" ,cg::thinTriangles());
     //meshes.emplace("axis",cg::worldAxis());

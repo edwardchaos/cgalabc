@@ -5,12 +5,21 @@
 
 namespace cg{
 
+std::string getResourcesPath(){
+  std::string file_path = __FILE__;
+  std::string dir_path = file_path.substr(0, file_path.rfind("/"));
+  dir_path += "/../resources/";
+  return dir_path;
+}
+
 Material_ptr defaultMaterial(){
   Material_ptr default_mat = std::make_shared<Material>();
   std::shared_ptr<olc::Sprite> sprite=std::make_shared<olc::Sprite>();
   if(sprite->loader==nullptr) return default_mat;
 
-  sprite->LoadFromFile("/home/shooshan/Pictures/rainbow.png");
+  auto tex_path = getResourcesPath() + "sample_textures/rainbow.png";
+
+  sprite->LoadFromFile(tex_path);
   default_mat->texture = sprite;
   return default_mat;
 }
@@ -239,7 +248,8 @@ Mesh_ptr cube(){
 }
 
 Mesh_ptr teapot(){
-  auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+  auto path = getResourcesPath()+"/sample_models/teapot.obj";
+  auto teapot = cg::loadOBJ(path, false);
   auto default_material = defaultMaterial();
   for(auto &tri : teapot->tris)
     tri.material = default_material;
@@ -282,7 +292,8 @@ Mesh_ptr thinTriangles(){
 
 Mesh_ptr worldAxis(){
   auto default_material = defaultMaterial();
-  auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj", false);
+  auto path = getResourcesPath()+"/sample_models/axis.obj";
+  auto axis= cg::loadOBJ(path, false);
   for(auto&tri: axis->tris)
     tri.material = default_material;
   return axis;
@@ -290,7 +301,8 @@ Mesh_ptr worldAxis(){
 
 Mesh_ptr teddy(){
   auto default_material = defaultMaterial();
-  auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
+  auto path = getResourcesPath()+"/sample_models/teddy.obj";
+  auto teddy = cg::loadOBJ(path, false);
   for(auto&tri: teddy->tris)
     tri.material = default_material;
   return teddy;
@@ -298,7 +310,8 @@ Mesh_ptr teddy(){
 
 Mesh_ptr spyro(){
   auto default_material = defaultMaterial();
-  auto spyro= cg::loadOBJ("/home/shooshan/Pictures/spyro.obj", false);
+  auto path = getResourcesPath()+"/sample_models/spyro.obj";
+  auto spyro = cg::loadOBJ(path, false);
   for(auto&tri: spyro->tris)
     tri.material = default_material;
   return spyro;
