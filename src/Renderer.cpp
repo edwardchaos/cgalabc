@@ -22,7 +22,8 @@ void Renderer::clear(){
     row.assign(pge->ScreenWidth()+1, -1e9);
 }
 
-void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh){
+void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
+                    const std::unordered_map<std::string, Light_ptr> &lights){
   for(const auto& tri : mesh->tris){
     // Mesh points are kept as they are when they're first loaded.
     // Transformations on meshes affect their pose

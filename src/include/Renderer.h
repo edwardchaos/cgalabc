@@ -4,6 +4,7 @@
 
 #include "Mesh.h"
 #include "Camera.h"
+#include "Light.h"
 
 namespace cg{
 
@@ -31,7 +32,8 @@ class Renderer : public olc::PGEX{
    * Depth buffer is only cleared with this->clear(), so repeated calls
    * with multiple meshes produce occlusion
    */
-  void draw(const Camera_ptr &cam, const Mesh_ptr &mesh);
+  void draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
+            const std::unordered_map<std::string, Light_ptr> &lights);
 
   /*
    * Will be refactored in the future, not sure how exactly yet

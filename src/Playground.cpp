@@ -57,7 +57,7 @@ class CameraApplication: public olc::PixelGameEngine{
       Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
       // Render mesh in camera 'ego'
-      renderer->draw(cams.at("ego"), mesh.second);
+      renderer->draw(cams.at("ego"), mesh.second, lights);
     }
 
     return true;
