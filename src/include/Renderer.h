@@ -35,12 +35,9 @@ class Renderer : public olc::PGEX{
   void draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
             const std::unordered_map<std::string, Light_ptr> &lights);
 
-  /*
-   * Will be refactored in the future, not sure how exactly yet
-   * This function takes a fully projected and clipped 2D triangle in image
-   * space. Does scan conversion with texture mapping provided an olc::Sprite.
-   */
-  void drawTexturedTriangle(const cg::Triangle &tri, const olc::Sprite &spr);
+  void shadeAndDrawTriangle(
+      const Triangle& triangle,
+      const std::unordered_map<std::string, Light_ptr> &lights);
 
  private:
   std::vector<std::vector<double>> depth_buffer;

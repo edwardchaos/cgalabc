@@ -41,54 +41,44 @@ void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
      * material: same as original
      */
     for(const auto& tri: triangles_to_draw){
-      //cg::shadeAndDrawTriangle(tri,lights);
-      if(tri.material && tri.material->texture)
-      drawTexturedTriangle(tri, *(tri.material->texture));
-      else {
+      shadeAndDrawTriangle(tri,lights);
+//      if(tri.material && tri.material->texture)
+//      drawTexturedTriangle(tri, *(tri.material->texture));
+//      else {
 //        pge->DrawTriangle(screen_tri.points[0].x(),screen_tri.points[0].y(),
 //                          screen_tri.points[1].x(),screen_tri.points[1].y(),
 //                          screen_tri.points[2].x(),screen_tri.points[2].y());
-      }
     }
   }
 }
 
-void Renderer::drawTexturedTriangle(
-    const cg::Triangle &tri, const olc::Sprite &spr){
+void Renderer::shadeAndDrawTriangle(
+    const Triangle& tri,
+    const std::unordered_map<std::string, Light_ptr> &lights) {
   // Sort triangle vertices from top to bottom
   auto pt1 = tri.points2d[0];
   auto pt2 = tri.points2d[1];
   auto pt3 = tri.points2d[2];
 
-  int p1x = std::round(pt1.x());
-  int p1y = std::round(pt1.y());
-  int p2x = std::round(pt2.x());
-  int p2y = std::round(pt2.y());
-  int p3x = std::round(pt3.x());
-  int p3y = std::round(pt3.y());
+  // Discretize to pixels
+  int p1x = std::round(pt1.x()); int p1y = std::round(pt1.y());
+  int p2x = std::round(pt2.x()); int p2y = std::round(pt2.y());
+  int p3x = std::round(pt3.x()); int p3y = std::round(pt3.y());
 
-  auto tx1 = tri.t[0];
-  auto tx2 = tri.t[1];
-  auto tx3 = tri.t[2];
+  auto tx1 = tri.t[0]; auto tx2 = tri.t[1]; auto tx3 = tri.t[2];
 
   if(p2y < p1y){
-    std::swap(p2x,p1x);
-    std::swap(p2y,p1y);
-    std::swap(tx2,tx1);}
+    std::swap(p2x,p1x);std::swap(p2y,p1y);std::swap(tx2,tx1);}
   if(p3y < p1y){
-    std::swap(p3x,p1x);
-    std::swap(p3y,p1y);
-    std::swap(tx3,tx1);}
+    std::swap(p3x,p1x);std::swap(p3y,p1y);std::swap(tx3,tx1);}
   if(p3y < p2y){
-    std::swap(p3x,p2x);
-    std::swap(p3y,p2y);
-    std::swap(tx3,tx2);}
+    std::swap(p3x,p2x);std::swap(p3y,p2y);std::swap(tx3,tx2);}
 
   int y12 = p2y-p1y; assert(y12>=0);
   int x12 = p2x-p1x;
   int y13 = p3y-p1y; assert(y13>=0);
   int x13 = p3x-p1x;
-  int y23 = p3y-p2y; assert(y23 >= 0);
+  int y23 = p3y-p2y; assert(y23>=0);
   double dx12 = 0;
   if(y12!=0)
     dx12=(double)x12/(double)y12;
@@ -148,14 +138,20 @@ void Renderer::drawTexturedTriangle(
 
     for(int dx=0; sx+dx <= ex; ++dx){
       // Pick texel color
-      double d_horizontal=0;
-      if(sx!=ex) d_horizontal = (double)dx/(double)(ex-sx);
-      double interp_texel_u = stx_u + (etx_u-stx_u)*d_horizontal;
-      double interp_texel_v = stx_v + (etx_v-stx_v)*d_horizontal;
-      double interp_texel_w = stx_w + (etx_w-stx_w)*d_horizontal;
-      double real_u = std::min(1.0,std::max(0.0,interp_texel_u/interp_texel_w));
-      double real_v = std::min(1.0,std::max(0.0,interp_texel_v/interp_texel_w));
-      auto px_color = spr.Sample(real_u,real_v);
+      double d_horizontal = 0;
+      if (sx != ex) d_horizontal = (double) dx / (double) (ex - sx);
+      double interp_texel_w = stx_w + (etx_w - stx_w) * d_horizontal;
+
+      olc::Pixel px_color;
+      if(tri.material->texture!=nullptr){
+        double interp_texel_u = stx_u + (etx_u - stx_u) * d_horizontal;
+        double interp_texel_v = stx_v + (etx_v - stx_v) * d_horizontal;
+        double real_u=
+            std::min(1.0, std::max(0.0, interp_texel_u / interp_texel_w));
+        double real_v=
+            std::min(1.0, std::max(0.0, interp_texel_v / interp_texel_w));
+        px_color = tri.material->texture->Sample(real_u, real_v);
+      }
 
       int screen_x = sx + dx;
       int screen_y = p1y + dy;
@@ -211,12 +207,18 @@ void Renderer::drawTexturedTriangle(
       // Pick texel color
       double d_horizontal=0;
       if(sx!=ex) d_horizontal = (double)dx/(double)(ex-sx);
-      double interp_texel_u = stx_u + (etx_u-stx_u)*d_horizontal;
-      double interp_texel_v = stx_v + (etx_v-stx_v)*d_horizontal;
       double interp_texel_w = stx_w + (etx_w-stx_w)*d_horizontal;
-      double real_u = std::min(1.0,std::max(0.0,interp_texel_u/interp_texel_w));
-      double real_v = std::min(1.0,std::max(0.0,interp_texel_v/interp_texel_w));
-      auto px_color = spr.Sample(real_u,real_v);
+      olc::Pixel px_color;
+
+      if(tri.material->texture!=nullptr) {
+        double interp_texel_u = stx_u + (etx_u - stx_u) * d_horizontal;
+        double interp_texel_v = stx_v + (etx_v - stx_v) * d_horizontal;
+        double real_u =
+            std::min(1.0, std::max(0.0, interp_texel_u / interp_texel_w));
+        double real_v =
+            std::min(1.0, std::max(0.0, interp_texel_v / interp_texel_w));
+        px_color = tri.material->texture->Sample(real_u, real_v);
+      }
 
       int screen_x = sx + dx;
       int screen_y = p2y + dy;
