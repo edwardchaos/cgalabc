@@ -1,7 +1,5 @@
 #include "Mesh.h"
 
-#include <utility>
-
 namespace cg{
 
 Triangle::Triangle(

@@ -19,13 +19,15 @@ Camera::Camera(double vertical_fov_rad, double near,
 
 void Camera::init(){
   // Camera's x-axis is in the opposite direction of the world's x axis at start
+  // This is consequent of the axis definition in the derivation of the
+  // perspective transform matrix
   pose_world.orientation(0,0) = -1;
   constructProjectionMatrix();
 }
 
 void Camera::constructProjectionMatrix(){
   projection_mat_ = Eigen::Matrix4d::Zero();
-  // cos(x)/sin(x) numerically stable version of cot(x)
+  // cos(x)/sin(x) numerically stable version of cot(x) (std prob does this?)
   double f = std::cos(vertical_fov_/2.0) / std::sin(vertical_fov_/2.0);
 
   projection_mat_(0,0) = ar_*f;
@@ -60,11 +62,13 @@ Camera::projectTriangleInWorld(const Triangle& tri_world) const{
       double screen_x = (pt_cube.x()/pt_cube.w() + 1) * screen_width_ / 2.0;
       double screen_y = (-pt_cube.y()/pt_cube.w() + 1) * screen_height_ / 2.0;
 
-      // Carry the w value with the points for correcting for perspective on the
-      // texture as well. We're not making a PS1 game
-      tri_cam.points2d[i] = Vector3d(screen_x, screen_y, 1); //<- in cartesian
+      tri_cam.points2d[i] = Vector3d(screen_x, screen_y, 1); //cartesian now
 
       // Same perspective transformation on the texture
+      // Instead of thinking about the texture coordinates as on a plane (as
+      // it is technically defined),
+      // treat it as in homogenous coordinates and divide by w to bring it to
+      // its correct cartesian coordinate in 3D perspective texel space.
       tri_cam.t[i] = Vector3d(tri_cam.t[i].x()/pt_cube.w(),
                               tri_cam.t[i].y()/pt_cube.w(),
                               tri_cam.t[i].z()/pt_cube.w());
@@ -74,8 +78,8 @@ Camera::projectTriangleInWorld(const Triangle& tri_world) const{
     // At this point, tri_cam has 2d image points
     auto tris_screen_clipped = clipScreen2D(tri_cam);
     triangles_projected.insert(triangles_projected.end(),
-                                 tris_screen_clipped.begin(),
-                                 tris_screen_clipped.end());
+                               tris_screen_clipped.begin(),
+                               tris_screen_clipped.end());
   }
 
   return triangles_projected;
@@ -96,7 +100,7 @@ Triangle Camera::tfTriangleWorldToCam(const Triangle& tri_world) const{
     tri_cam.points[i] = tfPointWorldToCam(tri_world.points[i]);
     tri_cam.t[i] = tri_world.t[i];
 
-    // Shaders work with direction vectors in camera frame
+    // Shader works with direction vectors in camera frame
     tri_cam.vertex_normals[i] =
         pose_world.matrix().inverse().block(0,0,3,3)
         *tri_world.vertex_normals[i];
@@ -120,7 +124,7 @@ Vector4d Camera::tfPointCameraToCube(const Vector4d &pt_cam)const{
 vTriangle Camera::clipNear(const Triangle& tri_cam) const{
   // Near plane normal vector pointed in camera view direction
   Vector3d near_plane_unit_normal(0,0,-1);
-  // Point on the near plane in camera coordinates
+  // A point on the near plane in camera coordinates
   Vector3d near_plane_pt(0,0,-near_plane_dist_);
 
   // Triangle is completely on the 'out' side of near plane. Nothing to keep.
@@ -133,11 +137,11 @@ vTriangle Camera::clipNear(const Triangle& tri_cam) const{
   && tri_cam.points[1].z() <= -near_plane_dist_
   && tri_cam.points[2].z() <= -near_plane_dist_)return {tri_cam};
 
-  std::vector<Vector3d> in,out;
+  std::vector<Vector3d> in, out; // 3D points
   std::vector<Vector2d> in_t, out_t; // Texture coordinates
-  std::vector<Vector3d> in_norm, out_norm;
+  std::vector<Vector3d> in_norm, out_norm; // vertex normals
 
-  for(int i = 0; i < 3; ++i){
+  for(int i = 0; i < 3; ++i){ // Loop through vertices
     int cur_idx = i;
     int next_idx = (i+1)%3;
 
@@ -274,7 +278,7 @@ vTriangle Camera::clip2DEdge(const Vector2d &edge_unit_normal,
     // d holds dot products; Will be used for determining which side of the
     // line the point is on.
     double d[3];
-    if(pt_to_line1.norm() > cg::EPS){
+    if(pt_to_line1.norm() > cg::EPS){ // if point happens to be point on line
       pt_to_line1.normalize();
       d[0] = edge_unit_normal.dot(pt_to_line1);
     }else d[0] = 0;

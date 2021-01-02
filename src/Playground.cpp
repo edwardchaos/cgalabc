@@ -59,7 +59,6 @@ class CameraApplication: public olc::PixelGameEngine{
   }
 
   bool OnUserUpdate(float fElapsedTime) override {
-    // Modify mesh's world position
     double z_rot = 0.0001/fElapsedTime;
     double x_rot = 0.0001/fElapsedTime;
     double y_rot = 0.0001/fElapsedTime;
@@ -78,6 +77,7 @@ class CameraApplication: public olc::PixelGameEngine{
       //Eigen::Matrix4d tf = mesh.pose.matrix();
       Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
+      // Render mesh in camera 'ego'
       renderer->draw(cams.at("ego"), mesh.second);
     }
 

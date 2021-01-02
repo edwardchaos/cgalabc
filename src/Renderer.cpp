@@ -8,12 +8,10 @@ Renderer::Renderer(olc::PixelGameEngine* p_pge){
   // A pointer to the main pge object so we can draw in this class
   pge = p_pge;
 
+  // ye ol depth buffer
   depth_buffer.resize(pge->ScreenHeight()+1);
   for(auto &row:depth_buffer)
     row.assign(pge->ScreenWidth()+1, -1e9);
-
-  //sprite.LoadFromFile("/home/shooshan/Pictures/free.png");
-  //sprite.LoadFromFile("/home/shooshan/Pictures/checkerboard.png");
 }
 
 void Renderer::clear(){
@@ -26,13 +24,15 @@ void Renderer::clear(){
 
 void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh){
   for(const auto& tri : mesh->tris){
-    // Move original mesh to its world position
+    // Mesh points are kept as they are when they're first loaded.
+    // Transformations on meshes affect their pose
+    // Move original mesh to its pose in world
     auto tf = mesh->pose.matrix();
     cg::Triangle tri_world = cg::transformTriangle(tri, tf);
 
     auto triangles_to_draw = cam->projectTriangleInWorld(tri_world);
 
-    /* At this point, a triangle has the following:
+    /* At this point, a triangle has the following member variables:
      * points: 3d point in cam frame
      * point2d: 2d point in screen space
      * t: perspective corrected texture map

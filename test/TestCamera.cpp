@@ -277,7 +277,6 @@ TEST(Camera, clipping_3d){
       normaltest.vertex_normals[1]));
   ASSERT_TRUE(nt_clip[0].vertex_normals[2].isApprox(
       cg::slerp(norm_1,norm_2,0.5)));
-
 }
 
 TEST(Camera, clipping_2d){
@@ -323,5 +322,20 @@ TEST(Camera, clipping_2d){
   auto tri3_clipped = cam.clipScreen2D(tri3);
   ASSERT_EQ(tri3_clipped.size(), 0);
 
-  // TODO: Add test for norm slerp
+  cg::Triangle tri4({1,1,1},{2,2,2},{3,3,3});
+  tri4.points2d[0] = Vector3d(10,200,1);
+  tri4.points2d[1] = Vector3d(-300,10,1);
+  tri4.points2d[2] = Vector3d(-500,200,1);
+  tri4.vertex_normals[0] = Vector3d(1,2,3).normalized();
+  tri4.vertex_normals[0] = Vector3d(7,8,9).normalized();
+  tri4.vertex_normals[0] = Vector3d(3,3,3).normalized();
+
+  auto tri4_clipped = cam.clipScreen2D(tri4);
+  ASSERT_EQ(tri4_clipped.size(),1);
+  ASSERT_TRUE(tri4_clipped[0].vertex_normals[0].isApprox(
+      tri4_clipped[0].vertex_normals[0]));
+  ASSERT_TRUE(tri4_clipped[0].vertex_normals[1].isApprox(
+      cg::slerp(tri4.vertex_normals[0],tri4.vertex_normals[1], 10.0/310.0)));
+  ASSERT_TRUE(tri4_clipped[0].vertex_normals[2].isApprox(
+      cg::slerp(tri4.vertex_normals[0],tri4.vertex_normals[2], 10.0/510.0)));
 }
