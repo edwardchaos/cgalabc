@@ -238,6 +238,72 @@ Mesh_ptr cube(){
   return cube;
 }
 
+Mesh_ptr teapot(){
+  auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+  auto default_material = defaultMaterial();
+  for(auto &tri : teapot->tris)
+    tri.material = default_material;
+
+  return teapot;
+}
+
+Mesh_ptr simpleTriangle(){
+  auto default_material = defaultMaterial();
+  Triangle triangle{
+      Vector3d(0,-1,-10),{-1,-1,-10},{0,1,-10},
+      Vector2d(0,1),{1,1},{0,0}};
+  triangle.material = default_material;
+
+  Mesh_ptr tri_mesh = std::make_shared<Mesh>();
+  tri_mesh->tris.push_back(triangle);
+  return tri_mesh;
+}
+
+Mesh_ptr thinTriangles(){
+  auto default_material = defaultMaterial();
+  cg::Triangle thin_bottom{
+    Vector3d(0,0,-10),
+    Vector3d(-10,0,-10),
+    Vector3d(-10,0.5,-10)};
+  thin_bottom.material = default_material;
+
+  cg::Triangle thin_top{
+    Vector3d(0,0,-10),
+    Vector3d(-10,0.5,-10),
+    Vector3d(0,0.5,-10)};
+  thin_top.material = default_material;
+
+  cg::Mesh_ptr thin_tri_mesh = std::make_shared<Mesh>();
+  thin_tri_mesh->tris.push_back(thin_bottom);
+  thin_tri_mesh->tris.push_back(thin_top);
+
+  return thin_tri_mesh;
+}
+
+Mesh_ptr worldAxis(){
+  auto default_material = defaultMaterial();
+  auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj", false);
+  for(auto&tri: axis->tris)
+    tri.material = default_material;
+  return axis;
+}
+
+Mesh_ptr teddy(){
+  auto default_material = defaultMaterial();
+  auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
+  for(auto&tri: teddy->tris)
+    tri.material = default_material;
+  return teddy;
+}
+
+Mesh_ptr spyro(){
+  auto default_material = defaultMaterial();
+  auto spyro= cg::loadOBJ("/home/shooshan/Pictures/spyro.obj", false);
+  for(auto&tri: spyro->tris)
+    tri.material = default_material;
+  return spyro;
+}
+
 Eigen::Matrix4d rotateX(double theta){
   Eigen::Matrix4d rotX = Eigen::Matrix4d::Identity();
   rotX(1,1) = cos(theta);

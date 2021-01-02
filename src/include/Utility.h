@@ -27,7 +27,6 @@ Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points);
 
 // Functions for creating sample meshes for dev/debugging
 Mesh_ptr cube();
-Mesh_ptr santa();
 Mesh_ptr spyro();
 Mesh_ptr teddy();
 Mesh_ptr teapot();

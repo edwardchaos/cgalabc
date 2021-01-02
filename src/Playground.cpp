@@ -22,38 +22,13 @@ class CameraApplication: public olc::PixelGameEngine{
 
     renderer = std::make_unique<cg::Renderer>(this);
 
-//    meshes.emplace("santa", saint);
-//    auto spyro= cg::loadOBJ("/home/shooshan/Pictures/spyro.obj", false);
-//    meshes.emplace("spyro", spyro);
-//    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
-//    meshes.emplace(teddy);
-//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
-//    meshes.emplace("teapot", teapot);
-      meshes.emplace("cube", cg::cube());
-//    cg::Triangle triangle{
-//      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
-//      Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};
-//    cg::Mesh_ptr tri_mesh;
-//    tri_mesh->tris.push_back(triangle);
-//    meshes.emplace("triangle" ,tri_mesh);
-
-// 2 Thin triangles
-//    cg::Triangle thin_bottom{
-//      Vector3d(0,0,-10),
-//      Vector3d(-10,0,-10),
-//      Vector3d(-10,0.5,-10)};
-//    cg::Triangle thin_top{
-//      Vector3d(0,0,-10),
-//      Vector3d(-10,0.5,-10),
-//      Vector3d(0,0.5,-10)};
-//
-//    cg::Mesh_ptr thin_tri_mesh;
-//    thin_tri_mesh->tris.push_back(thin_bottom);
-//    thin_tri_mesh->tris.push_back(thin_top);
-//    meshes.emplace("thin_triangles" ,thin_tri_mesh);
-
-//    auto axis = cg::loadOBJ("/home/shooshan/Pictures/axis.obj", false);
-//    meshes.emplace("axis",axis);
+    //meshes.emplace("spyro", cg::spyro());
+    //meshes.emplace("teddy", cg::teddy());
+    //meshes.emplace("teapot", cg::teapot());
+    meshes.emplace("cube", cg::cube());
+    //meshes.emplace("simple_tri", cg::simpleTriangle());
+    //meshes.emplace("thin_triangles" ,cg::thinTriangles());
+    //meshes.emplace("axis",cg::worldAxis());
 
     return true;
   }
