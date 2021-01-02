@@ -1,6 +1,6 @@
 #include <cmath>
 #include <memory>
-#include <map>
+#include <unordered_map>
 
 #include <olcPixelGameEngine.h>
 
@@ -60,8 +60,8 @@ class CameraApplication: public olc::PixelGameEngine{
   }
 
  private:
-  std::map<std::string, cg::Camera_ptr> cams;
-  std::map<std::string, cg::Mesh_ptr> meshes;
+  std::unordered_map<std::string, cg::Camera_ptr> cams;
+  std::unordered_map<std::string, cg::Mesh_ptr> meshes;
   std::unique_ptr<cg::Renderer> renderer;
 
   void handleCameraMotion(const cg::Camera_ptr &cam, double fElapsedTime){
