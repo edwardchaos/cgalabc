@@ -27,7 +27,6 @@ void Renderer::clear(){
 void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh){
   for(const auto& tri : mesh->tris){
     // Move original mesh to its world position
-    // TODO: concatenate mesh->world and world->cam for efficiency
     auto tf = mesh->pose.matrix();
     cg::Triangle tri_world = cg::transformTriangle(tri, tf);
 
