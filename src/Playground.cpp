@@ -8,6 +8,7 @@
 #include "Utility.h"
 #include "Camera.h"
 #include "Renderer.h"
+#include "Light.h"
 
 using Eigen::Vector3d;
 
@@ -19,6 +20,9 @@ class CameraApplication: public olc::PixelGameEngine{
                                                      50,
                                                      ScreenWidth(),
                                                      ScreenHeight()));
+
+    lights.emplace("dir_light",
+                   std::make_shared<cg::DirectionLight>(Vector3d(1,-1,-1)));
 
     renderer = std::make_unique<cg::Renderer>(this);
 
@@ -62,6 +66,7 @@ class CameraApplication: public olc::PixelGameEngine{
  private:
   std::unordered_map<std::string, cg::Camera_ptr> cams;
   std::unordered_map<std::string, cg::Mesh_ptr> meshes;
+  std::unordered_map<std::string, cg::Light_ptr> lights;
   std::unique_ptr<cg::Renderer> renderer;
 
   void handleCameraMotion(const cg::Camera_ptr &cam, double fElapsedTime){

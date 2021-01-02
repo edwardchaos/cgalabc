@@ -1,11 +1,15 @@
 #pragma once
 
+#include <memory>
 #include <Eigen/Dense>
 
 using Eigen::Vector4d;
 using Eigen::Vector3d;
 
 namespace cg{
+
+struct Light;
+typedef std::shared_ptr<Light> Light_ptr;
 
 struct Light{
   double La[3] = {1,1,1}; // Light ambience reflectivity
@@ -26,7 +30,7 @@ struct DirectionLight : public Light{
   Vector3d direction;
 
   DirectionLight() = default;
-  DirectionLight(const Vector3d &direction);
+  DirectionLight(Vector3d direction);
 };
 
 } // namespace cg
