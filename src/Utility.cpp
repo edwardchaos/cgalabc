@@ -6,9 +6,11 @@
 namespace cg{
 
 Material_ptr defaultMaterial(){
-  std::shared_ptr<olc::Sprite> sprite =
-      std::make_shared<olc::Sprite>("/home/shooshan/Pictures/rainbow.png");
   Material_ptr default_mat = std::make_shared<Material>();
+  std::shared_ptr<olc::Sprite> sprite=std::make_shared<olc::Sprite>();
+  if(sprite->loader==nullptr) return default_mat;
+
+  sprite->LoadFromFile("/home/shooshan/Pictures/rainbow.png");
   default_mat->texture = sprite;
   return default_mat;
 }
