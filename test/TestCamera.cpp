@@ -1,12 +1,14 @@
 #include <gtest/gtest.h>
 
 #include <iostream>
-#include "Camera.h"
 
 #ifdef SUCCESS
 #undef SUCCESS
 #endif
 #include "Eigen/Dense"
+
+#include "Camera.h"
+#include "Utility.h"
 
 using Eigen::Matrix4d;
 using Eigen::Vector4d;
@@ -257,7 +259,25 @@ TEST(Camera, clipping_3d){
   ASSERT_TRUE(h_clip.empty());
   ASSERT_TRUE(i_clip.size()==1);
 
-  //TODO: Test clipping norm slerp
+  cg::Triangle normaltest({-2,0,0},{-1,0,-2},{-1,0,0});
+  Vector3d norm_0(-1,1,1); norm_0.normalize();
+  Vector3d norm_1(0,1,-1); norm_1.normalize();
+  Vector3d norm_2(1,1,1); norm_2.normalize();
+  normaltest.vertex_normals[0] = norm_0;
+  normaltest.vertex_normals[1] = norm_1;
+  normaltest.vertex_normals[2] = norm_2;
+
+  auto nt_clip = cam.clipNear(normaltest);
+  ASSERT_TRUE(nt_clip.size()==1);
+  Vector3d first_normal(-0.5,1,0);
+  first_normal.normalize();
+  ASSERT_TRUE(nt_clip[0].vertex_normals[0].isApprox(
+      cg::slerp(norm_0,norm_1,0.5)));
+  ASSERT_TRUE(nt_clip[0].vertex_normals[1].isApprox(
+      normaltest.vertex_normals[1]));
+  ASSERT_TRUE(nt_clip[0].vertex_normals[2].isApprox(
+      cg::slerp(norm_1,norm_2,0.5)));
+
 }
 
 TEST(Camera, clipping_2d){
