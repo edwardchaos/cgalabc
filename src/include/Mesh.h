@@ -26,7 +26,8 @@ typedef std::shared_ptr<Mesh> Mesh_ptr;
  */
 struct Triangle{
   // Homogenous coordinates
-  Vector4d points[3];
+  Vector4d points[3]; // 3D points in world/cam frame
+  Vector3d points2d[3]; // corresponding 2D perspective projected points
   Vector3d t[3]; // Texture coordinates
   Vector3d vertex_normals[3];
   Material_ptr material = nullptr;
@@ -62,25 +63,4 @@ struct Mesh{
   std::vector<Triangle> tris;
   Pose pose;
 };
-
-/* An explicit 2D triangle class for after perspective transform is done on
- * the 3D triangle.
- */
-struct Triangle2D{
- public:
-  Vector3d points[3]; // x y w
-  Vector3d t[3]; // x y w
-  Vector3d vertex_normals[3];
-  Material_ptr material = nullptr;
-
-  Triangle2D() = default;
-  Triangle2D(const Vector2d& pt1, const Vector2d &pt2, const Vector2d &pt3);
-  Triangle2D(const Vector2d &pt1, const Vector2d &pt2, const Vector2d &pt3,
-             const Vector2d &t1, const Vector2d &t2, const Vector2d &t3);
-
-  void defaultTextureMap();
-  void defaultVertexNorms();
-
-};
-
 } // namespace cg
