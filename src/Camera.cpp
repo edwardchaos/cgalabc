@@ -37,7 +37,7 @@ void Camera::constructProjectionMatrix(){
   projection_mat_(2,3) = -1;
 }
 
-[[nodiscard]] std::vector<Triangle>
+[[nodiscard]] vTriangle
 Camera::projectTriangleInWorld(const Triangle& tri_world) const{
   // Backface culling
   if(!isFacing(tri_world)) return {};
@@ -48,7 +48,7 @@ Camera::projectTriangleInWorld(const Triangle& tri_world) const{
   // Clip triangle in cam coordinate frame by near plane
   auto near_clipped_tris_cam = clipNear(original_tri_cam);
 
-  std::vector<Triangle> triangles_projected;
+  vTriangle triangles_projected;
 
   for(auto &tri_cam : near_clipped_tris_cam) {
     for (int i = 0; i < 3; ++i){
@@ -117,7 +117,7 @@ Vector4d Camera::tfPointCameraToCube(const Vector4d &pt_cam)const{
   return Vector4d(pt);
 }
 
-std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
+vTriangle Camera::clipNear(const Triangle& tri_cam) const{
   // Near plane normal vector pointed in camera view direction
   Vector3d near_plane_unit_normal(0,0,-1);
   // Point on the near plane in camera coordinates
@@ -215,9 +215,8 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
   }
 }
 
-std::vector<Triangle2D>
-Camera::clipScreen2D(const Triangle2D &tri_img) const{
-  std::vector<Triangle2D> triangles{tri_img};
+vTriangle Camera::clipScreen2D(const Triangle &tri_img) const{
+  vTriangle triangles{tri_img};
   // Clip on Left edge
   Vector2d left_edge_normal(1,0);
   Vector2d pt_on_left_edge(0,0);
@@ -260,12 +259,12 @@ Vector4d Camera::tfPointWorldToCube(const Vector4d &pt_world) const{
   return tfPointCameraToCube(pt_cam);
 }
 
-std::vector<Triangle2D>
+vTriangle
 Camera::clip2DEdge(const Vector2d &edge_unit_normal,
                    const Vector2d &pt_on_edge,
-                   const std::vector<Triangle2D> &tris) const{
+                   const vTriangle &tris) const{
 
-  std::vector<Triangle2D> clipped_triangles;
+  vTriangle clipped_triangles;
 
   for(const auto& tri: tris){
     Vector2d pt_to_line1 = tri.points[0].head<2>()-pt_on_edge;

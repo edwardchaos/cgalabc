@@ -20,6 +20,8 @@ namespace cg{
 
 struct Mesh;
 typedef std::shared_ptr<Mesh> Mesh_ptr;
+struct Triangle;
+typedef std::vector<Triangle> vTriangle;
 /*
  * Triangle points are in counter clockwise order. Surface normal is positive
  * in the direction by the right hand rule
@@ -60,7 +62,7 @@ struct Triangle{
 };
 
 struct Mesh{
-  std::vector<Triangle> tris;
+  vTriangle tris;
   Pose pose;
 };
 } // namespace cg

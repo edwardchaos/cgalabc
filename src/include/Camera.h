@@ -48,7 +48,7 @@ class Camera{
    * Returns a vector of triangles in screen space represented as a vector of
    * 2d points. Does not perform depth buffering.
    */
-  [[nodiscard]] std::vector<Triangle2D>
+  [[nodiscard]] vTriangle
   projectTriangleInWorld(const Triangle& tri_world) const;
 
   /*
@@ -62,7 +62,7 @@ class Camera{
   /*
    * Transform a triangle from world coordinate to camera coordinate.
    */
-  Triangle tfTriangleWorldToCam(const Triangle& tri_world) const;
+  [[nodiscard]] Triangle tfTriangleWorldToCam(const Triangle& tri_world) const;
 
   /*
    * Transform a 3D point in camera coordinate to the camera's projection
@@ -75,7 +75,7 @@ class Camera{
    * Returns 0,1, or 2 triangles depending on original triangle intersection
    * with near plane.
    */
-  [[nodiscard]] std::vector<Triangle> clipNear(const Triangle& tri_cam) const;
+  [[nodiscard]] vTriangle clipNear(const Triangle& tri_cam) const;
 
   /*
    * Clip a triangle in image space on the 4 screen boundaries.
@@ -83,8 +83,7 @@ class Camera{
    * Depending on the clip results with left, top, right, and bottom edge, this
    * function may return 0 or more triangles.
    */
-  [[nodiscard]] std::vector<Triangle2D>
-  clipScreen2D(const Triangle2D &tri_img) const;
+  [[nodiscard]] vTriangle clipScreen2D(const Triangle &tri_img) const;
 
   /*
    * Transform point in world coordinate frame to a point in camera coordinate
@@ -120,10 +119,10 @@ class Camera{
    * pt_on_edge is a point on the edge.
    * tris is a vector of triangles represented as a vector of 2d points.
    */
-  [[nodiscard]] std::vector<Triangle2D>
+  [[nodiscard]] vTriangle
   clip2DEdge(const Vector2d &edge_unit_normal,
              const Vector2d &pt_on_edge,
-             const std::vector<Triangle2D> &triangles)const;
+             const vTriangle &triangles)const;
 
   /*
    * Move camera to a specific pose.
