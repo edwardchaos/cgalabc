@@ -38,7 +38,7 @@ class Renderer : public olc::PGEX{
    * This function takes a fully projected and clipped 2D triangle in image
    * space. Does scan conversion with texture mapping provided an olc::Sprite.
    */
-  void drawTexturedTriangle(const cg::Triangle2D &tri, const olc::Sprite &spr);
+  void drawTexturedTriangle(const cg::Triangle &tri, const olc::Sprite &spr);
 
  private:
   std::vector<std::vector<double>> depth_buffer;

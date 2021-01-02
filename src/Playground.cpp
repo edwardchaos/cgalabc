@@ -68,10 +68,10 @@ class CameraApplication: public olc::PixelGameEngine{
     auto roty_mat = cg::rotateY(y_rot);
     auto rotz_mat = cg::rotateZ(z_rot);
 
+    renderer->clear();
     // Handle keyboard input
     handleCameraMotion(cams.at("ego"), fElapsedTime);
 
-    renderer->clear();
     for(auto &mesh : meshes) {
       mesh.second->pose.position = cg::translation(0, 0, -20).rightCols<1>();
       //mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;

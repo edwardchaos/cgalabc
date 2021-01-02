@@ -195,6 +195,8 @@ vTriangle Camera::clipNear(const Triangle& tri_cam) const{
   assert(in_t.size()==in.size()); assert(out_t.size()==out.size());
   assert(in_norm.size()==in.size()); assert(out_norm.size()==out.size());
   assert(in.size() == 3 || in.size() == 4);
+  if(in.size()!=3 || in.size()!=4)
+    throw std::runtime_error("clipNear didn't produce 3 or 4 vertices.");
 
   vTriangle clipped_triangles;
 
@@ -379,6 +381,8 @@ vTriangle Camera::clip2DEdge(const Vector2d &edge_unit_normal,
     assert(in_norm.size() == in.size()); assert(out_norm.size() == out.size());
     assert(in_3d.size() == in.size()); assert(out_3d.size() == out.size());
     assert(in.size() == 3 || in.size() == 4);
+    if(in.size()!=3 || in.size()!=4)
+      throw std::runtime_error("clip2DEdge didn't produce 3 or 4 vertices.");
 
     // Add clipped triangles on the 'in' side of the line.
     Triangle new_tri;

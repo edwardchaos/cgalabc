@@ -32,10 +32,17 @@ void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh){
 
     auto triangles_to_draw = cam->projectTriangleInWorld(tri_world);
 
-    for(const auto& screen_tri : triangles_to_draw){
-      //cg::shadeAndDrawTriangle(this,screen_tri,lights);
-      if(screen_tri.material && screen_tri.material->texture)
-      drawTexturedTriangle(screen_tri, *(screen_tri.material->texture));
+    /* At this point, a triangle has the following:
+     * points: 3d point in cam frame
+     * point2d: 2d point in screen space
+     * t: perspective corrected texture map
+     * vertex_normals: direction unit vector in cam frame
+     * material: same as original
+     */
+    for(const auto& tri: triangles_to_draw){
+      //cg::shadeAndDrawTriangle(tri,lights);
+      if(tri.material && tri.material->texture)
+      drawTexturedTriangle(tri, *(tri.material->texture));
       else {
 //        pge->DrawTriangle(screen_tri.points[0].x(),screen_tri.points[0].y(),
 //                          screen_tri.points[1].x(),screen_tri.points[1].y(),
@@ -46,11 +53,11 @@ void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh){
 }
 
 void Renderer::drawTexturedTriangle(
-    const cg::Triangle2D &tri, const olc::Sprite &spr){
+    const cg::Triangle &tri, const olc::Sprite &spr){
   // Sort triangle vertices from top to bottom
-  auto pt1 = tri.points[0];
-  auto pt2 = tri.points[1];
-  auto pt3 = tri.points[2];
+  auto pt1 = tri.points2d[0];
+  auto pt2 = tri.points2d[1];
+  auto pt3 = tri.points2d[2];
 
   int p1x = std::round(pt1.x());
   int p1y = std::round(pt1.y());
