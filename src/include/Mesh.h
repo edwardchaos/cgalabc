@@ -58,6 +58,7 @@ struct Triangle{
 
   void defaultTextureMap();
   void defaultVertexNorms();
+  void default2DPoints();
 
 };
 

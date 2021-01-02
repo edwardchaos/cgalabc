@@ -15,6 +15,7 @@ Triangle::Triangle(
 
   defaultTextureMap();
   defaultVertexNorms();
+  default2DPoints();
 }
 
 Triangle::Triangle(
@@ -35,6 +36,7 @@ Triangle::Triangle(
   t[2][2] = 1;
 
   defaultVertexNorms();
+  default2DPoints();
 }
 
 Triangle::Triangle(
@@ -52,6 +54,7 @@ Triangle::Triangle(
   vertex_normals[2] = norm3;
 
   defaultTextureMap();
+  default2DPoints();
 }
 
 Triangle::Triangle(
@@ -75,6 +78,8 @@ Triangle::Triangle(
   vertex_normals[0] = norm1;
   vertex_normals[1] = norm2;
   vertex_normals[2] = norm3;
+
+  default2DPoints();
 }
 
 void Triangle::defaultTextureMap(){
@@ -89,6 +94,12 @@ void Triangle::defaultVertexNorms(){
   this->vertex_normals[0] = face_norm;
   this->vertex_normals[1] = face_norm;
   this->vertex_normals[2] = face_norm;
+}
+
+void Triangle::default2DPoints(){
+  this->points2d[0]=Vector3d(-1,-1,-1);
+  this->points2d[1]=Vector3d(-1,-1,-1);
+  this->points2d[2]=Vector3d(-1,-1,-1);
 }
 
 std::vector<Eigen::Vector3d> Triangle::edges() const{
