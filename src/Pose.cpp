@@ -18,8 +18,8 @@ Eigen::Matrix4d Pose::matrix() const{
 }
 
 bool Pose::operator==(const Pose&other){
-  return other.orientation == this->orientation
-      && other.position == this->position;
+  return other.orientation.isApprox(this->orientation)
+      && other.position.isApprox(this->position);
 }
 
 } // namespace cg
