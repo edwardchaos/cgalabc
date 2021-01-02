@@ -22,17 +22,14 @@ class CameraApplication: public olc::PixelGameEngine{
 
     renderer = std::make_unique<cg::Renderer>(this);
 
-//    auto saint= cg::loadOBJ(
-//        "/home/shooshan/Documents/objs/Santa_Claus_v1_L2"
-//        ".123cb4fe07b2-55dd-461b-9f27-42ccf1b3f3f5/santaclaus.obj", false);
 //    meshes.emplace("santa", saint);
 //    auto spyro= cg::loadOBJ("/home/shooshan/Pictures/spyro.obj", false);
 //    meshes.emplace("spyro", spyro);
 //    auto teddy= cg::loadOBJ("/home/shooshan/Pictures/teddy.obj", false);
 //    meshes.emplace(teddy);
-    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
-    meshes.emplace("teapot", teapot);
-//      meshes.emplace("cube", cg::cube());
+//    auto teapot = cg::loadOBJ("/home/shooshan/Pictures/teapot.obj", false);
+//    meshes.emplace("teapot", teapot);
+      meshes.emplace("cube", cg::cube());
 //    cg::Triangle triangle{
 //      Vector3d(0,-1,-10),Vector3d(-1,-1,-10),Vector3d(0,1,-10),
 //      Vector2d(0,1),Vector2d(1,1),Vector2d(0,0)};

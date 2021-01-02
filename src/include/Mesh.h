@@ -26,7 +26,7 @@ typedef std::shared_ptr<Mesh> Mesh_ptr;
  */
 struct Triangle{
   // Homogenous coordinates
-  Vector4d points[3]; // Coordinates in world frame
+  Vector4d points[3];
   Vector3d t[3]; // Texture coordinates
   Vector3d vertex_normals[3];
   Material_ptr material = nullptr;

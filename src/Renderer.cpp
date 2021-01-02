@@ -12,7 +12,6 @@ Renderer::Renderer(olc::PixelGameEngine* p_pge){
   for(auto &row:depth_buffer)
     row.assign(pge->ScreenWidth()+1, -1e9);
 
-  sprite.LoadFromFile("/home/shooshan/Pictures/rainbow.png");
   //sprite.LoadFromFile("/home/shooshan/Pictures/free.png");
   //sprite.LoadFromFile("/home/shooshan/Pictures/checkerboard.png");
 }
@@ -28,6 +27,7 @@ void Renderer::clear(){
 void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh){
   for(const auto& tri : mesh->tris){
     // Move original mesh to its world position
+    // TODO: concatenate mesh->world and world->cam for efficiency
     auto tf = mesh->pose.matrix();
     cg::Triangle tri_world = cg::transformTriangle(tri, tf);
 
@@ -35,7 +35,6 @@ void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh){
 
     for(const auto& screen_tri : triangles_to_draw){
       //cg::shadeAndDrawTriangle(this,screen_tri,lights);
-      drawTexturedTriangle(screen_tri, sprite);
       if(screen_tri.material && screen_tri.material->texture)
       drawTexturedTriangle(screen_tri, *(screen_tri.material->texture));
       else {

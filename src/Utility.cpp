@@ -5,6 +5,14 @@
 
 namespace cg{
 
+Material_ptr defaultMaterial(){
+  std::shared_ptr<olc::Sprite> sprite =
+      std::make_shared<olc::Sprite>("/home/shooshan/Pictures/rainbow.png");
+  Material_ptr default_mat = std::make_shared<Material>();
+  default_mat->texture = sprite;
+  return default_mat;
+}
+
 Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points){
   std::ifstream obj_file(path_to_obj);
   if(!obj_file.is_open()) return nullptr;
@@ -220,6 +228,11 @@ Mesh_ptr cube(){
   cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(-1,0,-1),Vector3d(-1,0,0),
                           Vector2d(0,0),Vector2d(1,1),Vector2d(1,0));
 
+  auto material = defaultMaterial();
+  for(auto&tri:cube->tris) {
+    tri.material = material;
+  }
+
   return cube;
 }
 
@@ -277,6 +290,7 @@ Triangle transformTriangle(const Triangle& tri, const Matrix4d& tf){
     transformed_tri.vertex_normals[i] =
         tf.block(0,0,3,3)*tri.vertex_normals[i];
   }
+  transformed_tri.material = tri.material;
   return transformed_tri;
 }
 

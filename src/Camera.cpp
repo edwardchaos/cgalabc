@@ -74,6 +74,7 @@ Camera::projectTriangleInWorld(const Triangle& tri_world) const{
       // Carry over vertex normal for shading algorithm
       tri_img.vertex_normals[i] = tri_cam.vertex_normals[i];
     }
+    tri_img.material = tri_cam.material;
 
     // Clip 2D triangle in screen space
     auto tris_screen_clipped = clipScreen2D(tri_img);
@@ -99,7 +100,13 @@ Triangle Camera::tfTriangleWorldToCam(const Triangle& tri_world) const{
   for(int i = 0; i < 3; ++i) {
     tri_cam.points[i] = tfPointWorldToCam(tri_world.points[i]);
     tri_cam.t[i] = tri_world.t[i];
+
+    // Shaders work with direction vectors in camera frame
+    tri_cam.vertex_normals[i] =
+        pose_world.matrix().inverse().block(0,0,3,3)
+        *tri_world.vertex_normals[i];
   }
+  tri_cam.material = tri_world.material;
 
   return tri_cam;
 }
@@ -192,15 +199,21 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
   assert(in.size() == 3 || in.size() == 4);
   // Create triangles with 'In' points
   if(in.size() == 3) {
-    return {Triangle(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2],
-                     in_norm[0],in_norm[1],in_norm[2])};
+    Triangle tri(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2],
+             in_norm[0],in_norm[1],in_norm[2]);
+    tri.material = tri_cam.material;
+    return {tri};
   }
-  else
-    return {
-        Triangle(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2],
-                 in_norm[0],in_norm[1],in_norm[2]),
-        Triangle(in[0],in[2],in[3],in_t[0],in_t[2],in_t[3],
-                 in_norm[0],in_norm[2],in_norm[3])};
+  else {
+    Triangle tri1(in[0], in[1], in[2], in_t[0], in_t[1], in_t[2],
+                  in_norm[0], in_norm[1], in_norm[2]);
+    Triangle tri2(in[0], in[2], in[3], in_t[0], in_t[2], in_t[3],
+                  in_norm[0], in_norm[2], in_norm[3]);
+    tri1.material = tri_cam.material;
+    tri2.material = tri_cam.material;
+
+    return {tri1, tri2};
+  }
 }
 
 std::vector<Triangle2D>
@@ -369,6 +382,7 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       new_tri.vertex_normals[0] = in_norm[0];
       new_tri.vertex_normals[1] = in_norm[1];
       new_tri.vertex_normals[2] = in_norm[2];
+      new_tri.material = tri.material;
       clipped_triangles.push_back(std::move(new_tri));
     }
     else{
@@ -382,6 +396,7 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       new_tri1.vertex_normals[0] = in_norm[0];
       new_tri1.vertex_normals[1] = in_norm[1];
       new_tri1.vertex_normals[2] = in_norm[2];
+      new_tri1.material = tri.material;
 
       new_tri2.points[0] = in[0];
       new_tri2.points[1] = in[2];
@@ -392,6 +407,7 @@ Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       new_tri2.vertex_normals[0] = in_norm[0];
       new_tri2.vertex_normals[1] = in_norm[2];
       new_tri2.vertex_normals[2] = in_norm[3];
+      new_tri2.material = tri.material;
       clipped_triangles.emplace_back(std::move(new_tri1));
       clipped_triangles.emplace_back(std::move(new_tri2));
     }

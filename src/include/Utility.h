@@ -25,10 +25,16 @@ namespace cg{
  */
 Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points);
 
-/*
- * Creates a wireframe cube for of unit size, can be used for debugging.
- */
+// Functions for creating sample meshes for dev/debugging
 Mesh_ptr cube();
+Mesh_ptr santa();
+Mesh_ptr spyro();
+Mesh_ptr teddy();
+Mesh_ptr teapot();
+Mesh_ptr simpleTriangle();
+Mesh_ptr thinTriangles();
+Mesh_ptr worldAxis();
+Material_ptr defaultMaterial();
 
 /*
  * Rotate counterclockwise by theta radian along the +X axis

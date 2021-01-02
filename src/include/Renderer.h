@@ -41,7 +41,6 @@ class Renderer : public olc::PGEX{
   void drawTexturedTriangle(const cg::Triangle2D &tri, const olc::Sprite &spr);
 
  private:
-  olc::Sprite sprite; // Temporarily here during initial dev
   std::vector<std::vector<double>> depth_buffer;
 };
 
