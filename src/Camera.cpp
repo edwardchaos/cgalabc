@@ -37,7 +37,7 @@ void Camera::constructProjectionMatrix(){
   projection_mat_(2,3) = -1;
 }
 
-[[nodiscard]] std::vector<Triangle2D>
+[[nodiscard]] std::vector<Triangle>
 Camera::projectTriangleInWorld(const Triangle& tri_world) const{
   // Backface culling
   if(!isFacing(tri_world)) return {};
@@ -48,11 +48,9 @@ Camera::projectTriangleInWorld(const Triangle& tri_world) const{
   // Clip triangle in cam coordinate frame by near plane
   auto near_clipped_tris_cam = clipNear(original_tri_cam);
 
-  std::vector<Triangle2D> finished_2d_triangles;
+  std::vector<Triangle> triangles_projected;
 
-  for(const auto &tri_cam : near_clipped_tris_cam) {
-    cg::Triangle2D tri_img;
-
+  for(auto &tri_cam : near_clipped_tris_cam) {
     for (int i = 0; i < 3; ++i){
       auto pt_cam = tri_cam.points[i];
       // Perspective transformation
@@ -64,26 +62,23 @@ Camera::projectTriangleInWorld(const Triangle& tri_world) const{
 
       // Carry the w value with the points for correcting for perspective on the
       // texture as well. We're not making a PS1 game
-      tri_img.points[i] = Vector3d(screen_x, screen_y, 1); //<- in cartesian
+      tri_cam.points2d[i] = Vector3d(screen_x, screen_y, 1); //<- in cartesian
 
       // Same perspective transformation on the texture
-      tri_img.t[i] = Vector3d(tri_cam.t[i].x()/pt_cube.w(),
+      tri_cam.t[i] = Vector3d(tri_cam.t[i].x()/pt_cube.w(),
                               tri_cam.t[i].y()/pt_cube.w(),
                               tri_cam.t[i].z()/pt_cube.w());
-
-      // Carry over vertex normal for shading algorithm
-      tri_img.vertex_normals[i] = tri_cam.vertex_normals[i];
     }
-    tri_img.material = tri_cam.material;
 
     // Clip 2D triangle in screen space
-    auto tris_screen_clipped = clipScreen2D(tri_img);
-    finished_2d_triangles.insert(finished_2d_triangles.end(),
+    // At this point, tri_cam has 2d image points
+    auto tris_screen_clipped = clipScreen2D(tri_cam);
+    triangles_projected.insert(triangles_projected.end(),
                                  tris_screen_clipped.begin(),
                                  tris_screen_clipped.end());
   }
 
-  return finished_2d_triangles;
+  return triangles_projected;
 }
 
 bool Camera::isFacing(const Triangle& tri_world) const{
@@ -142,7 +137,7 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
   std::vector<Vector2d> in_t, out_t; // Texture coordinates
   std::vector<Vector3d> in_norm, out_norm;
 
-  for(int i = 0 ; i < 3; ++i){
+  for(int i = 0; i < 3; ++i){
     int cur_idx = i;
     int next_idx = (i+1)%3;
 
@@ -160,24 +155,26 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
       if (out.empty() || (!out.empty() && !cur_pt.isApprox(out.back()))){
         out.emplace_back(cur_pt);
         out_t.emplace_back(cur_tx);
+        out_norm.emplace_back(cur_norm);
       }
     }
       // 'In' side
     else if(in.empty() || (!in.empty() && !cur_pt.isApprox(in.back()))){
       in.emplace_back(cur_pt);
       in_t.emplace_back(cur_tx);
+      in_norm.emplace_back(cur_norm);
     }
 
     double t;
     auto int_pt = planeLineIntersect(
         cur_pt, next_pt, near_plane_unit_normal, near_plane_pt, t);
-    // Is there an intersection point to add?
+    // Does the edge intersect the clipping plane?
     if(int_pt!=nullptr){
       // There is an intersection point
       in.push_back(*int_pt);
       out.push_back(*int_pt);
 
-      // Compute the corresponding intersect point in texel space
+      // Compute the corresponding intersection in texel space
       auto int_tx = cur_tx + (next_tx - cur_tx)*t;
       in_t.emplace_back(int_tx);
       out_t.emplace_back(int_tx);
@@ -194,9 +191,11 @@ std::vector<Triangle> Camera::clipNear(const Triangle& tri_cam) const{
     }
   }
 
-  assert(in_t.size()==in.size());
-  assert(out_t.size()==out.size());
+  // Debugging sanity checks
+  assert(in_t.size()==in.size()); assert(out_t.size()==out.size());
+  assert(in_norm.size()==in.size()); assert(out_norm.size()==out.size());
   assert(in.size() == 3 || in.size() == 4);
+
   // Create triangles with 'In' points
   if(in.size() == 3) {
     Triangle tri(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2],
