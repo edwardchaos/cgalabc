@@ -196,23 +196,21 @@ vTriangle Camera::clipNear(const Triangle& tri_cam) const{
   assert(in_norm.size()==in.size()); assert(out_norm.size()==out.size());
   assert(in.size() == 3 || in.size() == 4);
 
+  vTriangle clipped_triangles;
+
   // Create triangles with 'In' points
-  if(in.size() == 3) {
-    Triangle tri(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2],
-             in_norm[0],in_norm[1],in_norm[2]);
-    tri.material = tri_cam.material;
-    return {tri};
-  }
-  else {
-    Triangle tri1(in[0], in[1], in[2], in_t[0], in_t[1], in_t[2],
-                  in_norm[0], in_norm[1], in_norm[2]);
+  Triangle tri(in[0],in[1],in[2],in_t[0],in_t[1],in_t[2],
+           in_norm[0],in_norm[1],in_norm[2]);
+  tri.material = tri_cam.material;
+  clipped_triangles.push_back(tri);
+
+  if(in.size()==4){
     Triangle tri2(in[0], in[2], in[3], in_t[0], in_t[2], in_t[3],
                   in_norm[0], in_norm[2], in_norm[3]);
-    tri1.material = tri_cam.material;
     tri2.material = tri_cam.material;
-
-    return {tri1, tri2};
+    clipped_triangles.push_back(tri2);
   }
+  return clipped_triangles;
 }
 
 vTriangle Camera::clipScreen2D(const Triangle &tri_img) const{
