@@ -23,7 +23,7 @@ void Renderer::clear(){
 }
 
 void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
-                    const std::unordered_map<std::string, Light_ptr> &lights){
+                    const std::unordered_map<std::string, Light_ptr>&lights_world){
   for(const auto& tri : mesh->tris){
     // Mesh points are kept as they are when they're first loaded.
     // Transformations on meshes affect their pose
@@ -33,6 +33,15 @@ void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
 
     auto triangles_to_draw = cam->projectTriangleInWorld(tri_world);
 
+    // Shading is performed with all entities in the camera frame. Transform
+    // the lights into the camera frame.
+    std::unordered_map<std::string, Light_ptr> lights_copy;
+    for(auto light : lights_world){
+      Light_ptr newlight_ptr = light.second->clone();
+      newlight_ptr->transformToCam(cam->pose_world.matrix().inverse());
+      lights_copy.emplace(light.first,newlight_ptr);
+    }
+
     /* At this point, a triangle has the following member variables:
      * points: 3d point in cam frame
      * point2d: 2d point in screen space
@@ -41,7 +50,7 @@ void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
      * material: same as original
      */
     for(const auto& tri: triangles_to_draw){
-      shadeAndDrawTriangle(tri,lights);
+      shadeAndDrawTriangle(tri,lights_copy);
 //      if(tri.material && tri.material->texture)
 //      drawTexturedTriangle(tri, *(tri.material->texture));
 //      else {
@@ -67,12 +76,22 @@ void Renderer::shadeAndDrawTriangle(
 
   auto tx1 = tri.t[0]; auto tx2 = tri.t[1]; auto tx3 = tri.t[2];
 
+  Vector3d pt1_3d = tri.points[0].head<3>();
+  Vector3d pt2_3d = tri.points[1].head<3>();
+  Vector3d pt3_3d = tri.points[2].head<3>();
+  auto n1 = tri.vertex_normals[0];
+  auto n2 = tri.vertex_normals[1];
+  auto n3 = tri.vertex_normals[2];
+
   if(p2y < p1y){
-    std::swap(p2x,p1x);std::swap(p2y,p1y);std::swap(tx2,tx1);}
+    std::swap(p2x,p1x);std::swap(p2y,p1y);std::swap(tx2,tx1);
+    std::swap(n2,n1);std::swap(pt2_3d,pt1_3d);}
   if(p3y < p1y){
-    std::swap(p3x,p1x);std::swap(p3y,p1y);std::swap(tx3,tx1);}
+    std::swap(p3x,p1x);std::swap(p3y,p1y);std::swap(tx3,tx1);
+    std::swap(n3,n1);std::swap(pt3_3d,pt1_3d);}
   if(p3y < p2y){
-    std::swap(p3x,p2x);std::swap(p3y,p2y);std::swap(tx3,tx2);}
+    std::swap(p3x,p2x);std::swap(p3y,p2y);std::swap(tx3,tx2);
+    std::swap(n3,n2);std::swap(pt3_3d,pt2_3d);}
 
   int y12 = p2y-p1y; assert(y12>=0);
   int x12 = p2x-p1x;
@@ -88,6 +107,7 @@ void Renderer::shadeAndDrawTriangle(
   bool flat_top = y12==0;
   bool flat_bottom = y23==0;
 
+  // For texture interpolation
   double u12 = tx2.x() - tx1.x();
   double u13 = tx3.x() - tx1.x();
   double v13 = tx3.y() - tx1.y();
@@ -95,143 +115,175 @@ void Renderer::shadeAndDrawTriangle(
   double w12 = tx2.z() - tx1.z();
   double w13 = tx3.z() - tx1.z();
 
-//    if(flat_top && flat_bottom){
-//      // Triangle points are on a single line
-//      int min_x = std::min(std::min(p1x,p2x),p3x);
-//      int max_x = std::max(std::max(p1x,p2x),p3x);
-//
-//      for(int dx=0; min_x+dx<=max_x; ++dx){
-//        // TODO: Consider texture
-//        Draw(min_x+dx,p1y,olc::WHITE);
-//      }
-//    }
+  Vector3d pt12_3d = pt2_3d-pt1_3d;
+  Vector3d pt13_3d = pt3_3d-pt1_3d;
 
   // _d as reminder that it's double
   double sx_d = p1x;
   double ex_d = p1x;
 
-  // Scan horizontal lines from top to bottom of triangle
-  // This is for the top "half" of the triangle
-  for(int dy=0; p1y+dy<=p2y; ++dy){
-    // Flat-top triangle will be taken care of completely in bottom half
-    // loop below.
-    if(flat_top)break;
+  // Multiple light sources are additive? The energy should be, but perceived
+  // brightness may not be
+  for(const auto& named_light : lights){
+    auto light = named_light.second;
+    // Scan horizontal lines from top to bottom of triangle
+    // This is for the top "half" of the triangle
+    for (int dy = 0; p1y + dy <= p2y; ++dy) {
+      // Flat-top triangle will be taken care of completely in bottom half
+      // loop below.
+      if (flat_top)break;
+      double d_vertical12 = (double) dy / y12;
+      double d_vertical13 = (double) dy / y13;
 
-    // Select actual pixel indices using the double type values
-    int sx = std::round(sx_d);
-    int ex = std::round(ex_d);
+      // Select actual pixel indices using the double type values
+      int sx = std::round(sx_d);
+      int ex = std::round(ex_d);
 
-    // Start and end of texel along this horizontal line
-    double stx_u = tx1.x() + u12*((double)dy/y12);
-    double etx_u = tx1.x() + u13*((double)dy/y13);
-    double stx_v = tx1.y() + v12*((double)dy/y12);
-    double etx_v = tx1.y() + v13*((double)dy/y13);
-    double stx_w = tx1.z() + w12*((double)dy/y12);
-    double etx_w = tx1.z() + w13*((double)dy/y13);
+      // Start and end of texel along this horizontal line
+      double stx_u = tx1.x() + u12 * d_vertical12;
+      double etx_u = tx1.x() + u13 * d_vertical13;
+      double stx_v = tx1.y() + v12 * d_vertical12;
+      double etx_v = tx1.y() + v13 * d_vertical13;
+      double stx_w = tx1.z() + w12 * d_vertical12;
+      double etx_w = tx1.z() + w13 * d_vertical13;
 
-    if(ex < sx){
-      std::swap(sx,ex);
-      std::swap(stx_u,etx_u);
-      std::swap(stx_v,etx_v);
-      std::swap(stx_w,etx_w);
-    }
+      // Start and end of normals
+      Vector3d snorm = slerp(n1, n2, d_vertical12);
+      Vector3d enorm = slerp(n1, n3, d_vertical13);
 
-    for(int dx=0; sx+dx <= ex; ++dx){
-      // Pick texel color
-      double d_horizontal = 0;
-      if (sx != ex) d_horizontal = (double) dx / (double) (ex - sx);
-      double interp_texel_w = stx_w + (etx_w - stx_w) * d_horizontal;
+      // Start and end of 3d points in camera frame
+      Vector3d s3d = pt1_3d + pt12_3d*d_vertical12;
+      Vector3d e3d = pt1_3d + pt13_3d*d_vertical13;
 
-      olc::Pixel px_color;
-      if(tri.material->texture!=nullptr){
-        double interp_texel_u = stx_u + (etx_u - stx_u) * d_horizontal;
-        double interp_texel_v = stx_v + (etx_v - stx_v) * d_horizontal;
-        double real_u=
-            std::min(1.0, std::max(0.0, interp_texel_u / interp_texel_w));
-        double real_v=
-            std::min(1.0, std::max(0.0, interp_texel_v / interp_texel_w));
-        px_color = tri.material->texture->Sample(real_u, real_v);
+      if (ex < sx) {
+        std::swap(sx, ex);
+        std::swap(stx_u, etx_u);
+        std::swap(stx_v, etx_v);
+        std::swap(stx_w, etx_w);
+        std::swap(snorm, enorm);
       }
 
-      int screen_x = sx + dx;
-      int screen_y = p1y + dy;
-      if(screen_x>pge->ScreenWidth()||screen_x<0)continue;
-      if(screen_y>pge->ScreenHeight()||screen_y<0)continue;
-      if(interp_texel_w > depth_buffer[screen_y][screen_x]){
-        pge->Draw(screen_x, screen_y, px_color);
-        depth_buffer[screen_y][screen_x] = interp_texel_w;
+      for (int dx = 0; sx + dx <= ex; ++dx) {
+        double d_horizontal = 0;
+        // 3D point along the horizontal
+        Vector3d pt3d = s3d + (e3d-s3d)*d_horizontal;
+        // point normal along the horizontal
+        Vector3d norm = slerp(snorm,enorm,d_horizontal);
+
+        // direction from point to light source
+        Vector3d dir_2_light = (light->getDirection(pt3d))*-1;
+        // direction from point to camera
+        Vector3d dir_2_cam = -pt3d; // point should already be in camera frame
+        dir_2_cam.normalize();
+        // Compute halfway vector between point to camera and point to light
+        auto halfway = slerp(dir_2_light,dir_2_cam,0.5);
+
+        // Pick texel color
+        if (sx != ex) d_horizontal = (double) dx / (double) (ex - sx);
+        double interp_texel_w = stx_w + (etx_w - stx_w) * d_horizontal;
+
+        Vector3d color(1,1,1);
+        if (tri.material->texture != nullptr) {
+          double interp_texel_u = stx_u + (etx_u - stx_u) * d_horizontal;
+          double interp_texel_v = stx_v + (etx_v - stx_v) * d_horizontal;
+          double real_u =
+              std::min(1.0, std::max(0.0, interp_texel_u / interp_texel_w));
+          double real_v =
+              std::min(1.0, std::max(0.0, interp_texel_v / interp_texel_w));
+          auto texture_color = tri.material->texture->Sample(real_u, real_v);
+          double r = (double) texture_color.r / 255.0;
+          double g = (double) texture_color.g / 255.0;
+          double b = (double) texture_color.b / 255.0;
+          color = Vector3d(r, g, b);
+        }
+
+        auto final_color = shade(tri.material, light, norm, dir_2_light,
+                                 halfway, color);
+
+        olc::Pixel px = olc::PixelF(final_color.x(),
+                                    final_color.y(),
+                                    final_color.z());
+
+        int screen_x = sx + dx;
+        int screen_y = p1y + dy;
+        if (screen_x > pge->ScreenWidth() || screen_x < 0)continue;
+        if (screen_y > pge->ScreenHeight() || screen_y < 0)continue;
+        if (interp_texel_w > depth_buffer[screen_y][screen_x]) {
+          pge->Draw(screen_x, screen_y, px);
+          depth_buffer[screen_y][screen_x] = interp_texel_w;
+        }
       }
+      // Increment start and end x values
+      sx_d += dx12;
+      ex_d += dx13;
     }
-    // Increment start and end x values
-    sx_d += dx12;
-    ex_d += dx13;
-  }
-  if(!flat_top) ex_d -= dx13;
+    if (!flat_top) ex_d -= dx13;
 
-  int x23 = p3x-p2x;
-  double dx23 = 0;
-  if(y23!=0)
-    dx23=(double)x23/(double)y23;
+    int x23 = p3x - p2x;
+    double dx23 = 0;
+    if (y23 != 0)
+      dx23 = (double) x23 / (double) y23;
 
-  double u23 = tx3.x() - tx2.x();
-  double v23 = tx3.y() - tx2.y();
-  double w23 = tx3.z() - tx2.z();
+    double u23 = tx3.x() - tx2.x();
+    double v23 = tx3.y() - tx2.y();
+    double w23 = tx3.z() - tx2.z();
 
-  sx_d = p2x;
+    sx_d = p2x;
 
-  for(int dy=0; p2y+dy<=p3y; ++dy){
-    // Bottom-flat triangle should have been completely drawn already by
-    // the loop above.
-    if(flat_bottom) break;
+    for (int dy = 0; p2y + dy <= p3y; ++dy) {
+      // Bottom-flat triangle should have been completely drawn already by
+      // the loop above.
+      if (flat_bottom) break;
 
-    // Select actual pixel indices using the double type values
-    int sx = std::round(sx_d);
-    int ex = std::round(ex_d);
+      // Select actual pixel indices using the double type values
+      int sx = std::round(sx_d);
+      int ex = std::round(ex_d);
 
-    // Start and end of texel along this horizontal line
-    double stx_u = tx2.x() + u23*((double)dy/y23);
-    double etx_u = tx1.x() + u13*((double)(dy+y12)/y13);
-    double stx_v = tx2.y() + v23*((double)dy/y23);
-    double etx_v = tx1.y() + v13*((double)(dy+y12)/y13);
-    double stx_w = tx2.z() + w23*((double)dy/y23);
-    double etx_w = tx1.z() + w13*((double)(dy+y12)/y13);
+      // Start and end of texel along this horizontal line
+      double stx_u = tx2.x() + u23 * ((double) dy / y23);
+      double etx_u = tx1.x() + u13 * ((double) (dy + y12) / y13);
+      double stx_v = tx2.y() + v23 * ((double) dy / y23);
+      double etx_v = tx1.y() + v13 * ((double) (dy + y12) / y13);
+      double stx_w = tx2.z() + w23 * ((double) dy / y23);
+      double etx_w = tx1.z() + w13 * ((double) (dy + y12) / y13);
 
-    if(ex < sx){
-      std::swap(sx,ex);
-      std::swap(stx_u,etx_u);
-      std::swap(stx_v,etx_v);
-      std::swap(stx_w,etx_w);
-    }
-
-    for(int dx=0; sx+dx <= ex; ++dx){
-      // Pick texel color
-      double d_horizontal=0;
-      if(sx!=ex) d_horizontal = (double)dx/(double)(ex-sx);
-      double interp_texel_w = stx_w + (etx_w-stx_w)*d_horizontal;
-      olc::Pixel px_color;
-
-      if(tri.material->texture!=nullptr) {
-        double interp_texel_u = stx_u + (etx_u - stx_u) * d_horizontal;
-        double interp_texel_v = stx_v + (etx_v - stx_v) * d_horizontal;
-        double real_u =
-            std::min(1.0, std::max(0.0, interp_texel_u / interp_texel_w));
-        double real_v =
-            std::min(1.0, std::max(0.0, interp_texel_v / interp_texel_w));
-        px_color = tri.material->texture->Sample(real_u, real_v);
+      if (ex < sx) {
+        std::swap(sx, ex);
+        std::swap(stx_u, etx_u);
+        std::swap(stx_v, etx_v);
+        std::swap(stx_w, etx_w);
       }
 
-      int screen_x = sx + dx;
-      int screen_y = p2y + dy;
-      if(screen_x>pge->ScreenWidth()||screen_x<0)continue;
-      if(screen_y>pge->ScreenHeight()||screen_y<0)continue;
-      if(interp_texel_w > depth_buffer[screen_y][screen_x]){
-        pge->Draw(screen_x, screen_y, px_color);
-        depth_buffer[screen_y][screen_x] = interp_texel_w;
+      for (int dx = 0; sx + dx <= ex; ++dx) {
+        // Pick texel color
+        double d_horizontal = 0;
+        if (sx != ex) d_horizontal = (double) dx / (double) (ex - sx);
+        double interp_texel_w = stx_w + (etx_w - stx_w) * d_horizontal;
+        olc::Pixel px_color;
+
+        if (tri.material->texture != nullptr) {
+          double interp_texel_u = stx_u + (etx_u - stx_u) * d_horizontal;
+          double interp_texel_v = stx_v + (etx_v - stx_v) * d_horizontal;
+          double real_u =
+              std::min(1.0, std::max(0.0, interp_texel_u / interp_texel_w));
+          double real_v =
+              std::min(1.0, std::max(0.0, interp_texel_v / interp_texel_w));
+          px_color = tri.material->texture->Sample(real_u, real_v);
+        }
+
+        int screen_x = sx + dx;
+        int screen_y = p2y + dy;
+        if (screen_x > pge->ScreenWidth() || screen_x < 0)continue;
+        if (screen_y > pge->ScreenHeight() || screen_y < 0)continue;
+        if (interp_texel_w > depth_buffer[screen_y][screen_x]) {
+          pge->Draw(screen_x, screen_y, px_color);
+          depth_buffer[screen_y][screen_x] = interp_texel_w;
+        }
       }
+      // Increment start and end x values
+      sx_d += dx23;
+      ex_d += dx13;
     }
-    // Increment start and end x values
-    sx_d += dx23;
-    ex_d += dx13;
   }
 }
 
