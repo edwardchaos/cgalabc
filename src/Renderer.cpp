@@ -255,7 +255,7 @@ Vector3d Renderer::shade(
   // Shouldn't have specular reflection if light is behind surface right??
   if(n_dot_l > 0){
     Vector3d spec = material_specular.cwiseProduct(light_specular)
-    * pow(surface_normal.dot(cam_2_light_halfway),glossiness_exponent));
+    * pow(surface_normal.dot(cam_2_light_halfway),glossiness_exponent);
     I_rgb += spec;
   }
 
