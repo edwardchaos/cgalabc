@@ -17,6 +17,10 @@ struct Light{
   Vector3d Ls= Vector3d(1,1,1); // Light specular reflectivity
 
   Light() = default;
+
+  // Return direction unit vector from point TO light source
+  // stress : NOT FROM
+  virtual Vector3d getDirection(const Vector3d &pt)=0;
 };
 
 struct PointLight : public Light{
@@ -24,6 +28,8 @@ struct PointLight : public Light{
 
   PointLight() = default;
   PointLight(const Vector4d &position);
+
+  Vector3d getDirection(const Vector3d &pt) override;
 };
 
 struct DirectionLight : public Light{
@@ -31,6 +37,8 @@ struct DirectionLight : public Light{
 
   DirectionLight() = default;
   DirectionLight(Vector3d direction);
+
+  Vector3d getDirection(const Vector3d &pt) override;
 };
 
 } // namespace cg
