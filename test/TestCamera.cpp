@@ -22,12 +22,12 @@ TEST(Camera, project_point_in_world){
   cg::Camera cam(vertical_fov, 1, 100, screen_width, screen_height);
 
   // Create 3D points in world frame
-  Vector4d A(0, 15.0*tan(vertical_fov/2.0), -15,1);
-  Vector4d B(0, 50*tan(vertical_fov/2.0), -50,1);
-  Vector4d C(0, -B(1), -50,1);
-  Vector4d D(0, -A(1), -15,1);
-  Vector4d E(0, 0, -15,1);
-  Vector4d F(0, 0, -50,1);
+  Vector4d A(0, 15.0*tan(vertical_fov/2.0), 15,1);
+  Vector4d B(0, 50*tan(vertical_fov/2.0), 50,1);
+  Vector4d C(0, -B(1), 50,1);
+  Vector4d D(0, -A(1), 15,1);
+  Vector4d E(0, 0, 15,1);
+  Vector4d F(0, 0, 50,1);
 
   auto a_proj = cam.projectPointInWorld(A);
   ASSERT_TRUE(a_proj.isApprox(Vector2d(0,-1)));
@@ -57,14 +57,15 @@ TEST(Camera, local_move){
 
   Eigen::Matrix4d forward_mat = Eigen::Matrix4d::Identity();
   forward_mat(0,0) = -1;
-  forward_mat(2,3) = -9.99;
+  forward_mat(2,2) = -1;
+  forward_mat(2,3) = 9.99;
   // Move forward,
   cam.moveForward(9.99);
   ASSERT_EQ(cam.pose_world.matrix(), forward_mat);
 
   cam.moveForward(-3);
   // Move backward
-  forward_mat(2,3) += 3;
+  forward_mat(2,3) -= 3;
   ASSERT_EQ(cam.pose_world.matrix(), forward_mat);
 
   // Strafe right, left
@@ -99,15 +100,15 @@ TEST(Camera, isFacing){
 
   // Camera's default pose is origin, Looking along the -z axis.
   cg::Triangle not_facing{
-    Vector3d(0,10,-10),Vector3d(10,20,-20),Vector3d(-10,20,-20)};
+    Vector3d(0,10,10),Vector3d(10,20,20),Vector3d(-10,20,20)};
   cg::Triangle not_facing2{
-      Vector3d(0,10,-10),Vector3d(-10,19.9,-20),Vector3d(10,19.9,-20)};
+      Vector3d(0,10,10),Vector3d(-10,19.9,20),Vector3d(10,19.9,20)};
   cg::Triangle not_facing3{
-      Vector3d(0,10,-10),Vector3d(-10,19.9999,-20),Vector3d(10,19.9999,-20)};
+      Vector3d(0,10,10),Vector3d(-10,19.9999,20),Vector3d(10,19.9999,20)};
   cg::Triangle facing{
-      Vector3d(0,10,-10),Vector3d(-10,21,-20),Vector3d(10,21,-20)};
+      Vector3d(0,10,10),Vector3d(-10,21,20),Vector3d(10,21,20)};
   cg::Triangle not_facing4{
-      Vector3d(0,10,-10),Vector3d(10,21,-20),Vector3d(-10,21,-20)};
+      Vector3d(0,10,10),Vector3d(10,21,20),Vector3d(-10,21,20)};
 
   ASSERT_TRUE(cam.isFacing(facing));
   ASSERT_FALSE(cam.isFacing(not_facing));

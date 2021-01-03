@@ -21,5 +21,5 @@ TEST(Mesh, face_normal){
       Vector2d(0,1),{1,1},{0,0}};
 
   auto norm = triangle.face_unit_normal();
-  ASSERT_TRUE(norm.isApprox(Vector3d(0,0,1)));
+  ASSERT_TRUE(norm.isApprox(Vector3d(0,0,-1)));
 }
