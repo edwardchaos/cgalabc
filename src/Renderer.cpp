@@ -238,14 +238,13 @@ void Renderer::shadeAndDrawTriangle(
 Vector3d Renderer::shade(
     const Vector3d &material_ambience, const Vector3d &material_diffuse,
     const Vector3d &material_specular, const Vector3d &surface_normal,
-    const Vector3d &point_to_light, const Vector3d &point_to_cam,
+    const Vector3d &point_to_light, const Vector3d &cam_2_light_halfway,
     double glossiness_exponent, const Vector3d &material_emittance,
     const Vector3d &light_ambience, const Vector3d &light_diffuse,
     const Vector3d &light_specular, const Vector3d &color_from_texture){
 
   double n_dot_l = surface_normal.dot(point_to_light);
 
-  Vector3d half_way_vector = slerp(point_to_cam, point_to_light, 0.5);
   Vector3d ambiance = material_ambience.cwiseProduct(light_ambience);
   Vector3d diffuse = material_diffuse.cwiseProduct(light_diffuse)
       * std::max(n_dot_l, 0.0);
@@ -256,9 +255,14 @@ Vector3d Renderer::shade(
   // Shouldn't have specular reflection if light is behind surface right??
   if(n_dot_l > 0){
     Vector3d spec = material_specular.cwiseProduct(light_specular)
-    * pow(surface_normal.dot(half_way_vector),glossiness_exponent));
+    * pow(surface_normal.dot(cam_2_light_halfway),glossiness_exponent));
     I_rgb += spec;
   }
+
+  // Clip rgb to max 1.0
+  I_rgb.x() = std::min(I_rgb.x(),1.0);
+  I_rgb.y() = std::min(I_rgb.y(),1.0);
+  I_rgb.z() = std::min(I_rgb.z(),1.0);
 
   return I_rgb;
 }
@@ -267,7 +271,7 @@ Vector3d Renderer::shade(const Material_ptr& material,
                          const Light_ptr& light_source,
                          Vector3d point_normal,
                          Vector3d point_to_light_vector,
-                         Vector3d point_to_cam,
+                         Vector3d halfway_vec,
                          const Vector3d &color_from_texture){
 
   double point_norm = point_normal.norm();
@@ -282,14 +286,14 @@ Vector3d Renderer::shade(const Material_ptr& material,
   if(light_norm<1-cg::EPS || light_norm> 1+cg::EPS)
     point_to_light_vector.normalize();
 
-  double point_2_cam_norm = point_to_cam.norm();
-  if(point_2_cam_norm < cg::EPS && point_2_cam_norm > -cg::EPS)
-    throw std::runtime_error("Point to cam vector is length 0");
-  if(point_2_cam_norm<1-cg::EPS || point_2_cam_norm> 1+cg::EPS)
-    point_to_cam.normalize();
+  double halfway_norm = halfway_vec.norm();
+  if(halfway_norm < cg::EPS && halfway_norm > -cg::EPS)
+    throw std::runtime_error("halfway vector is length 0");
+  if(halfway_norm<1-cg::EPS || halfway_norm> 1+cg::EPS)
+    halfway_vec.normalize();
 
   return shade(material->ka, material->kd, material->ks, point_normal,
-               point_to_light_vector, point_to_cam, material->Ns, material->ke,
+               point_to_light_vector, halfway_vec, material->Ns, material->ke,
                light_source->La, light_source->Ld, light_source->Ls,
                color_from_texture);
 }

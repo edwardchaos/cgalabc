@@ -56,7 +56,7 @@ class Renderer : public olc::PGEX{
    * material_specular: specular reflectivity of material [0,1]
    * surface_normal: surface normal unit vector
    * point_to_light: unit vector direction from surface point to light source
-   * point_to_cam: Unit vector from surface point to camera
+   * cam_2_light_halfway: slerp(point_to_cam, point_to_light, 0.5);
    * glossiness_exponent: affects illusion of glossiness [0,1000]
    * material_emittance: emission of color in absence of light source
    * light_ambience: ambience reflection of light source [0,1] (fancy light?)
@@ -75,7 +75,7 @@ class Renderer : public olc::PGEX{
                  const Vector3d &material_specular,
                  const Vector3d &surface_normal,
                  const Vector3d &point_to_light,
-                 const Vector3d &point_to_cam,
+                 const Vector3d &cam_2_light_halfway,
                  double glossiness_exponent,
                  const Vector3d &material_emittance,
                  const Vector3d &light_ambience,
@@ -85,12 +85,13 @@ class Renderer : public olc::PGEX{
 
   /*
    * Convenience shade function that calls the main shade function
+   * See the other shade function for description
    */
   Vector3d shade(const Material_ptr& material,
                  const Light_ptr& light_source,
                  Vector3d point_normal,
                  Vector3d point_to_light_vector,
-                 Vector3d point_to_cam,
+                 Vector3d halfway_vec,
                  const Vector3d &color_from_texture=Vector3d(1,1,1));
 
  private:
