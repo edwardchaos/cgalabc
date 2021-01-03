@@ -110,8 +110,6 @@ Eigen::Vector3d Triangle::face_unit_normal() const{
   auto e = edges();
   auto unit_normal = e[0].cross(e[1]);
   unit_normal.normalize();
-  // My world coordinate system has opposite z axis direction
-  unit_normal.z() = -unit_normal.z();
   return unit_normal;
 }
 
