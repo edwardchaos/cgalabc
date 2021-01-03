@@ -212,33 +212,33 @@ Mesh_ptr cube(){
                           Vector2d(0,1),Vector2d(1,1),Vector2d(1,0));
 
   // East face
-  cube->tris.emplace_back(Vector3d(-1,0,0),Vector3d(-1,1,-1),Vector3d(-1,1,0),
+  cube->tris.emplace_back(Vector3d(-1,0,0),Vector3d(-1,1,1),Vector3d(-1,1,0),
                           Vector2d(0,1),Vector2d(1,0),Vector2d(0,0));
-  cube->tris.emplace_back(Vector3d(-1,0,0),Vector3d(-1,0,-1),Vector3d(-1,1,-1),
+  cube->tris.emplace_back(Vector3d(-1,0,0),Vector3d(-1,0,1),Vector3d(-1,1,1),
                           Vector2d(0,1),Vector2d(1,1),Vector2d(1,0));
 
   // West face
-  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,1,0),Vector3d(0,1,-1),
+  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,1,0),Vector3d(0,1,1),
                           Vector2d(1,1),Vector2d(1,0),Vector2d(0,0));
-  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,1,-1),Vector3d(0,0,-1),
+  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,1,1),Vector3d(0,0,1),
                           Vector2d(1,1),Vector2d(0,0),Vector2d(0,1));
 
   // North face
-  cube->tris.emplace_back(Vector3d(0,0,-1),Vector3d(0,1,-1),Vector3d(-1,1,-1),
+  cube->tris.emplace_back(Vector3d(0,0,1),Vector3d(0,1,1),Vector3d(-1,1,1),
                           Vector2d(1,1),Vector2d(1,0),Vector2d(0,0));
-  cube->tris.emplace_back(Vector3d(0,0,-1),Vector3d(-1,1,-1),Vector3d(-1,0,-1),
+  cube->tris.emplace_back(Vector3d(0,0,1),Vector3d(-1,1,1),Vector3d(-1,0,1),
                           Vector2d(1,1),Vector2d(0,0),Vector2d(0,1));
 
   // Top face
-  cube->tris.emplace_back(Vector3d(0,1,0),Vector3d(-1,1,-1),Vector3d(0,1,-1),
+  cube->tris.emplace_back(Vector3d(0,1,0),Vector3d(-1,1,1),Vector3d(0,1,1),
                           Vector2d(0,1),Vector2d(1,0),Vector2d(0,0));
-  cube->tris.emplace_back(Vector3d(0,1,0),Vector3d(-1,1,0),Vector3d(-1,1,-1),
+  cube->tris.emplace_back(Vector3d(0,1,0),Vector3d(-1,1,0),Vector3d(-1,1,1),
                           Vector2d(0,1),Vector2d(1,1),Vector2d(1,0));
 
   // Bottom face
-  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,0,-1),Vector3d(-1,0,-1),
+  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,0,1),Vector3d(-1,0,1),
                           Vector2d(0,0),Vector2d(0,1),Vector2d(1,1));
-  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(-1,0,-1),Vector3d(-1,0,0),
+  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(-1,0,1),Vector3d(-1,0,0),
                           Vector2d(0,0),Vector2d(1,1),Vector2d(1,0));
 
   auto material = defaultMaterial();
@@ -251,7 +251,7 @@ Mesh_ptr cube(){
 
 Mesh_ptr teapot(){
   auto path = getResourcesPath()+"/sample_models/teapot.obj";
-  auto teapot = cg::loadOBJ(path, false);
+  auto teapot = cg::loadOBJ(path, true);
   auto default_material = defaultMaterial();
   for(auto &tri : teapot->tris)
     tri.material = default_material;
@@ -262,7 +262,7 @@ Mesh_ptr teapot(){
 Mesh_ptr simpleTriangle(){
   auto default_material = defaultMaterial();
   Triangle triangle{
-      Vector3d(0,-1,-10),{-1,-1,-10},{0,1,-10},
+      Vector3d(0,-1,10),{-1,-1,10},{0,1,10},
       Vector2d(0,1),{1,1},{0,0}};
   triangle.material = default_material;
 
@@ -274,15 +274,15 @@ Mesh_ptr simpleTriangle(){
 Mesh_ptr thinTriangles(){
   auto default_material = defaultMaterial();
   cg::Triangle thin_bottom{
-    Vector3d(0,0,-10),
-    Vector3d(-10,0,-10),
-    Vector3d(-10,0.5,-10)};
+    Vector3d(0,0,10),
+    Vector3d(-10,0,10),
+    Vector3d(-10,0.5,10)};
   thin_bottom.material = default_material;
 
   cg::Triangle thin_top{
-    Vector3d(0,0,-10),
-    Vector3d(-10,0.5,-10),
-    Vector3d(0,0.5,-10)};
+    Vector3d(0,0,10),
+    Vector3d(-10,0.5,10),
+    Vector3d(0,0.5,10)};
   thin_top.material = default_material;
 
   cg::Mesh_ptr thin_tri_mesh = std::make_shared<Mesh>();
@@ -295,7 +295,7 @@ Mesh_ptr thinTriangles(){
 Mesh_ptr worldAxis(){
   auto default_material = defaultMaterial();
   auto path = getResourcesPath()+"/sample_models/axis.obj";
-  auto axis= cg::loadOBJ(path, false);
+  auto axis= cg::loadOBJ(path, true);
   for(auto&tri: axis->tris)
     tri.material = default_material;
   return axis;
@@ -304,7 +304,7 @@ Mesh_ptr worldAxis(){
 Mesh_ptr teddy(){
   auto default_material = defaultMaterial();
   auto path = getResourcesPath()+"/sample_models/teddy.obj";
-  auto teddy = cg::loadOBJ(path, false);
+  auto teddy = cg::loadOBJ(path, true);
   for(auto&tri: teddy->tris)
     tri.material = default_material;
   return teddy;
@@ -313,7 +313,7 @@ Mesh_ptr teddy(){
 Mesh_ptr spyro(){
   auto default_material = defaultMaterial();
   auto path = getResourcesPath()+"/sample_models/spyro.obj";
-  auto spyro = cg::loadOBJ(path, false);
+  auto spyro = cg::loadOBJ(path, true);
   for(auto&tri: spyro->tris)
     tri.material = default_material;
   return spyro;
