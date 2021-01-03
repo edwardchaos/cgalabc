@@ -4,10 +4,9 @@
 
 namespace cg{
 
-PointLight::PointLight(const Vector4d &position):
-position(position){}
+PointLight::PointLight(const Vector4d &position):Light(),position(position){}
 
-PointLight::PointLight(const PointLight &other){
+PointLight::PointLight(const PointLight &other):Light(other){
 this->position=other.position;
 }
 
@@ -27,7 +26,11 @@ void PointLight::transformToCam(const Matrix4d &tf){
   position = tf*position;
 }
 
-DirectionLight::DirectionLight(Vector3d in_direction){
+Light_ptr PointLight::clone(){
+  return std::make_shared<PointLight>(*this);
+}
+
+DirectionLight::DirectionLight(Vector3d in_direction):Light(){
   if(in_direction.norm() > -cg::EPS && in_direction.norm() < cg::EPS){
     throw std::invalid_argument("Directional light vector cannot be length 0");
   }
@@ -35,7 +38,7 @@ DirectionLight::DirectionLight(Vector3d in_direction){
   this->direction = in_direction;
 }
 
-DirectionLight::DirectionLight(const DirectionLight &other){
+DirectionLight::DirectionLight(const DirectionLight &other):Light(other){
   this->direction = other.direction;
 }
 
@@ -47,4 +50,7 @@ void DirectionLight::transformToCam(const Matrix4d &tf){
   direction = tf.block(0,0,3,3)*direction;
 }
 
+Light_ptr DirectionLight::clone(){
+  return std::make_shared<DirectionLight>(*this);
+}
 } // namespace cg

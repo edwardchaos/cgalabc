@@ -26,6 +26,8 @@ struct Light{
   // Transforms this light into a target camera's coordinate frame by the
   // parameter tf
   virtual void transformToCam(const Matrix4d &tf)=0;
+
+  virtual Light_ptr clone()=0;
 };
 
 struct PointLight : public Light{
@@ -42,6 +44,8 @@ struct PointLight : public Light{
    * transform argument is left multiplied with the point.
    */
   void transformToCam(const Matrix4d &tf) override;
+
+  Light_ptr clone() override;
 };
 
 struct DirectionLight : public Light{
@@ -58,6 +62,8 @@ struct DirectionLight : public Light{
    * rotation of the 4x4 tf input is left multiplied.
    */
   void transformToCam(const Matrix4d &tf) override;
+
+  Light_ptr clone() override;
 };
 
 } // namespace cg
