@@ -428,6 +428,7 @@ std::shared_ptr<Vector2d> lineLineIntersect2d(
 }
 
 Vector3d slerp(const Vector3d &from, const Vector3d &to, double s){
+  if(from.isApprox(to))return from;
   double theta = acos(from.dot(to));
   double alpha = sin((1-s)*theta)/sin(theta);
   double beta = sin(s*theta)/sin(theta);
