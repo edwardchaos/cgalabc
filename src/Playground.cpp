@@ -22,13 +22,13 @@ class CameraApplication: public olc::PixelGameEngine{
                                                      ScreenHeight()));
 
     lights.emplace("dir_light",
-                   std::make_shared<cg::DirectionLight>(Vector3d(1,-1,-1)));
+                   std::make_shared<cg::DirectionLight>(Vector3d(1,-1,1)));
 
     renderer = std::make_unique<cg::Renderer>(this);
 
     //meshes.emplace("spyro", cg::spyro());
     //meshes.emplace("teddy", cg::teddy());
-    meshes.emplace("teapot", cg::teapot());
+    //meshes.emplace("teapot", cg::teapot());
     //meshes.emplace("cube", cg::cube());
     //meshes.emplace("simple_tri", cg::simpleTriangle());
     //meshes.emplace("thin_triangles" ,cg::thinTriangles());
@@ -51,7 +51,7 @@ class CameraApplication: public olc::PixelGameEngine{
     handleCameraMotion(cams.at("ego"), fElapsedTime);
 
     for(auto &mesh : meshes) {
-      mesh.second->pose.position = cg::translation(0, 0, -20).rightCols<1>();
+      mesh.second->pose.position = cg::translation(0, 0, 5).rightCols<1>();
       //mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
       //Eigen::Matrix4d tf = mesh.pose.matrix();
       Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
