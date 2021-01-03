@@ -51,12 +51,9 @@ void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
      */
     for(const auto& tri: triangles_to_draw){
       shadeAndDrawTriangle(tri,lights_copy);
-//      if(tri.material && tri.material->texture)
-//      drawTexturedTriangle(tri, *(tri.material->texture));
-//      else {
-//        pge->DrawTriangle(screen_tri.points[0].x(),screen_tri.points[0].y(),
-//                          screen_tri.points[1].x(),screen_tri.points[1].y(),
-//                          screen_tri.points[2].x(),screen_tri.points[2].y());
+//      pge->DrawTriangle(tri.points2d[0].x(),tri.points2d[0].y(),
+//                        tri.points2d[1].x(),tri.points2d[1].y(),
+//                        tri.points2d[2].x(),tri.points2d[2].y());
     }
   }
 }
