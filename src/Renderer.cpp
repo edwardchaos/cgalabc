@@ -243,17 +243,22 @@ Vector3d Renderer::shade(
     const Vector3d &light_ambience, const Vector3d &light_diffuse,
     const Vector3d &light_specular, const Vector3d &color_from_texture){
 
-  // TODO: Compute half way vector
-  Vector3d half_way_vector(1,1,1);
+  double n_dot_l = surface_normal.dot(point_to_light);
 
+  Vector3d half_way_vector = slerp(point_to_cam, point_to_light, 0.5);
   Vector3d ambiance = material_ambience.cwiseProduct(light_ambience);
   Vector3d diffuse = material_diffuse.cwiseProduct(light_diffuse)
-      * surface_normal.dot(point_to_light);
+      * std::max(n_dot_l, 0.0);
   Vector3d amb_dif_emit = ambiance+diffuse+material_emittance;
   Vector3d with_texture = amb_dif_emit.cwiseProduct(color_from_texture);
-  Vector3d spec = material_specular.cwiseProduct(light_specular)
-      * pow(surface_normal.dot(half_way_vector),glossiness_exponent));
-  Vector3d I_rgb = with_texture + spec;
+  Vector3d I_rgb = with_texture;
+
+  // Shouldn't have specular reflection if light is behind surface right??
+  if(n_dot_l > 0){
+    Vector3d spec = material_specular.cwiseProduct(light_specular)
+    * pow(surface_normal.dot(half_way_vector),glossiness_exponent));
+    I_rgb += spec;
+  }
 
   return I_rgb;
 }
