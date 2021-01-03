@@ -234,4 +234,47 @@ void Renderer::shadeAndDrawTriangle(
     ex_d += dx13;
   }
 }
+
+Vector3d Renderer::shade(
+    const Vector3d &material_ambience, const Vector3d &material_diffuse,
+    const Vector3d &material_specular, const Vector3d &surface_normal,
+    const Vector3d &point_to_light, const Vector3d &point_to_cam,
+    double glossiness_exponent, const Vector3d &material_emittance,
+    const Vector3d &light_ambience, const Vector3d &light_diffuse,
+    const Vector3d &light_specular, const Vector3d &color_from_texture){
+
+  return Vector3d(0,0,0);
+}
+
+Vector3d Renderer::shade(const Material_ptr& material,
+                         const Light_ptr& light_source,
+                         Vector3d point_normal,
+                         Vector3d point_to_light_vector,
+                         Vector3d point_to_cam,
+                         const Vector3d &color_from_texture){
+
+  double point_norm = point_normal.norm();
+  if(point_norm < cg::EPS && point_norm > -cg::EPS)
+    throw std::runtime_error("Surface normal vector is length 0");
+  if(point_norm<1-cg::EPS || point_norm > 1+cg::EPS)
+    point_normal.normalize();
+
+  double light_norm = point_to_light_vector.norm();
+  if(light_norm < cg::EPS && light_norm > -cg::EPS)
+    throw std::runtime_error("Point to light vector is length 0");
+  if(light_norm<1-cg::EPS || light_norm> 1+cg::EPS)
+    point_to_light_vector.normalize();
+
+  double point_2_cam_norm = point_to_cam.norm();
+  if(point_2_cam_norm < cg::EPS && point_2_cam_norm > -cg::EPS)
+    throw std::runtime_error("Point to cam vector is length 0");
+  if(point_2_cam_norm<1-cg::EPS || point_2_cam_norm> 1+cg::EPS)
+    point_to_cam.normalize();
+
+  return shade(material->ka, material->kd, material->ks, point_normal,
+               point_to_light_vector, point_to_cam, material->Ns, material->ke,
+               light_source->La, light_source->Ld, light_source->Ls,
+               color_from_texture);
+}
+
 } //namespace cg

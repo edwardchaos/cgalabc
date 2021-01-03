@@ -12,9 +12,9 @@ struct Light;
 typedef std::shared_ptr<Light> Light_ptr;
 
 struct Light{
-  double La[3] = {1,1,1}; // Light ambience reflectivity
-  double Ld[3] = {1,1,1}; // Light diffusion reflectivity
-  double Ls[3] = {1,1,1}; // Light specular reflectivity
+  Vector3d La= Vector3d(1,1,1); // Light ambience reflectivity
+  Vector3d Ld= Vector3d(1,1,1); // Light diffusion reflectivity
+  Vector3d Ls= Vector3d(1,1,1); // Light specular reflectivity
 
   Light() = default;
 };
