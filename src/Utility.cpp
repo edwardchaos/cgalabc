@@ -14,6 +14,8 @@ std::string getResourcesPath(){
 
 Material_ptr defaultMaterial(){
   Material_ptr default_mat = std::make_shared<Material>();
+  return default_mat;
+  //TODO: Allow default texture after shading is finished
   std::shared_ptr<olc::Sprite> sprite=std::make_shared<olc::Sprite>();
   if(sprite->loader==nullptr) return default_mat;
 
