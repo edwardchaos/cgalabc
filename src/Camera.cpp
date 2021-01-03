@@ -22,6 +22,7 @@ void Camera::init(){
   // This is consequent of the axis definition in the derivation of the
   // perspective transform matrix
   pose_world.orientation(0,0) = -1;
+  pose_world.orientation(2,2) = -1;
   constructProjectionMatrix();
 }
 
