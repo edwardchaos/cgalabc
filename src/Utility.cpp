@@ -14,8 +14,6 @@ std::string getResourcesPath(){
 
 Material_ptr defaultMaterial(){
   Material_ptr default_mat = std::make_shared<Material>();
-  return default_mat;
-  //TODO: Allow default texture after shading is finished
   std::shared_ptr<olc::Sprite> sprite=std::make_shared<olc::Sprite>();
   if(sprite->loader==nullptr) return default_mat;
 
@@ -430,8 +428,21 @@ std::shared_ptr<Vector2d> lineLineIntersect2d(
 Vector3d slerp(const Vector3d &from, const Vector3d &to, double s){
   if(from.isApprox(to))return from;
   double theta = acos(from.dot(to));
-  double alpha = sin((1-s)*theta)/sin(theta);
-  double beta = sin(s*theta)/sin(theta);
+  double sin_theta, sin_1_s_theta, sin_s_theta;
+  double stheta = s*theta;
+  if(theta < 0.244){
+    sin_theta = theta;
+    sin_1_s_theta = theta - stheta;
+    sin_s_theta = stheta;
+  }
+  else{
+    sin_theta = sin(theta);
+    sin_1_s_theta = sin(theta - stheta);
+    sin_s_theta = sin(stheta);
+  }
+
+  double alpha = sin_1_s_theta/sin_theta;
+  double beta = sin_s_theta/sin_theta;
   return alpha*from+beta*to;
 }
 } // namespace cg
