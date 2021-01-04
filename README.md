@@ -20,7 +20,8 @@ Current random 2D stuff (probably won't add more 2d stuff):
 - Convex polygon collision
 - Point in polygon
 
-Shadowcasting using some of the stuff above:
+Shadowcasting using some of the stuff above
+(rendering to gif produces noisy background):
 
 ![](super_duper_secrets/shadowcast.GIF)
 
@@ -34,6 +35,11 @@ Current 3D stuff:
 - z buffer
 - blinn-phong shading
 
+Perspective projected and clipped teapot:
 ![](super_duper_secrets/teapot_clipped.gif)
+
+Scan conversion with default rainbow texture:
 ![](super_duper_secrets/teapot_textured.GIF)
+
+Same teapot with shading added:
 ![](super_duper_secrets/teapot_shaded.GIF)
