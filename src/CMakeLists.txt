@@ -46,9 +46,11 @@ link_libraries(${BINARY}_lib png X11 GL pthread)
 # for live code, as opposed to unit testing
 add_executable(${BINARY}_shadowcast ShadowCast.cpp)
 add_executable(${BINARY}_playground Playground.cpp)
+add_executable(${BINARY}_omptest omptest.cpp)
 
 find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(${BINARY}_lib PUBLIC OpenMP::OpenMP_CXX)
+    target_link_libraries(${BINARY}_omptest PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
