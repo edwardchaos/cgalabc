@@ -13,12 +13,12 @@ using Eigen::Vector3d;
 namespace cg{
 
 struct Material{
-  Vector3d ka=Vector3d(0.1,0.1,0.1); // material ambient reflectivity
-  Vector3d kd=Vector3d(0.5,0.5,0.5); // material diffusion reflectivity
-  Vector3d ks=Vector3d(0.2,0.2,0.2); // material specular reflectivity
+  Vector3d ka=Vector3d(0.2,0.2,0.2); // material ambient reflectivity
+  Vector3d kd=Vector3d(0.64,0.64,0.64); // material diffusion reflectivity
+  Vector3d ks=Vector3d(1,1,1); // material specular reflectivity
   // Material emission (base brightness in the absence of a light source)
   Vector3d ke=Vector3d(0.02,0.02,0.02);
-  double Ns = 1; // Glossiness exponent
+  double Ns = 96; // Glossiness exponent
   std::shared_ptr<olc::Sprite> texture = nullptr;
 
   Material()=default;

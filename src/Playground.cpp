@@ -52,9 +52,10 @@ class CameraApplication: public olc::PixelGameEngine{
 
     for(auto &mesh : meshes) {
       mesh.second->pose.position = cg::translation(0, 0, 5).rightCols<1>();
-      //mesh.pose.orientation = rotx_mat*roty_mat*rotz_mat*mesh.pose.orientation;
-      //Eigen::Matrix4d tf = mesh.pose.matrix();
-      Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+      mesh.second->pose.orientation =
+          rotx_mat*roty_mat*rotz_mat*mesh.second->pose.orientation;
+      Eigen::Matrix4d tf = mesh.second->pose.matrix();
+      //Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
 
       // Render mesh in camera 'ego'
       renderer->draw(cams.at("ego"), mesh.second, lights);
@@ -99,7 +100,7 @@ class CameraApplication: public olc::PixelGameEngine{
 
 int main(){
   CameraApplication app;
-  if(!app.Construct(640, 480, 10, 10)) return 0;
+  if(!app.Construct(1920, 1080, 1, 1)) return 0;
   app.Start();
   return 0;
 }

@@ -35,11 +35,22 @@ Current 3D stuff:
 - z buffer
 - blinn-phong shading
 
+
+
 Perspective projected and clipped teapot:
 ![](super_duper_secrets/teapot_clipped.gif)
+
+
 
 Scan conversion with default rainbow texture:
 ![](super_duper_secrets/teapot_textured.GIF)
 
+
+
 Same teapot with shading added:
 ![](super_duper_secrets/teapot_shaded.GIF)
+
+
+
+After tuning material and light parameters:
+![](super_duper_secrets/teapot_material_tuned.GIF)
