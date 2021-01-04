@@ -14,7 +14,6 @@ TEST(Utility, load_obj){
   std::string file_path = __FILE__;
   std::string dir_path = file_path.substr(0, file_path.rfind("/"));
   dir_path += "/resource/cube.obj";
-  std::cout << dir_path << std::endl;
 
   // Load cube obj
   bool ccw_points = true;
@@ -207,4 +206,6 @@ TEST(Slerp, doit){
   auto res4 = cg::slerp(a,b,0.76);
   ASSERT_NEAR(res4.x(), cos(1.19380520836), 1e-9);
   ASSERT_NEAR(res4.y(), sin(1.19380520836), 1e-9);
+
+  ASSERT_TRUE(cg::slerp(a,a,0.23).isApprox(a));
 }

@@ -1,7 +1,5 @@
 #include "Mesh.h"
 
-#include <utility>
-
 namespace cg{
 
 Triangle::Triangle(
@@ -15,6 +13,7 @@ Triangle::Triangle(
 
   defaultTextureMap();
   defaultVertexNorms();
+  default2DPoints();
 }
 
 Triangle::Triangle(
@@ -35,6 +34,7 @@ Triangle::Triangle(
   t[2][2] = 1;
 
   defaultVertexNorms();
+  default2DPoints();
 }
 
 Triangle::Triangle(
@@ -52,6 +52,7 @@ Triangle::Triangle(
   vertex_normals[2] = norm3;
 
   defaultTextureMap();
+  default2DPoints();
 }
 
 Triangle::Triangle(
@@ -75,6 +76,8 @@ Triangle::Triangle(
   vertex_normals[0] = norm1;
   vertex_normals[1] = norm2;
   vertex_normals[2] = norm3;
+
+  default2DPoints();
 }
 
 void Triangle::defaultTextureMap(){
@@ -91,6 +94,12 @@ void Triangle::defaultVertexNorms(){
   this->vertex_normals[2] = face_norm;
 }
 
+void Triangle::default2DPoints(){
+  this->points2d[0]=Vector3d(-1,-1,-1);
+  this->points2d[1]=Vector3d(-1,-1,-1);
+  this->points2d[2]=Vector3d(-1,-1,-1);
+}
+
 std::vector<Eigen::Vector3d> Triangle::edges() const{
   return {(points[1] - points[0]).head<3>(),
           (points[2] - points[1]).head<3>(),
@@ -104,51 +113,6 @@ Eigen::Vector3d Triangle::face_unit_normal() const{
   return unit_normal;
 }
 
-Triangle2D::Triangle2D(
-    const Vector2d &pt1, const Vector2d &pt2, const Vector2d &pt3){
-  points[0].head<2>() = pt1;
-  points[0][2] = 1;
-  points[1].head<2>() = pt2;
-  points[1][2] = 1;
-  points[2].head<2>() = pt3;
-  points[2][2] = 1;
-
-  defaultTextureMap();
-  defaultVertexNorms();
-}
-
-Triangle2D::Triangle2D(
-  const Vector2d &pt1, const Vector2d &pt2, const Vector2d &pt3,
-  const Vector2d &t1, const Vector2d &t2, const Vector2d &t3){
-  points[0].head<2>() = pt1;
-  points[0][2] = 1;
-  points[1].head<2>() = pt2;
-  points[1][2] = 1;
-  points[2].head<2>() = pt3;
-  points[2][2] = 1;
-
-  t[0].head<2>() = t1;
-  t[0][2] = 1;
-  t[1].head<2>() = t2;
-  t[0][2] = 1;
-  t[2].head<2>() = t3;
-  t[0][2] = 1;
-
-  defaultVertexNorms();
-}
-
-void Triangle2D::defaultTextureMap(){
-  // default values to avoid unknown unknowns
-  this->t[0]=Vector3d(1,0,1);
-  this->t[1]=Vector3d(0,0,1);
-  this->t[2]=Vector3d(0,1,1);
-}
-
-void Triangle2D::defaultVertexNorms(){
-  this->vertex_normals[0] = Vector3d(1,0,0);
-  this->vertex_normals[1] = Vector3d(1,0,0);
-  this->vertex_normals[2] = Vector3d(1,0,0);
-}
 } // namespace cg
 
 

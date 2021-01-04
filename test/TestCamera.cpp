@@ -1,12 +1,14 @@
 #include <gtest/gtest.h>
 
 #include <iostream>
-#include "Camera.h"
 
 #ifdef SUCCESS
 #undef SUCCESS
 #endif
 #include "Eigen/Dense"
+
+#include "Camera.h"
+#include "Utility.h"
 
 using Eigen::Matrix4d;
 using Eigen::Vector4d;
@@ -20,12 +22,12 @@ TEST(Camera, project_point_in_world){
   cg::Camera cam(vertical_fov, 1, 100, screen_width, screen_height);
 
   // Create 3D points in world frame
-  Vector4d A(0, 15.0*tan(vertical_fov/2.0), -15,1);
-  Vector4d B(0, 50*tan(vertical_fov/2.0), -50,1);
-  Vector4d C(0, -B(1), -50,1);
-  Vector4d D(0, -A(1), -15,1);
-  Vector4d E(0, 0, -15,1);
-  Vector4d F(0, 0, -50,1);
+  Vector4d A(0, 15.0*tan(vertical_fov/2.0), 15,1);
+  Vector4d B(0, 50*tan(vertical_fov/2.0), 50,1);
+  Vector4d C(0, -B(1), 50,1);
+  Vector4d D(0, -A(1), 15,1);
+  Vector4d E(0, 0, 15,1);
+  Vector4d F(0, 0, 50,1);
 
   auto a_proj = cam.projectPointInWorld(A);
   ASSERT_TRUE(a_proj.isApprox(Vector2d(0,-1)));
@@ -55,14 +57,15 @@ TEST(Camera, local_move){
 
   Eigen::Matrix4d forward_mat = Eigen::Matrix4d::Identity();
   forward_mat(0,0) = -1;
-  forward_mat(2,3) = -9.99;
+  forward_mat(2,2) = -1;
+  forward_mat(2,3) = 9.99;
   // Move forward,
   cam.moveForward(9.99);
   ASSERT_EQ(cam.pose_world.matrix(), forward_mat);
 
   cam.moveForward(-3);
   // Move backward
-  forward_mat(2,3) += 3;
+  forward_mat(2,3) -= 3;
   ASSERT_EQ(cam.pose_world.matrix(), forward_mat);
 
   // Strafe right, left
@@ -97,15 +100,15 @@ TEST(Camera, isFacing){
 
   // Camera's default pose is origin, Looking along the -z axis.
   cg::Triangle not_facing{
-    Vector3d(0,10,-10),Vector3d(10,20,-20),Vector3d(-10,20,-20)};
+    Vector3d(0,10,10),Vector3d(10,20,20),Vector3d(-10,20,20)};
   cg::Triangle not_facing2{
-      Vector3d(0,10,-10),Vector3d(-10,19.9,-20),Vector3d(10,19.9,-20)};
+      Vector3d(0,10,10),Vector3d(-10,19.9,20),Vector3d(10,19.9,20)};
   cg::Triangle not_facing3{
-      Vector3d(0,10,-10),Vector3d(-10,19.9999,-20),Vector3d(10,19.9999,-20)};
+      Vector3d(0,10,10),Vector3d(-10,19.9999,20),Vector3d(10,19.9999,20)};
   cg::Triangle facing{
-      Vector3d(0,10,-10),Vector3d(-10,21,-20),Vector3d(10,21,-20)};
+      Vector3d(0,10,10),Vector3d(-10,21,20),Vector3d(10,21,20)};
   cg::Triangle not_facing4{
-      Vector3d(0,10,-10),Vector3d(10,21,-20),Vector3d(-10,21,-20)};
+      Vector3d(0,10,10),Vector3d(10,21,20),Vector3d(-10,21,20)};
 
   ASSERT_TRUE(cam.isFacing(facing));
   ASSERT_FALSE(cam.isFacing(not_facing));
@@ -257,7 +260,24 @@ TEST(Camera, clipping_3d){
   ASSERT_TRUE(h_clip.empty());
   ASSERT_TRUE(i_clip.size()==1);
 
-  //TODO: Test clipping norm slerp
+  cg::Triangle normaltest({-2,0,0},{-1,0,-2},{-1,0,0});
+  Vector3d norm_0(-1,1,1); norm_0.normalize();
+  Vector3d norm_1(0,1,-1); norm_1.normalize();
+  Vector3d norm_2(1,1,1); norm_2.normalize();
+  normaltest.vertex_normals[0] = norm_0;
+  normaltest.vertex_normals[1] = norm_1;
+  normaltest.vertex_normals[2] = norm_2;
+
+  auto nt_clip = cam.clipNear(normaltest);
+  ASSERT_TRUE(nt_clip.size()==1);
+  Vector3d first_normal(-0.5,1,0);
+  first_normal.normalize();
+  ASSERT_TRUE(nt_clip[0].vertex_normals[0].isApprox(
+      cg::slerp(norm_0,norm_1,0.5)));
+  ASSERT_TRUE(nt_clip[0].vertex_normals[1].isApprox(
+      normaltest.vertex_normals[1]));
+  ASSERT_TRUE(nt_clip[0].vertex_normals[2].isApprox(
+      cg::slerp(norm_1,norm_2,0.5)));
 }
 
 TEST(Camera, clipping_2d){
@@ -268,9 +288,10 @@ TEST(Camera, clipping_2d){
                  screen_width,
                  screen_height);
 
-  cg::Triangle2D tri1(Vector2d(-10,200),
-                      Vector2d(300,-10),
-                      Vector2d(650,200));
+  cg::Triangle tri1({1,1,1},{2,2,2},{3,3,3});
+  tri1.points2d[0] = Vector3d(-10,200,1);
+  tri1.points2d[1] = Vector3d(300,-10,1);
+  tri1.points2d[2] = Vector3d(650,200,1);
 
   auto tri1_clipped = cam.clipScreen2D(tri1);
   ASSERT_EQ(tri1_clipped.size(),5);
@@ -285,20 +306,37 @@ TEST(Camera, clipping_2d){
   }
 
   // Triangle is completely within the screen. No clipping necessary.
-  cg::Triangle2D tri2(Vector2d(10,200),
-                      Vector2d(300,10),
-                      Vector2d(500,200));
+  cg::Triangle tri2({1,1,1},{2,2,2},{3,3,3});
+  tri2.points2d[0] = Vector3d(10,200,1);
+  tri2.points2d[1] = Vector3d(300,10,1);
+  tri2.points2d[2] = Vector3d(500,200,1);
 
   auto tri2_clipped = cam.clipScreen2D(tri2);
   ASSERT_EQ(tri2_clipped.size(), 1);
 
   // Triangle completely out of screen.
-  cg::Triangle2D tri3(Vector2d(-10,200),
-                      Vector2d(-300,10),
-                      Vector2d(-500,200));
+  cg::Triangle tri3({1,1,1},{2,2,2},{3,3,3});
+  tri3.points2d[0] = Vector3d(-10,200,1);
+  tri3.points2d[1] = Vector3d(-300,10,1);
+  tri3.points2d[2] = Vector3d(-500,200,1);
 
   auto tri3_clipped = cam.clipScreen2D(tri3);
   ASSERT_EQ(tri3_clipped.size(), 0);
 
-  // TODO: Add test for norm slerp
+  cg::Triangle tri4({1,1,1},{2,2,2},{3,3,3});
+  tri4.points2d[0] = Vector3d(10,200,1);
+  tri4.points2d[1] = Vector3d(-300,10,1);
+  tri4.points2d[2] = Vector3d(-500,200,1);
+  tri4.vertex_normals[0] = Vector3d(1,2,3).normalized();
+  tri4.vertex_normals[0] = Vector3d(7,8,9).normalized();
+  tri4.vertex_normals[0] = Vector3d(3,3,3).normalized();
+
+  auto tri4_clipped = cam.clipScreen2D(tri4);
+  ASSERT_EQ(tri4_clipped.size(),1);
+  ASSERT_TRUE(tri4_clipped[0].vertex_normals[0].isApprox(
+      tri4_clipped[0].vertex_normals[0]));
+  ASSERT_TRUE(tri4_clipped[0].vertex_normals[1].isApprox(
+      cg::slerp(tri4.vertex_normals[0],tri4.vertex_normals[1], 10.0/310.0)));
+  ASSERT_TRUE(tri4_clipped[0].vertex_normals[2].isApprox(
+      cg::slerp(tri4.vertex_normals[0],tri4.vertex_normals[2], 10.0/510.0)));
 }

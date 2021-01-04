@@ -5,6 +5,25 @@
 
 namespace cg{
 
+std::string getResourcesPath(){
+  std::string file_path = __FILE__;
+  std::string dir_path = file_path.substr(0, file_path.rfind("/"));
+  dir_path += "/../resources/";
+  return dir_path;
+}
+
+Material_ptr defaultMaterial(){
+  Material_ptr default_mat = std::make_shared<Material>();
+  std::shared_ptr<olc::Sprite> sprite=std::make_shared<olc::Sprite>();
+  if(sprite->loader==nullptr) return default_mat;
+
+  auto tex_path = getResourcesPath() + "sample_textures/rainbow.png";
+
+  sprite->LoadFromFile(tex_path);
+  default_mat->texture = sprite;
+  return default_mat;
+}
+
 Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points){
   std::ifstream obj_file(path_to_obj);
   if(!obj_file.is_open()) return nullptr;
@@ -191,36 +210,111 @@ Mesh_ptr cube(){
                           Vector2d(0,1),Vector2d(1,1),Vector2d(1,0));
 
   // East face
-  cube->tris.emplace_back(Vector3d(-1,0,0),Vector3d(-1,1,-1),Vector3d(-1,1,0),
+  cube->tris.emplace_back(Vector3d(-1,0,0),Vector3d(-1,1,1),Vector3d(-1,1,0),
                           Vector2d(0,1),Vector2d(1,0),Vector2d(0,0));
-  cube->tris.emplace_back(Vector3d(-1,0,0),Vector3d(-1,0,-1),Vector3d(-1,1,-1),
+  cube->tris.emplace_back(Vector3d(-1,0,0),Vector3d(-1,0,1),Vector3d(-1,1,1),
                           Vector2d(0,1),Vector2d(1,1),Vector2d(1,0));
 
   // West face
-  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,1,0),Vector3d(0,1,-1),
+  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,1,0),Vector3d(0,1,1),
                           Vector2d(1,1),Vector2d(1,0),Vector2d(0,0));
-  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,1,-1),Vector3d(0,0,-1),
+  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,1,1),Vector3d(0,0,1),
                           Vector2d(1,1),Vector2d(0,0),Vector2d(0,1));
 
   // North face
-  cube->tris.emplace_back(Vector3d(0,0,-1),Vector3d(0,1,-1),Vector3d(-1,1,-1),
+  cube->tris.emplace_back(Vector3d(0,0,1),Vector3d(0,1,1),Vector3d(-1,1,1),
                           Vector2d(1,1),Vector2d(1,0),Vector2d(0,0));
-  cube->tris.emplace_back(Vector3d(0,0,-1),Vector3d(-1,1,-1),Vector3d(-1,0,-1),
+  cube->tris.emplace_back(Vector3d(0,0,1),Vector3d(-1,1,1),Vector3d(-1,0,1),
                           Vector2d(1,1),Vector2d(0,0),Vector2d(0,1));
 
   // Top face
-  cube->tris.emplace_back(Vector3d(0,1,0),Vector3d(-1,1,-1),Vector3d(0,1,-1),
+  cube->tris.emplace_back(Vector3d(0,1,0),Vector3d(-1,1,1),Vector3d(0,1,1),
                           Vector2d(0,1),Vector2d(1,0),Vector2d(0,0));
-  cube->tris.emplace_back(Vector3d(0,1,0),Vector3d(-1,1,0),Vector3d(-1,1,-1),
+  cube->tris.emplace_back(Vector3d(0,1,0),Vector3d(-1,1,0),Vector3d(-1,1,1),
                           Vector2d(0,1),Vector2d(1,1),Vector2d(1,0));
 
   // Bottom face
-  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,0,-1),Vector3d(-1,0,-1),
+  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(0,0,1),Vector3d(-1,0,1),
                           Vector2d(0,0),Vector2d(0,1),Vector2d(1,1));
-  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(-1,0,-1),Vector3d(-1,0,0),
+  cube->tris.emplace_back(Vector3d(0,0,0),Vector3d(-1,0,1),Vector3d(-1,0,0),
                           Vector2d(0,0),Vector2d(1,1),Vector2d(1,0));
 
+  auto material = defaultMaterial();
+  for(auto&tri:cube->tris) {
+    tri.material = material;
+  }
+
   return cube;
+}
+
+Mesh_ptr teapot(){
+  auto path = getResourcesPath()+"/sample_models/teapot.obj";
+  auto teapot = cg::loadOBJ(path, true);
+  auto default_material = defaultMaterial();
+  for(auto &tri : teapot->tris)
+    tri.material = default_material;
+
+  return teapot;
+}
+
+Mesh_ptr simpleTriangle(){
+  auto default_material = defaultMaterial();
+  Triangle triangle{
+      Vector3d(0,-1,10),{-1,-1,10},{0,1,10},
+      Vector2d(0,1),{1,1},{0,0}};
+  triangle.material = default_material;
+
+  Mesh_ptr tri_mesh = std::make_shared<Mesh>();
+  tri_mesh->tris.push_back(triangle);
+  return tri_mesh;
+}
+
+Mesh_ptr thinTriangles(){
+  auto default_material = defaultMaterial();
+  cg::Triangle thin_bottom{
+    Vector3d(0,0,10),
+    Vector3d(-10,0,10),
+    Vector3d(-10,0.5,10)};
+  thin_bottom.material = default_material;
+
+  cg::Triangle thin_top{
+    Vector3d(0,0,10),
+    Vector3d(-10,0.5,10),
+    Vector3d(0,0.5,10)};
+  thin_top.material = default_material;
+
+  cg::Mesh_ptr thin_tri_mesh = std::make_shared<Mesh>();
+  thin_tri_mesh->tris.push_back(thin_bottom);
+  thin_tri_mesh->tris.push_back(thin_top);
+
+  return thin_tri_mesh;
+}
+
+Mesh_ptr worldAxis(){
+  auto default_material = defaultMaterial();
+  auto path = getResourcesPath()+"/sample_models/axis.obj";
+  auto axis= cg::loadOBJ(path, true);
+  for(auto&tri: axis->tris)
+    tri.material = default_material;
+  return axis;
+}
+
+Mesh_ptr teddy(){
+  auto default_material = defaultMaterial();
+  auto path = getResourcesPath()+"/sample_models/teddy.obj";
+  auto teddy = cg::loadOBJ(path, true);
+  for(auto&tri: teddy->tris)
+    tri.material = default_material;
+  return teddy;
+}
+
+Mesh_ptr spyro(){
+  auto default_material = defaultMaterial();
+  auto path = getResourcesPath()+"/sample_models/spyro.obj";
+  auto spyro = cg::loadOBJ(path, true);
+  for(auto&tri: spyro->tris)
+    tri.material = default_material;
+  return spyro;
 }
 
 Eigen::Matrix4d rotateX(double theta){
@@ -277,6 +371,7 @@ Triangle transformTriangle(const Triangle& tri, const Matrix4d& tf){
     transformed_tri.vertex_normals[i] =
         tf.block(0,0,3,3)*tri.vertex_normals[i];
   }
+  transformed_tri.material = tri.material;
   return transformed_tri;
 }
 
@@ -331,9 +426,23 @@ std::shared_ptr<Vector2d> lineLineIntersect2d(
 }
 
 Vector3d slerp(const Vector3d &from, const Vector3d &to, double s){
+  if(from.isApprox(to))return from;
   double theta = acos(from.dot(to));
-  double alpha = sin((1-s)*theta)/sin(theta);
-  double beta = sin(s*theta)/sin(theta);
+  double sin_theta, sin_1_s_theta, sin_s_theta;
+  double stheta = s*theta;
+  if(theta < 0.244){
+    sin_theta = theta;
+    sin_1_s_theta = theta - stheta;
+    sin_s_theta = stheta;
+  }
+  else{
+    sin_theta = sin(theta);
+    sin_1_s_theta = sin(theta - stheta);
+    sin_s_theta = sin(stheta);
+  }
+
+  double alpha = sin_1_s_theta/sin_theta;
+  double beta = sin_s_theta/sin_theta;
   return alpha*from+beta*to;
 }
 } // namespace cg

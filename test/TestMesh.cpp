@@ -14,3 +14,12 @@ TEST(Mesh, create){
   ASSERT_EQ(m.tris[0].edges()[2], Vector3d(-1,-1,0));
   ASSERT_EQ(m.tris[0].face_unit_normal(), Vector3d(0,0,1));
 }
+
+TEST(Mesh, face_normal){
+  cg::Triangle triangle{
+      Vector3d(0,-1,-10),{-1,-1,-10},{0,1,-10},
+      Vector2d(0,1),{1,1},{0,0}};
+
+  auto norm = triangle.face_unit_normal();
+  ASSERT_TRUE(norm.isApprox(Vector3d(0,0,-1)));
+}
