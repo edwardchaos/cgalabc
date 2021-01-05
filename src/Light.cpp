@@ -22,7 +22,7 @@ Vector3d PointLight::getDirection(const Vector3d &pt){
   return dir;
 }
 
-void PointLight::transformToCam(const Matrix4d &tf){
+void PointLight::transform(const Matrix4d &tf){
   position = tf*position;
 }
 
@@ -46,7 +46,7 @@ Vector3d DirectionLight::getDirection(const Vector3d &pt){
   return direction;
 }
 
-void DirectionLight::transformToCam(const Matrix4d &tf){
+void DirectionLight::transform(const Matrix4d &tf){
   direction = tf.block(0,0,3,3)*direction;
 }
 

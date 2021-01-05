@@ -38,7 +38,8 @@ void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
     std::unordered_map<std::string, Light_ptr> lights_copy;
     for(const auto &light : lights_world){
       Light_ptr newlight_ptr = light.second->clone();
-      newlight_ptr->transformToCam(cam->pose_world.matrix().inverse());
+      // Transform light to camera frame for shading
+      newlight_ptr->transform(cam->pose_world.matrix().inverse());
       lights_copy.emplace(light.first,newlight_ptr);
     }
 
