@@ -19,12 +19,12 @@ struct Light{
 
   Light() = default;
 
-  // Return direction unit vector from point TO light source
-  // stress : NOT FROM
+  // Returns direction the light is pointing toward
+  // Make negative if you need point to light direction.
   virtual Vector3d getDirection(const Vector3d &pt)=0;
 
-  // Transforms this light into a target camera's coordinate frame by the
-  // parameter tf
+  // Transforms this light by left multiplying a rigid body transformation
+  // matrix.
   virtual void transform(const Matrix4d &tf)=0;
 
   virtual Light_ptr clone()const=0;

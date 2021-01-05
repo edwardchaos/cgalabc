@@ -11,7 +11,7 @@ this->position=other.position;
 }
 
 Vector3d PointLight::getDirection(const Vector3d &pt){
-  Vector3d dir = position.head<3>() - pt;
+  Vector3d dir = pt - position.head<3>();
   dir.normalize();
 
   // It's techinically possible for direction to be length 0, but shouldn't

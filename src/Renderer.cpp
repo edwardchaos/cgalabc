@@ -62,7 +62,6 @@ void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
 void Renderer::shadeAndDrawTriangle(
     const Triangle& tri,
     const std::unordered_map<std::string, Light_ptr> &lights) {
-  // Sort triangle vertices from top to bottom
   auto pt1 = tri.points2d[0];
   auto pt2 = tri.points2d[1];
   auto pt3 = tri.points2d[2];
@@ -81,6 +80,7 @@ void Renderer::shadeAndDrawTriangle(
   auto n2 = tri.vertex_normals[1];
   auto n3 = tri.vertex_normals[2];
 
+  // Sort 2D triangle vertices from top to bottom pt1 top, pt2 mid, pt3 bottom
   if(p2y < p1y){
     std::swap(p2x,p1x);std::swap(p2y,p1y);std::swap(tx2,tx1);
     std::swap(n2,n1);std::swap(pt2_3d,pt1_3d);}
@@ -133,7 +133,7 @@ void Renderer::shadeAndDrawTriangle(
       double d_vertical12 = (double) dy / y12;
       double d_vertical13 = (double) dy / y13;
 
-      // Select actual pixel indices using the double type values
+      // Select integer pixel indices using the double type values
       int sx = std::round(sx_d);
       int ex = std::round(ex_d);
 
@@ -227,7 +227,7 @@ void Renderer::shadeAndDrawTriangle(
 
     sx_d = p2x;
 
-    for (int dy = 0; p2y + dy <= p3y; ++dy) {
+    for (int dy = 0; dy <= p3y-p2y; ++dy) {
       // Bottom-flat triangle should have been completely drawn already by
       // the loop above.
       if (flat_bottom) break;
@@ -239,12 +239,12 @@ void Renderer::shadeAndDrawTriangle(
       int ex = std::round(ex_d);
 
       // Start and end of texel along this horizontal line
-      double stx_u = tx2.x() + u23 * (d_vertical23);
-      double etx_u = tx1.x() + u13 * (d_vertical13);
-      double stx_v = tx2.y() + v23 * (d_vertical23);
-      double etx_v = tx1.y() + v13 * (d_vertical13);
-      double stx_w = tx2.z() + w23 * (d_vertical23);
-      double etx_w = tx1.z() + w13 * (d_vertical13);
+      double stx_u = tx2.x() + u23 * d_vertical23;
+      double etx_u = tx1.x() + u13 * d_vertical13;
+      double stx_v = tx2.y() + v23 * d_vertical23;
+      double etx_v = tx1.y() + v13 * d_vertical13;
+      double stx_w = tx2.z() + w23 * d_vertical23;
+      double etx_w = tx1.z() + w13 * d_vertical13;
 
       // Start and end of normals
       Vector3d snorm = slerp(n2, n3, d_vertical23);
