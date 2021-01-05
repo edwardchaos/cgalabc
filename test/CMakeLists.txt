@@ -12,6 +12,7 @@ set(TEST_SOURCES
 	TestCamera.cpp
 	TestUtility.cpp
 	TestPose.cpp
+	TestLight.cpp
 )
 set(TEST_HEADERS
 
