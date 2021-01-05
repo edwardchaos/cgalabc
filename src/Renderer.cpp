@@ -355,9 +355,9 @@ Vector3d Renderer::shade(
 
 Vector3d Renderer::shade(const Material_ptr& material,
                          const Light_ptr& light_source,
-                         Vector3d point_normal,
-                         Vector3d point_to_light_vector,
-                         Vector3d halfway_vec,
+                         const Vector3d &point_normal,
+                         const Vector3d &point_to_light_vector,
+                         const Vector3d &halfway_vec,
                          const Vector3d &color_from_texture){
   return shade(material->ka, material->kd, material->ks, point_normal,
                point_to_light_vector, halfway_vec, material->Ns, material->ke,

@@ -87,11 +87,11 @@ class Renderer : public olc::PGEX{
    * Convenience shade function that calls the main shade function
    * See the other shade function for description
    */
-  Vector3d shade(const Material_ptr& material,
-                 const Light_ptr& light_source,
-                 Vector3d point_normal,
-                 Vector3d point_to_light_vector,
-                 Vector3d halfway_vec,
+  Vector3d shade(const Material_ptr &material,
+                 const Light_ptr &light_source,
+                 const Vector3d &point_normal,
+                 const Vector3d &point_to_light_vector,
+                 const Vector3d &halfway_vec,
                  const Vector3d &color_from_texture=Vector3d(1,1,1));
 
  private:
