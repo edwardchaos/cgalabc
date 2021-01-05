@@ -36,7 +36,7 @@ void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
     // Shading is performed with all entities in the camera frame. Transform
     // the lights into the camera frame.
     std::unordered_map<std::string, Light_ptr> lights_copy;
-    for(auto light : lights_world){
+    for(const auto &light : lights_world){
       Light_ptr newlight_ptr = light.second->clone();
       newlight_ptr->transformToCam(cam->pose_world.matrix().inverse());
       lights_copy.emplace(light.first,newlight_ptr);
