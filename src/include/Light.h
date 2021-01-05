@@ -27,6 +27,8 @@ struct Light{
   // matrix.
   virtual void transform(const Matrix4d &tf)=0;
 
+  // Returns a clone of this light. Possible use case: transforming to
+  // camera frame so original light remains in same position in world frame
   virtual Light_ptr clone()const=0;
 };
 
