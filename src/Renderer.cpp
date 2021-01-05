@@ -359,25 +359,6 @@ Vector3d Renderer::shade(const Material_ptr& material,
                          Vector3d point_to_light_vector,
                          Vector3d halfway_vec,
                          const Vector3d &color_from_texture){
-
-  double point_norm = point_normal.norm();
-  if(point_norm < cg::EPS && point_norm > -cg::EPS)
-    throw std::runtime_error("Surface normal vector is length 0");
-  if(point_norm<1-cg::EPS || point_norm > 1+cg::EPS)
-    point_normal.normalize();
-
-  double light_norm = point_to_light_vector.norm();
-  if(light_norm < cg::EPS && light_norm > -cg::EPS)
-    throw std::runtime_error("Point to light vector is length 0");
-  if(light_norm<1-cg::EPS || light_norm> 1+cg::EPS)
-    point_to_light_vector.normalize();
-
-  double halfway_norm = halfway_vec.norm();
-  if(halfway_norm < cg::EPS && halfway_norm > -cg::EPS)
-    throw std::runtime_error("halfway vector is length 0");
-  if(halfway_norm<1-cg::EPS || halfway_norm> 1+cg::EPS)
-    halfway_vec.normalize();
-
   return shade(material->ka, material->kd, material->ks, point_normal,
                point_to_light_vector, halfway_vec, material->Ns, material->ke,
                light_source->La, light_source->Ld, light_source->Ls,
