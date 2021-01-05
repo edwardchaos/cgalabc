@@ -50,11 +50,11 @@ void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
      * vertex_normals: direction unit vector in cam frame
      * material: same as original
      */
-    for(const auto& tri: triangles_to_draw){
-      shadeAndDrawTriangle(tri,lights_copy);
-//      pge->DrawTriangle(tri.points2d[0].x(),tri.points2d[0].y(),
-//                        tri.points2d[1].x(),tri.points2d[1].y(),
-//                        tri.points2d[2].x(),tri.points2d[2].y());
+    for(const auto& tri_to_draw: triangles_to_draw){
+      shadeAndDrawTriangle(tri_to_draw, lights_copy);
+//      pge->DrawTriangle(to_draw.points2d[0].x(),to_draw.points2d[0].y(),
+//                        to_draw.points2d[1].x(),to_draw.points2d[1].y(),
+//                        to_draw.points2d[2].x(),to_draw.points2d[2].y());
     }
   }
 }
