@@ -27,7 +27,7 @@ struct Light{
   // parameter tf
   virtual void transformToCam(const Matrix4d &tf)=0;
 
-  virtual Light_ptr clone()=0;
+  virtual Light_ptr clone()const=0;
 };
 
 struct PointLight : public Light{
@@ -45,7 +45,7 @@ struct PointLight : public Light{
    */
   void transformToCam(const Matrix4d &tf) override;
 
-  Light_ptr clone() override;
+  Light_ptr clone() const override;
 };
 
 struct DirectionLight : public Light{
@@ -63,7 +63,7 @@ struct DirectionLight : public Light{
    */
   void transformToCam(const Matrix4d &tf) override;
 
-  Light_ptr clone() override;
+  Light_ptr clone() const override;
 };
 
 } // namespace cg

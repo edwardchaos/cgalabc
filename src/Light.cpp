@@ -26,7 +26,7 @@ void PointLight::transformToCam(const Matrix4d &tf){
   position = tf*position;
 }
 
-Light_ptr PointLight::clone(){
+Light_ptr PointLight::clone() const{
   return std::make_shared<PointLight>(*this);
 }
 
@@ -50,7 +50,7 @@ void DirectionLight::transformToCam(const Matrix4d &tf){
   direction = tf.block(0,0,3,3)*direction;
 }
 
-Light_ptr DirectionLight::clone(){
+Light_ptr DirectionLight::clone() const{
   return std::make_shared<DirectionLight>(*this);
 }
 } // namespace cg
