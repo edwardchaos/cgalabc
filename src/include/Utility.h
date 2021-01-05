@@ -25,6 +25,8 @@ namespace cg{
  */
 Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points);
 
+Mesh_ptr tinyOBJLoad(const std::string& path_to_obj);
+
 std::string getResourcesPath();
 
 // Functions for creating sample meshes for dev/debugging
