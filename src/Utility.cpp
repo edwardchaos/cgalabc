@@ -1,6 +1,8 @@
 #include "Utility.h"
 
 #include <algorithm>
+#include <string>
+#include <sstream>
 
 #include "tiny_obj_loader.h"
 
@@ -17,12 +19,14 @@ std::string getResourcesPath(){
 }
 
 Material_ptr defaultMaterial(){
-  Material_ptr default_mat = std::make_shared<Material>();
+  static Material_ptr default_mat = std::make_shared<Material>();
   std::shared_ptr<olc::Sprite> sprite=std::make_shared<olc::Sprite>();
   if(sprite->loader==nullptr) return default_mat;
 
-  auto tex_path = getResourcesPath() + "sample_textures/rainbow.png";
+  // Default mat has been created already
+  if(default_mat->texture!=nullptr) return default_mat;
 
+  auto tex_path = getResourcesPath() + "sample_textures/rainbow.png";
   sprite->LoadFromFile(tex_path);
   default_mat->texture = sprite;
   return default_mat;
@@ -452,7 +456,6 @@ Vector3d slerp(const Vector3d &from, const Vector3d &to, double s){
 
 std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
                                   const std::string& mtl_search_path){
-
   tinyobj::ObjReaderConfig reader_config;
   reader_config.mtl_search_path = mtl_search_path;
 
@@ -477,6 +480,19 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
   auto& shapes = reader.GetShapes();
   auto& materials = reader.GetMaterials();
 
+  std::vector<Material_ptr> cg_materials;
+  // Loop over materials
+  for(const auto & mat: materials){
+    auto cg_mat = std::make_shared<Material>();
+    cg_mat->ka = Vector3d(mat.ambient[0],mat.ambient[1],mat.ambient[2]);
+    cg_mat->kd = Vector3d(mat.diffuse[0],mat.diffuse[1],mat.diffuse[2]);
+    cg_mat->ks = Vector3d(mat.specular[0],mat.specular[1],mat.specular[2]);
+    cg_mat->ke = Vector3d(mat.emission[0],mat.emission[1],mat.emission[2]);
+    cg_mat->Ns = mat.shininess;
+    // TODO: parse sprite here need to get texture file though
+    cg_materials.push_back(cg_mat);
+  }
+
   std::vector<Mesh_ptr> meshes;
   // Loop over shapes
   for (const auto & shape : shapes) {
@@ -485,9 +501,19 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
     // Loop over faces (polygons/triangles of this object)
     size_t index_offset = 0;
     for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); ++f) {
-      int fv = shape.mesh.num_face_vertices[f];
+      //size_t fv = shape.mesh.num_face_vertices[f];
+      // Always 3 because of triangulation.
+      size_t fv = 3;
 
-      // Loop over vertices in the face.
+      Vector3d points[3], norms[3], colors[3];
+      Vector2d txs[3];
+
+      // ok to assume if one point in triangle has one of these properties,
+      // they all do? eg. pt1 has norm so pt2 must also have norm defined
+      bool has_vert=false, has_norm=false, has_tx=false, has_c=false;
+
+      // Loop over vertices in the face. Always 3 since triangulated
+      assert(fv == 3);
       for (size_t v = 0; v < fv; v++) {
         // access to vertex
         tinyobj::index_t idx = shape.mesh.indices[index_offset + v];
@@ -497,7 +523,6 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
         size_t n_idx = 3*idx.normal_index;
         size_t tx_idx = 2*idx.texcoord_index;
 
-        bool has_vert=false, has_norm=false, has_tx=false, has_c=false;
         tinyobj::real_t vx,vy,vz,nx,ny,nz,tx,ty,r,g,b;
 
         if(v_idx+2 < attrib.vertices.size()) {
@@ -505,17 +530,20 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
           vx = attrib.vertices[v_idx];
           vy = attrib.vertices[v_idx+1];
           vz = attrib.vertices[v_idx+2];
+          points[v] = Vector3d(vx,vy,vz);
         }
         if(n_idx+2 < attrib.normals.size()) {
           has_norm = true;
           nx = attrib.normals[n_idx];
           ny = attrib.normals[n_idx+1];
           nz = attrib.normals[n_idx+2];
+          norms[v] = Vector3d(nx,ny,nz);
         }
         if(tx_idx+1 < attrib.texcoords.size()) {
           has_tx = true;
           tx = attrib.texcoords[tx_idx];
           ty = attrib.texcoords[tx_idx+1];
+          txs[v] = Vector2d(tx,ty);
         }
         if(v_idx+2 < attrib.colors.size()) {
           has_c = true;
@@ -523,14 +551,38 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
           r = attrib.colors[v_idx];
           g = attrib.colors[v_idx+1];
           b = attrib.colors[v_idx+2];
+          colors[v] = Vector3d(r,g,b);
         }
       }
       index_offset += fv;
 
-      // per-face material
+      if(has_vert && has_tx && has_norm){
+        m->tris.emplace_back(points[0],points[1],points[2],
+                             txs[0],txs[1],txs[2],
+                             norms[0],norms[1],norms[2]);
+      }else if(has_vert && has_norm && !has_tx){
+        m->tris.emplace_back(points[0],points[1],points[2],
+                             norms[0],norms[1],norms[2]);
+      }else if(has_vert && has_tx && !has_norm){
+        m->tris.emplace_back(points[0],points[1],points[2],
+                             txs[0],txs[1],txs[2]);
+      }else if(has_vert && !has_tx && !has_norm){
+        m->tris.emplace_back(points[0],points[1],points[2]);
+      }else{
+        std::stringstream error;
+        error << "Obj file is malformed. ";
+        error << "has_vertices: " << has_vert;
+        error << " has_vertex_norms: " << has_norm;
+        error << " has_texel_coords: " << has_tx;
+        throw std::invalid_argument(error.str());
+      }
+
+      // Triangle material is still nullptr, handle it now
       auto mat_id = shape.mesh.material_ids[f];
-      if(mat_id < materials.size()) {
-        auto mat = materials[mat_id];
+      if(mat_id>=0 && mat_id < cg_materials.size()) {
+        m->tris.back().material = cg_materials[mat_id];
+      }else{
+        m->tris.back().material = defaultMaterial();
       }
     }
     meshes.push_back(m);
