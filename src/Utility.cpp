@@ -458,7 +458,7 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
 
   // Since my pipeline only supports triangles, triangulate all polygons to
   // triangles in loading
-  //reader_config.triangulate = true;
+  reader_config.triangulate = true;
 
   tinyobj::ObjReader reader;
 
@@ -529,7 +529,9 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
 
       // per-face material
       auto mat_id = shape.mesh.material_ids[f];
-      auto mat = materials[mat_id];
+      if(mat_id < materials.size()) {
+        auto mat = materials[mat_id];
+      }
     }
     meshes.push_back(m);
   }
