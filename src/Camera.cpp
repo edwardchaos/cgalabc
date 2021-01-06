@@ -458,6 +458,14 @@ void Camera::moveForward(double units){
   pose_world.position += look_dir*units;
 }
 
+void Camera::moveUp(double units){
+  // Extract look dir unit vec (rotation matrix is orthonormal)
+  Vector4d look_dir = pose_world.orientation.col(1);
+
+  // Add look dir to camera's position
+  pose_world.position += look_dir*units;
+}
+
 void Camera::strafeRight(double units){
   // Extract right vector
   Vector4d right_vec = pose_world.orientation.col(0);

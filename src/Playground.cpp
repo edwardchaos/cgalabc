@@ -105,6 +105,14 @@ class CameraApplication: public olc::PixelGameEngine{
       DrawString(50,50, "Yaw Right");
       cam->yawRight(0.005/fElapsedTime);
     }
+    if(GetKey(olc::Key::K).bHeld){
+      DrawString(50,50, "Up");
+      cam->moveUp(0.1/fElapsedTime);
+    }
+    if(GetKey(olc::Key::J).bHeld){
+      DrawString(50,50, "Down");
+      cam->moveUp(-0.1/fElapsedTime);
+    }
   }
 };
 

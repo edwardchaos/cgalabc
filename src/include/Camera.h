@@ -137,6 +137,7 @@ class Camera{
               Vector4d up);
 
   void moveForward(double units);
+  void moveUp(double units);
   void strafeRight(double units);
   // Rotate camera to right by theta in radians
   void yawRight(double theta_radians);
