@@ -9,6 +9,7 @@
 
 #include "Point2d.h"
 #include "Mesh.h"
+#include "type.h"
 
 using Eigen::Matrix4d;
 using Eigen::Vector4d;
@@ -142,11 +143,14 @@ class Camera{
   // Rotate camera to right by theta in radians
   void yawRight(double theta_radians);
 
+  void setShadeMethod(Shade shade_method);
+
   Pose pose_world;
  private:
   // Distance is in units of the world
   double ar_, vertical_fov_, near_plane_dist_, far_plane_dist_;
   int screen_width_, screen_height_;
+  Shade shade_method_;
 
   // Projection matrix
   Matrix4d projection_mat_;
