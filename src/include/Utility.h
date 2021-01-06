@@ -36,8 +36,8 @@ Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points);
  *
  * Files are expected to be located in the resources folder
  */
-Mesh_ptr tinyOBJLoad(const std::string& obj_path,
-                     const std::string& mtl_search_path);
+std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
+                                  const std::string& mtl_search_path);
 
 std::string getResourcesPath();
 

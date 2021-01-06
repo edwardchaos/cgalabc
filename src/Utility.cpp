@@ -450,8 +450,8 @@ Vector3d slerp(const Vector3d &from, const Vector3d &to, double s){
   return alpha*from+beta*to;
 }
 
-Mesh_ptr tinyOBJLoad(const std::string& obj_path,
-                     const std::string& mtl_search_path){
+std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
+                                  const std::string& mtl_search_path){
 
   tinyobj::ObjReaderConfig reader_config;
   reader_config.mtl_search_path = mtl_search_path;
@@ -466,7 +466,7 @@ Mesh_ptr tinyOBJLoad(const std::string& obj_path,
     if (!reader.Error().empty()) {
       std::cerr << "TinyObjReader: " << reader.Error();
     }
-    return nullptr;
+    return {};
   }
 
   if (!reader.Warning().empty()) {
@@ -508,6 +508,6 @@ Mesh_ptr tinyOBJLoad(const std::string& obj_path,
       auto mat = materials[mat_id];
     }
   }
-  return nullptr;
+  return {};
 }
 } // namespace cg
