@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 
+#define TINYOBJLOADER_IMPLEMENTATION //here so float -> double works
 #include "tiny_obj_loader.h"
 
 #include "Point2d.h"
