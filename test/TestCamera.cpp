@@ -68,6 +68,16 @@ TEST(Camera, local_move){
   forward_mat(2,3) -= 3;
   ASSERT_EQ(cam.pose_world.matrix(), forward_mat);
 
+  // Move up
+  cam.moveUp(2);
+  forward_mat(1,3)+=2;
+  ASSERT_EQ(cam.pose_world.matrix(), forward_mat);
+
+  // Move down
+  cam.moveUp(-4);
+  forward_mat(1,3)-=4;
+  ASSERT_EQ(cam.pose_world.matrix(), forward_mat);
+
   // Strafe right, left
   cam.strafeRight(12.3);
   forward_mat(0,3) -= 12.3;
