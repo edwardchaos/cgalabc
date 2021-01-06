@@ -456,8 +456,9 @@ Vector3d slerp(const Vector3d &from, const Vector3d &to, double s){
 }
 
 Vector3d nlerp(const Vector3d &from, const Vector3d &to, double s){
-  auto nlerped = (1-s)*from + s*to;
-  return nlerped.normalized();
+  Vector3d nlerped = (1-s)*from + s*to;
+  nlerped.normalize();
+  return nlerped;
 }
 
 std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
