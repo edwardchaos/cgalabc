@@ -31,6 +31,37 @@ TEST(Utility, load_obj){
   }
 }
 
+TEST(Utility, tinyobjloader){
+  std::string file_path = __FILE__;
+  std::string dir_path = file_path.substr(0, file_path.rfind("/"));
+  dir_path += "/resource/";
+  auto cube_path = dir_path + "cube.obj";
+  auto cube_meshes = cg::tinyOBJLoad(cube_path, dir_path);
+  auto cube_mesh = cg::cube();
+
+  ASSERT_EQ(cube_meshes.size(),1);
+  auto cube = cube_meshes[0];
+
+  for(int i = 0; i < cube->tris.size(); ++i){
+    auto fromfile_tri = cube->tris[i];
+    auto cube_tri = cube_mesh->tris[i];
+
+    for(int i = 0; i < 3; ++i){
+      ASSERT_TRUE(fromfile_tri.points[i].isApprox(cube_tri.points[i]));
+      ASSERT_NEAR(fromfile_tri.material->ka.x(), 0.2, 0.001);
+      ASSERT_NEAR(fromfile_tri.material->ka.y(), 0.3, 0.001);
+      ASSERT_NEAR(fromfile_tri.material->ka.z(), 0.4, 0.001);
+      ASSERT_NEAR(fromfile_tri.material->kd.x(), 0.5, 0.001);
+      ASSERT_NEAR(fromfile_tri.material->kd.y(), 0.6, 0.001);
+      ASSERT_NEAR(fromfile_tri.material->kd.z(), 0.7, 0.001);
+      ASSERT_NEAR(fromfile_tri.material->ks.x(), 0.8, 0.001);
+      ASSERT_NEAR(fromfile_tri.material->ks.y(), 0.9, 0.001);
+      ASSERT_NEAR(fromfile_tri.material->ks.z(), 1.0, 0.001);
+      ASSERT_NEAR(fromfile_tri.material->Ns,7.1, 0.0001);
+    }
+  }
+}
+
 TEST(Utility, rigid_body_motion){
   // Rotations
   auto rotx_mat = cg::rotateX(M_PI/2.0);
