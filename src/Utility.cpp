@@ -455,6 +455,12 @@ Vector3d slerp(const Vector3d &from, const Vector3d &to, double s){
   return alpha*from+beta*to;
 }
 
+Vector3d nlerp(const Vector3d &from, const Vector3d &to, double s){
+  Vector3d nlerped = (1-s)*from + s*to;
+  nlerped.normalize();
+  return nlerped;
+}
+
 std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
                                   const std::string& mtl_search_path){
   tinyobj::ObjReaderConfig reader_config;

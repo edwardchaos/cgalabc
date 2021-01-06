@@ -15,7 +15,7 @@ Renderer::Renderer(olc::PixelGameEngine* p_pge){
 }
 
 void Renderer::clear(){
-  pge->Clear(olc::DARK_GREY);
+  pge->Clear(olc::CYAN);
 
   // reset depth buffer
   for(auto &row:depth_buffer)
@@ -23,7 +23,14 @@ void Renderer::clear(){
 }
 
 void Renderer::draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
-                    const std::unordered_map<std::string, Light_ptr>&lights_world){
+                    const std::unordered_map<std::string,
+                    Light_ptr>&lights_world,
+                    Shade shading_method){
+  if(shading_method!=FLAT && shading_method!=BLINN_PHONG)
+    throw std::logic_error("Shading method argument is not supported.");
+
+  shading_method = shading_method;
+  cam->setShadeMethod(shading_method);
   for(const auto& tri : mesh->tris){
     // Mesh points are kept as they are when they're first loaded.
     // Transformations on meshes affect their pose
@@ -79,6 +86,7 @@ void Renderer::shadeAndDrawTriangle(
   auto n1 = tri.vertex_normals[0];
   auto n2 = tri.vertex_normals[1];
   auto n3 = tri.vertex_normals[2];
+  auto face_norm = tri.face_unit_normal();
 
   // Sort 2D triangle vertices from top to bottom pt1 top, pt2 mid, pt3 bottom
   if(p2y < p1y){
@@ -145,9 +153,12 @@ void Renderer::shadeAndDrawTriangle(
       double stx_w = tx1.z() + w12 * d_vertical12;
       double etx_w = tx1.z() + w13 * d_vertical13;
 
+      Vector3d snorm, enorm;
       // Start and end of normals
-      Vector3d snorm = slerp(n1, n2, d_vertical12);
-      Vector3d enorm = slerp(n1, n3, d_vertical13);
+      if(shading_method_==BLINN_PHONG){
+        snorm = slerp(n1, n2, d_vertical12);
+        enorm = slerp(n1, n3, d_vertical13);
+      }
 
       // Start and end of 3d points in camera frame
       Vector3d s3d = pt1_3d + pt12_3d * d_vertical12;
@@ -165,7 +176,10 @@ void Renderer::shadeAndDrawTriangle(
         // 3D point along the horizontal
         Vector3d pt3d = s3d + (e3d - s3d) * d_horizontal;
         // point normal along the horizontal
-        Vector3d norm = slerp(snorm, enorm, d_horizontal);
+        Vector3d norm;
+        if(shading_method_==BLINN_PHONG)
+        norm = slerp(snorm, enorm, d_horizontal);
+        else norm=face_norm;
 
         // direction from point to light source
         Vector3d dir_2_light = -light->getDirection(pt3d);
@@ -173,7 +187,7 @@ void Renderer::shadeAndDrawTriangle(
         Vector3d dir_2_cam = -pt3d; // point should already be in camera frame
         dir_2_cam.normalize();
         // Compute halfway vector between point to camera and point to light
-        auto halfway = slerp(dir_2_light, dir_2_cam, 0.5);
+        auto halfway = nlerp(dir_2_light, dir_2_cam, 0.5);
 
         // Pick texel color
         if (sx != ex) d_horizontal = (double) dx / (double) (ex - sx);
@@ -247,8 +261,12 @@ void Renderer::shadeAndDrawTriangle(
       double etx_w = tx1.z() + w13 * d_vertical13;
 
       // Start and end of normals
-      Vector3d snorm = slerp(n2, n3, d_vertical23);
-      Vector3d enorm = slerp(n1, n3, d_vertical13);
+      Vector3d snorm, enorm;
+      // Start and end of normals
+      if(shading_method_==BLINN_PHONG){
+        snorm = slerp(n1, n2, d_vertical23);
+        enorm = slerp(n1, n3, d_vertical13);
+      }
 
       // Start and end of 3d points in camera frame
       Vector3d s3d = pt2_3d + pt23_3d * d_vertical23;
@@ -270,7 +288,10 @@ void Renderer::shadeAndDrawTriangle(
         // 3D point along the horizontal
         Vector3d pt3d = s3d + (e3d - s3d) * d_horizontal;
         // point normal along the horizontal
-        Vector3d norm = slerp(snorm, enorm, d_horizontal);
+        Vector3d norm;
+        if(shading_method_==BLINN_PHONG)
+          norm = slerp(snorm, enorm, d_horizontal);
+        else norm=face_norm;
 
         // direction from point to light source
         Vector3d dir_2_light = -light->getDirection(pt3d);
@@ -278,7 +299,7 @@ void Renderer::shadeAndDrawTriangle(
         Vector3d dir_2_cam = -pt3d; // point should already be in camera frame
         dir_2_cam.normalize();
         // Compute halfway vector between point to camera and point to light
-        auto halfway = slerp(dir_2_light, dir_2_cam, 0.5);
+        auto halfway = nlerp(dir_2_light, dir_2_cam, 0.5);
 
         // Pick texel color
         double interp_texel_w = stx_w + (etx_w - stx_w) * d_horizontal;
@@ -331,18 +352,16 @@ Vector3d Renderer::shade(
 
   double n_dot_l = surface_normal.dot(point_to_light);
 
-  Vector3d ambiance = material_ambience.cwiseProduct(light_ambience);
-  Vector3d diffuse = material_diffuse.cwiseProduct(light_diffuse)
-      * std::max(n_dot_l, 0.0);
-  Vector3d amb_dif_emit = ambiance+diffuse+material_emittance;
-  Vector3d with_texture = amb_dif_emit.cwiseProduct(color_from_texture);
-  Vector3d I_rgb = with_texture;
+  Vector3d I_rgb =
+      ((material_ambience.cwiseProduct(light_ambience))
+      +(material_diffuse.cwiseProduct(light_diffuse)
+      * std::max(n_dot_l, 0.0))+material_emittance)
+      .cwiseProduct(color_from_texture);
 
   // Shouldn't have specular reflection if light is behind surface right??
   if(n_dot_l > 0){
-    Vector3d spec = material_specular.cwiseProduct(light_specular)
-    * pow(surface_normal.dot(cam_2_light_halfway),glossiness_exponent);
-    I_rgb += spec;
+    I_rgb += material_specular.cwiseProduct(light_specular)
+        * pow(surface_normal.dot(cam_2_light_halfway),glossiness_exponent);
   }
 
   // Clip rgb to max 1.0

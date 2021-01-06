@@ -106,4 +106,10 @@ std::shared_ptr<Vector2d> lineLineIntersect2d(
  * when s==1, result is 'to'
  */
 Vector3d slerp(const Vector3d &from, const Vector3d &to, double s);
+
+/*
+ * normalized linear interpolation produces exact same result as slerp when
+ * s=0.5 and is faster.
+ */
+Vector3d nlerp(const Vector3d &from, const Vector3d &to, double s);
 } // namespace cg

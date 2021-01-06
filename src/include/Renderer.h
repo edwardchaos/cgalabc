@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "Camera.h"
 #include "Light.h"
+#include "type.h"
 
 namespace cg{
 
@@ -31,9 +32,16 @@ class Renderer : public olc::PGEX{
    * Renders the image viewed of a mesh from a camera
    * Depth buffer is only cleared with this->clear(), so repeated calls
    * with multiple meshes produce occlusion
+   *
+   * args:
+   * cam: The camera to view with
+   * mesh: The mesh to draw
+   * lights: lights in the scene
+   * shading_method: cg::FLAT, cg::BLINN_PHONG
    */
   void draw(const Camera_ptr &cam, const Mesh_ptr &mesh,
-            const std::unordered_map<std::string, Light_ptr> &lights);
+            const std::unordered_map<std::string, Light_ptr> &lights,
+            Shade shading_method=FLAT);
 
   void shadeAndDrawTriangle(
       const Triangle& triangle,
@@ -96,6 +104,7 @@ class Renderer : public olc::PGEX{
 
  private:
   std::vector<std::vector<double>> depth_buffer;
+  Shade shading_method_=FLAT;
 };
 
 } //namespace cg

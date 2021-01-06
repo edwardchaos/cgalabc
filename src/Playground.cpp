@@ -23,6 +23,10 @@ class CameraApplication: public olc::PixelGameEngine{
 
     lights.emplace("dir_light",
                    std::make_shared<cg::DirectionLight>(Vector3d(1,-1,1)));
+    Vector3d light_brightness(1.7,1.7,1.7);
+    lights.at("dir_light")->La = light_brightness;
+    lights.at("dir_light")->Ld = light_brightness;
+    lights.at("dir_light")->Ls = light_brightness;
 
     renderer = std::make_unique<cg::Renderer>(this);
 
