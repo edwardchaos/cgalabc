@@ -152,6 +152,7 @@ vTriangle Camera::clipNear(const Triangle& tri_cam) const{
     auto next_tx = tri_cam.t[next_idx].head<2>();
     auto cur_norm = tri_cam.vertex_normals[cur_idx];
     auto next_norm = tri_cam.vertex_normals[next_idx];
+    auto face_norm = tri_cam.face_unit_normal();
 
     // Add current point in 'In' or 'Out'?
     if(cur_pt.z() > -near_plane_dist_){
@@ -160,14 +161,16 @@ vTriangle Camera::clipNear(const Triangle& tri_cam) const{
       if (out.empty() || (!out.empty() && !cur_pt.isApprox(out.back()))){
         out.emplace_back(cur_pt);
         out_t.emplace_back(cur_tx);
-        out_norm.emplace_back(cur_norm);
+        if(shade_method_==FLAT) out_norm.emplace_back(face_norm);
+        else out_norm.emplace_back(cur_norm);
       }
     }
       // 'In' side
     else if(in.empty() || (!in.empty() && !cur_pt.isApprox(in.back()))){
       in.emplace_back(cur_pt);
       in_t.emplace_back(cur_tx);
-      in_norm.emplace_back(cur_norm);
+      if(shade_method_==FLAT) in_norm.emplace_back(face_norm);
+      else in_norm.emplace_back(cur_norm);
     }
 
     double t;
@@ -185,13 +188,15 @@ vTriangle Camera::clipNear(const Triangle& tri_cam) const{
       out_t.emplace_back(int_tx);
 
       // Also interpolate the normal vector
-      if(cur_norm.isApprox(next_norm)){
-        in_norm.emplace_back(cur_norm);
-        out_norm.emplace_back(cur_norm);
-      }else{
+      if(shade_method_==FLAT){
+        in_norm.emplace_back(face_norm);
+        out_norm.emplace_back(face_norm);
+      }else if(shade_method_==BLINN_PHONG){
         auto slerped_norm = slerp(cur_norm,next_norm,t);
         in_norm.emplace_back(slerped_norm);
         out_norm.emplace_back(slerped_norm);
+      }else{
+        throw std::logic_error("Camera does not have a valid shade method");
       }
     }
   }
@@ -325,6 +330,7 @@ vTriangle Camera::clip2DEdge(const Vector2d &edge_unit_normal,
       // Vertex normals
       auto cur_norm = tri.vertex_normals[cur_idx];
       auto next_norm = tri.vertex_normals[next_idx];
+      auto face_norm = tri.face_unit_normal();
 
       // Add current point in 'In' or 'Out'?
       if(d[cur_idx] < -EPS) { // 'Out' side
@@ -333,16 +339,18 @@ vTriangle Camera::clip2DEdge(const Vector2d &edge_unit_normal,
         if (out.empty() || (!out.empty() && !cur_pt.isApprox(out.back()))){
           out.emplace_back(cur_pt);
           out_t.emplace_back(cur_tx);
-          out_norm.emplace_back(cur_norm);
           out_3d.emplace_back(cur_pt3d);
+          if(shade_method_==FLAT) out_norm.emplace_back(face_norm);
+          else out_norm.emplace_back(cur_norm);
         }
       }
       // 'In' side
       else if(in.empty() || (!in.empty() && !cur_pt.isApprox(in.back()))){
         in.emplace_back(cur_pt);
         in_t.emplace_back(cur_tx);
-        in_norm.emplace_back(cur_norm);
         in_3d.emplace_back(cur_pt3d);
+        if(shade_method_==FLAT) in_norm.emplace_back(face_norm);
+        else in_norm.emplace_back(cur_norm);
       }
 
       double t;
@@ -370,14 +378,15 @@ vTriangle Camera::clip2DEdge(const Vector2d &edge_unit_normal,
         in_3d.emplace_back(int_3d);
         out_3d.emplace_back(int_3d);
 
-        // Also interpolate the normal vector
-        if(cur_norm.isApprox(next_norm)){
-          in_norm.emplace_back(cur_norm);
-          out_norm.emplace_back(cur_norm);
-        }else{
+        if(shade_method_==FLAT){
+          in_norm.emplace_back(face_norm);
+          out_norm.emplace_back(face_norm);
+        }else if(shade_method_==BLINN_PHONG){
           auto slerped_norm = slerp(cur_norm,next_norm,t);
           in_norm.emplace_back(slerped_norm);
           out_norm.emplace_back(slerped_norm);
+        }else{
+          throw std::logic_error("Camera does not have a valid shade method");
         }
       }
     }
@@ -476,6 +485,10 @@ void Camera::strafeRight(double units){
 
 void Camera::yawRight(double theta_radians){
   pose_world.orientation *= rotateY(-theta_radians);
+}
+
+void Camera::setShadeMethod(Shade shade_method){
+  shade_method_=shade_method;
 }
 
 } // namespace cg
