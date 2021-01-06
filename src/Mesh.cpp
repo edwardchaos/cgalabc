@@ -50,6 +50,9 @@ Triangle::Triangle(
   vertex_normals[0] = norm1;
   vertex_normals[1] = norm2;
   vertex_normals[2] = norm3;
+  vertex_normals[0].normalize();
+  vertex_normals[1].normalize();
+  vertex_normals[2].normalize();
 
   defaultTextureMap();
   default2DPoints();
@@ -76,6 +79,9 @@ Triangle::Triangle(
   vertex_normals[0] = norm1;
   vertex_normals[1] = norm2;
   vertex_normals[2] = norm3;
+  vertex_normals[0].normalize();
+  vertex_normals[1].normalize();
+  vertex_normals[2].normalize();
 
   default2DPoints();
 }

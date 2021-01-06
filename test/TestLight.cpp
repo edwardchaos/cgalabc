@@ -52,8 +52,11 @@ TEST(Light, clone_transform){
   auto cloned_directional_dir = cloned_dir_light->getDirection(Vector3d(0,0,0));
   auto cloned_pt_dir = cloned_pt_light->getDirection(Vector3d(0,0,0));
 
+  // Original light is unaffected by transformation
   ASSERT_TRUE(directional_dir.isApprox(Vector3d(1,1,1).normalized()));
   ASSERT_TRUE(point_dir.isApprox(Vector3d(-1,-1,0).normalized()));
+
+  // Cloned lights are correctly transformed
   ASSERT_TRUE(cloned_directional_dir.isApprox(Vector3d(-1,1,-1).normalized()));
   ASSERT_TRUE(cloned_pt_dir.isApprox(Vector3d(1,-1,-5).normalized()));
 }

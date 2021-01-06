@@ -6,6 +6,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 enable_testing()
 
+include_directories(lib)
 include_directories(src/include)
 include_directories(lib/olcPixelGameEngine)
 include_directories(lib/eigen-3.3.9)

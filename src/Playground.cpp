@@ -28,34 +28,44 @@ class CameraApplication: public olc::PixelGameEngine{
 
     //meshes.emplace("spyro", cg::spyro());
     //meshes.emplace("teddy", cg::teddy());
-    meshes.emplace("teapot", cg::teapot());
+    //meshes.emplace("teapot", cg::teapot());
     //meshes.emplace("cube", cg::cube());
     //meshes.emplace("simple_tri", cg::simpleTriangle());
     //meshes.emplace("thin_triangles" ,cg::thinTriangles());
     //meshes.emplace("axis",cg::worldAxis());
 
+//    auto res_path = cg::getResourcesPath();
+//    auto axis_path = res_path + "sample_models/spyro.obj";
+//    auto loaded_meshes = cg::tinyOBJLoad(axis_path,res_path+"sample_models/");
+    std::string obj_path=
+        "/home/shooshan/Documents/objs/spyro_artisans/artisans_hub.obj";
+    std::string mtl_path=
+        "/home/shooshan/Documents/objs/spyro_artisans/";
+    auto loaded_meshes = cg::tinyOBJLoad(obj_path,mtl_path);
+    for(const auto &loaded_mesh: loaded_meshes){
+      meshes.emplace("test_load", loaded_mesh);
+    }
+
     return true;
   }
 
   bool OnUserUpdate(float fElapsedTime) override {
-    double z_rot = 0.0001/fElapsedTime;
-    double x_rot = 0.0001/fElapsedTime;
-    double y_rot = 0.0001/fElapsedTime;
-
-    auto rotx_mat = cg::rotateX(x_rot);
-    auto roty_mat = cg::rotateY(y_rot);
-    auto rotz_mat = cg::rotateZ(z_rot);
+//    double z_rot = 0.0001/fElapsedTime;
+//    double x_rot = 0.0001/fElapsedTime;
+//    double y_rot = 0.0001/fElapsedTime;
+//
+//    auto rotx_mat = cg::rotateX(x_rot);
+//    auto roty_mat = cg::rotateY(y_rot);
+//    auto rotz_mat = cg::rotateZ(z_rot);
 
     renderer->clear();
     // Handle keyboard input
     handleCameraMotion(cams.at("ego"), fElapsedTime);
 
     for(auto &mesh : meshes) {
-      mesh.second->pose.position = cg::translation(0, 0, 5).rightCols<1>();
-      mesh.second->pose.orientation =
-          rotx_mat*roty_mat*rotz_mat*mesh.second->pose.orientation;
-      //Eigen::Matrix4d tf = mesh.second->pose.matrix();
-      Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+      mesh.second->pose.position = cg::translation(0, -10, 50).rightCols<1>();
+//      mesh.second->pose.orientation =
+//          rotx_mat*roty_mat*rotz_mat*mesh.second->pose.orientation;
 
       // Render mesh in camera 'ego'
       renderer->draw(cams.at("ego"), mesh.second, lights);
@@ -73,27 +83,27 @@ class CameraApplication: public olc::PixelGameEngine{
   void handleCameraMotion(const cg::Camera_ptr &cam, double fElapsedTime){
     if(GetKey(olc::Key::E).bHeld){
       DrawString(50,50, "Forward");
-      cam->moveForward(0.001/fElapsedTime);
+      cam->moveForward(0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::S).bHeld){
       DrawString(50,50, "Strafe Left");
-      cam->strafeRight(-0.001/fElapsedTime);
+      cam->strafeRight(-0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::D).bHeld){
       DrawString(50,50, "Back");
-      cam->moveForward(-0.001/fElapsedTime);
+      cam->moveForward(-0.1/fElapsedTime);
     }
     if(GetKey(olc::Key::F).bHeld){
       DrawString(50,50, "Strafe Right");
-      cam->strafeRight(0.001/fElapsedTime);
+      cam->strafeRight(0.1/fElapsedTime);
     }
-    if(GetKey(olc::Key::J).bHeld){
+    if(GetKey(olc::Key::H).bHeld){
       DrawString(50,50, "Yaw Left");
-      cam->yawRight(-0.0005/fElapsedTime);
+      cam->yawRight(-0.005/fElapsedTime);
     }
-    if(GetKey(olc::Key::K).bHeld){
+    if(GetKey(olc::Key::L).bHeld){
       DrawString(50,50, "Yaw Right");
-      cam->yawRight(0.0005/fElapsedTime);
+      cam->yawRight(0.005/fElapsedTime);
     }
   }
 };

@@ -3,6 +3,7 @@ set (BINARY ${CMAKE_PROJECT_NAME})
 
 set (SOURCES
         olcPixelGameEngine.cpp
+        tinyOBJLoader.cpp
         type.cpp
         Point2d.cpp
         Line2d.cpp

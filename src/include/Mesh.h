@@ -65,5 +65,6 @@ struct Triangle{
 struct Mesh{
   vTriangle tris;
   Pose pose;
+  std::string name;
 };
 } // namespace cg

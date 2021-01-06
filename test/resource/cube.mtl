@@ -1,0 +1,7 @@
+newmtl cube_mat
+Ka  0.2 0.3 0.4
+Kd  0.5 0.6 0.7
+Ks  0.8 0.9 1.0
+d  1.0
+Ns  7.1
+illum 2

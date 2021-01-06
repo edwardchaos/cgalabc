@@ -25,6 +25,20 @@ namespace cg{
  */
 Mesh_ptr loadOBJ(const std::string& path_to_obj, bool ccw_points);
 
+/*
+ * Loads an obj and corresponding material with the tiny_obj_loader single
+ * header api
+ * https://github.com/tinyobjloader/tinyobjloader
+ *
+ * Args
+ * obj_path: full path to the obj file eg. "/home/user/cube.obj"
+ * mtl_search_path: full path to material files eg. "/home/user/mats/"
+ *
+ * Files are expected to be located in the resources folder
+ */
+std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
+                                  const std::string& mtl_search_path);
+
 std::string getResourcesPath();
 
 // Functions for creating sample meshes for dev/debugging
