@@ -28,11 +28,15 @@ class CameraApplication: public olc::PixelGameEngine{
 
     //meshes.emplace("spyro", cg::spyro());
     //meshes.emplace("teddy", cg::teddy());
-    meshes.emplace("teapot", cg::teapot());
+    //meshes.emplace("teapot", cg::teapot());
     //meshes.emplace("cube", cg::cube());
     //meshes.emplace("simple_tri", cg::simpleTriangle());
     //meshes.emplace("thin_triangles" ,cg::thinTriangles());
     //meshes.emplace("axis",cg::worldAxis());
+
+    auto res_path = cg::getResourcesPath();
+    auto axis_path = res_path + "sample_models/teapot.obj";
+    cg::tinyOBJLoad(axis_path,"");
 
     return true;
   }

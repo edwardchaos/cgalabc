@@ -458,7 +458,7 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
 
   // Since my pipeline only supports triangles, triangulate all polygons to
   // triangles in loading
-  reader_config.triangulate = true;
+  //reader_config.triangulate = true;
 
   tinyobj::ObjReader reader;
 
@@ -477,9 +477,12 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
   auto& shapes = reader.GetShapes();
   auto& materials = reader.GetMaterials();
 
+  std::vector<Mesh_ptr> meshes;
   // Loop over shapes
   for (const auto & shape : shapes) {
-    // Loop over faces (polygon)
+    Mesh_ptr m = std::make_shared<Mesh>();
+
+    // Loop over faces (polygons/triangles of this object)
     size_t index_offset = 0;
     for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); ++f) {
       int fv = shape.mesh.num_face_vertices[f];
@@ -488,18 +491,39 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
       for (size_t v = 0; v < fv; v++) {
         // access to vertex
         tinyobj::index_t idx = shape.mesh.indices[index_offset + v];
-        tinyobj::real_t vx = attrib.vertices[3*idx.vertex_index+0];
-        tinyobj::real_t vy = attrib.vertices[3*idx.vertex_index+1];
-        tinyobj::real_t vz = attrib.vertices[3*idx.vertex_index+2];
-        tinyobj::real_t nx = attrib.normals[3*idx.normal_index+0];
-        tinyobj::real_t ny = attrib.normals[3*idx.normal_index+1];
-        tinyobj::real_t nz = attrib.normals[3*idx.normal_index+2];
-        tinyobj::real_t tx = attrib.texcoords[2*idx.texcoord_index+0];
-        tinyobj::real_t ty = attrib.texcoords[2*idx.texcoord_index+1];
-        // Optional: vertex colors
-        // tinyobj::real_t red = attrib.colors[3*idx.vertex_index+0];
-        // tinyobj::real_t green = attrib.colors[3*idx.vertex_index+1];
-        // tinyobj::real_t blue = attrib.colors[3*idx.vertex_index+2];
+
+        // Note: tinyobj real_t is float/double (see tinyOBJLoader.cpp)
+        size_t v_idx = 3*idx.vertex_index;
+        size_t n_idx = 3*idx.normal_index;
+        size_t tx_idx = 2*idx.texcoord_index;
+
+        bool has_vert=false, has_norm=false, has_tx=false, has_c=false;
+        tinyobj::real_t vx,vy,vz,nx,ny,nz,tx,ty,r,g,b;
+
+        if(v_idx+2 < attrib.vertices.size()) {
+          has_vert = true;
+          vx = attrib.vertices[v_idx];
+          vy = attrib.vertices[v_idx+1];
+          vz = attrib.vertices[v_idx+2];
+        }
+        if(n_idx+2 < attrib.normals.size()) {
+          has_norm = true;
+          nx = attrib.normals[n_idx];
+          ny = attrib.normals[n_idx+1];
+          nz = attrib.normals[n_idx+2];
+        }
+        if(tx_idx+1 < attrib.texcoords.size()) {
+          has_tx = true;
+          tx = attrib.texcoords[tx_idx];
+          ty = attrib.texcoords[tx_idx+1];
+        }
+        if(v_idx+2 < attrib.colors.size()) {
+          has_c = true;
+          // Optional: vertex colors
+          r = attrib.colors[v_idx];
+          g = attrib.colors[v_idx+1];
+          b = attrib.colors[v_idx+2];
+        }
       }
       index_offset += fv;
 
@@ -507,7 +531,8 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
       auto mat_id = shape.mesh.material_ids[f];
       auto mat = materials[mat_id];
     }
+    meshes.push_back(m);
   }
-  return {};
+  return meshes;
 }
 } // namespace cg
