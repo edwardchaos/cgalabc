@@ -550,7 +550,7 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
         if(tx_idx+1 < attrib.texcoords.size()) {
           has_tx = true;
           tx = attrib.texcoords[tx_idx];
-          ty = attrib.texcoords[tx_idx+1];
+          ty = 1-attrib.texcoords[tx_idx+1];
           txs[v] = Vector2d(tx,ty);
         }
         if(v_idx+2 < attrib.colors.size()) {
