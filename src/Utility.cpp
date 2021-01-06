@@ -489,7 +489,15 @@ std::vector<Mesh_ptr> tinyOBJLoad(const std::string& obj_path,
     cg_mat->ks = Vector3d(mat.specular[0],mat.specular[1],mat.specular[2]);
     cg_mat->ke = Vector3d(mat.emission[0],mat.emission[1],mat.emission[2]);
     cg_mat->Ns = mat.shininess;
-    // TODO: parse sprite here need to get texture file though
+
+    if(!mat.diffuse_texname.empty()) {
+      std::shared_ptr<olc::Sprite> sprite=std::make_shared<olc::Sprite>();
+      //if(sprite->loader!=nullptr)
+      auto tex_path = mtl_search_path + mat.diffuse_texname;
+      sprite->LoadFromFile(tex_path);
+      cg_mat->texture = sprite;
+    }
+
     cg_materials.push_back(cg_mat);
   }
 
