@@ -15,7 +15,7 @@ Renderer::Renderer(olc::PixelGameEngine* p_pge){
 }
 
 void Renderer::clear(){
-  pge->Clear(olc::DARK_GREY);
+  pge->Clear(olc::CYAN);
 
   // reset depth buffer
   for(auto &row:depth_buffer)
