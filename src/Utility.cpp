@@ -10,6 +10,7 @@ namespace cg{
 
 std::string getResourcesPath(){
   std::string file_path = __FILE__;
+  // TODO: probably wouldn't work in windows cause windows uses '\'
   std::string dir_path = file_path.substr(0, file_path.rfind("/"));
   dir_path += "/../resources/";
   return dir_path;
@@ -449,18 +450,23 @@ Vector3d slerp(const Vector3d &from, const Vector3d &to, double s){
   return alpha*from+beta*to;
 }
 
-Mesh_ptr tinyOBJLoad(const std::string& path_to_obj){
-  std::string inputfile = "cornell_box.obj";
+Mesh_ptr tinyOBJLoad(const std::string& obj_path,
+                     const std::string& mtl_search_path){
+
   tinyobj::ObjReaderConfig reader_config;
-  reader_config.mtl_search_path = "./"; // Path to material files
+  reader_config.mtl_search_path = mtl_search_path;
+
+  // Since my pipeline only supports triangles, triangulate all polygons to
+  // triangles in loading
+  reader_config.triangulate = true;
 
   tinyobj::ObjReader reader;
 
-  if (!reader.ParseFromFile(inputfile, reader_config)) {
+  if (!reader.ParseFromFile(obj_path, reader_config)) {
     if (!reader.Error().empty()) {
       std::cerr << "TinyObjReader: " << reader.Error();
     }
-    exit(1);
+    return nullptr;
   }
 
   if (!reader.Warning().empty()) {
@@ -471,17 +477,17 @@ Mesh_ptr tinyOBJLoad(const std::string& path_to_obj){
   auto& shapes = reader.GetShapes();
   auto& materials = reader.GetMaterials();
 
-// Loop over shapes
-  for (size_t s = 0; s < shapes.size(); s++) {
-    // Loop over faces(polygon)
+  // Loop over shapes
+  for (const auto & shape : shapes) {
+    // Loop over faces (polygon)
     size_t index_offset = 0;
-    for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
-      int fv = shapes[s].mesh.num_face_vertices[f];
+    for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); ++f) {
+      int fv = shape.mesh.num_face_vertices[f];
 
       // Loop over vertices in the face.
       for (size_t v = 0; v < fv; v++) {
         // access to vertex
-        tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+        tinyobj::index_t idx = shape.mesh.indices[index_offset + v];
         tinyobj::real_t vx = attrib.vertices[3*idx.vertex_index+0];
         tinyobj::real_t vy = attrib.vertices[3*idx.vertex_index+1];
         tinyobj::real_t vz = attrib.vertices[3*idx.vertex_index+2];
@@ -498,7 +504,8 @@ Mesh_ptr tinyOBJLoad(const std::string& path_to_obj){
       index_offset += fv;
 
       // per-face material
-      shapes[s].mesh.material_ids[f];
+      auto mat_id = shape.mesh.material_ids[f];
+      auto mat = materials[mat_id];
     }
   }
   return nullptr;
