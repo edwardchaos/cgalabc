@@ -36,7 +36,10 @@ class CameraApplication: public olc::PixelGameEngine{
 
     auto res_path = cg::getResourcesPath();
     auto axis_path = res_path + "sample_models/teapot.obj";
-    cg::tinyOBJLoad(axis_path,"");
+    auto loaded_meshes = cg::tinyOBJLoad(axis_path,"");
+    for(const auto &loaded_mesh: loaded_meshes){
+      meshes.emplace("test_load", loaded_mesh);
+    }
 
     return true;
   }
